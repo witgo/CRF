@@ -19,7 +19,7 @@ interface EdgeIterator {
     boolean nextIsOuter(); // returns true if the next edge it will return is outer
 };
 
-public abstract class Model implements Serializable {
+public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     int numLabels;
     public String name;
     Model(int nlabels) {

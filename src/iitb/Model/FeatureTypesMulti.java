@@ -1,66 +1,53 @@
 /*
  * Created on Dec 4, 2004
  *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package iitb.Model;
 
 import iitb.CRF.DataSequence;
 
 /**
- * @author Administrator
+ * @author Sunita Sarawagi
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 
 /*
  * Implements the bag of features model for a given input sequence
  */
-public class FeatureTypesMulti extends FeatureTypes {
+public class FeatureTypesMulti extends FeatureTypesWrapper {
     private static final long serialVersionUID = 10L;
-	FeatureTypes single;
     int currPos;
     int segEnd;
     transient DataSequence dataSeq;
-
+    
     public FeatureTypesMulti(FeatureTypes s) {
-	super(s);
-	single = s;
+        super(s);
     }
     void advance() {
-	while (true) {
-	    if (single.hasNext())
-		return;
-	    currPos++;
-	    if (currPos > segEnd)
-		return;
-	    single.startScanFeaturesAt(dataSeq,currPos-1,currPos);
-	}
+        while (true) {
+            if (ftype.hasNext())
+                return;
+            currPos++;
+            if (currPos > segEnd)
+                return;
+            ftype.startScanFeaturesAt(dataSeq,currPos-1,currPos);
+        }
     }
     public  boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-	currPos = prevPos+1;
-	segEnd = pos;
-	dataSeq = data;
-	single.startScanFeaturesAt(data,prevPos,prevPos+1);
-	advance();
-	return single.hasNext();
+        currPos = prevPos+1;
+        segEnd = pos;
+        dataSeq = data;
+        ftype.startScanFeaturesAt(data,prevPos,prevPos+1);
+        advance();
+        return ftype.hasNext();
     }
     public boolean hasNext() {
-	return (currPos <= segEnd) && single.hasNext();
+        return (currPos <= segEnd) && ftype.hasNext();
     }
     public void next(FeatureImpl f) {
-	single.next(f);
-	advance();
+        ftype.next(f);
+        advance();
     }
-
-	public boolean requiresTraining() {
-		return single.requiresTraining();
-	}
-	public void train(DataSequence data, int pos) {
-		single.train(data, pos);
-	}
 };
 
-  
+

@@ -9,7 +9,7 @@ import java.util.*;
  */ 
 
 class CollinsTrainer extends Trainer {
-    int beamsize = 2;
+    int beamsize = 3;
     double beta = 0.05;
     boolean useUpdated = false;
     boolean voted = true;

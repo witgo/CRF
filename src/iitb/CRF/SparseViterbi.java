@@ -49,7 +49,6 @@ class SparseViterbi extends Viterbi {
     };
     
     Context context[];
-    Entry finalSoln;
     //    SparseDoubleMatrix2D Mi;
     LogSparseDoubleMatrix1D Ri;
     ObjectArrayList prevContext = new ObjectArrayList();

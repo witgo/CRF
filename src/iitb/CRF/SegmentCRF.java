@@ -6,6 +6,7 @@
  */
 package iitb.CRF;
 
+import gnu.trove.TIntArrayList;
 import gnu.trove.TIntFloatHashMap;
 
 /**
@@ -25,6 +26,19 @@ public class SegmentCRF extends CRF {
 		featureGenNested = fgen;
 		segmentViterbi = new SegmentViterbi(this,1);
 	}
+	public interface ModelGraph {
+	    public int numStates();
+	    public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
+	    throws Exception;
+	};
+	/*
+	public SegmentCRF(int numLabels, FeatureGeneratorNested fgen, FeatureGenerator markovGen, 
+	        ModelGraph modelGraph, java.util.Properties configOptions) {
+		super(numLabels,fgen,configOptions);
+		combinedFeatureCache = new CombinedFeatureCache(numLabels,fgen,markovGen, modelGraph);
+		featureGenNested = combinedFeatureCache;
+		segmentViterbi = new SegmentViterbi(this,1);
+	}*/
 	protected Trainer getTrainer() {
 		if (params.trainerType.startsWith("SegmentCollins"))
 			return new NestedCollinsTrainer(params);

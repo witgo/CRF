@@ -145,6 +145,7 @@ class Viterbi implements Serializable {
 	    Trainer.computeLogMi(model.featureGenerator,lambda,dataSeq,i,Mi,Ri,false);
 	    for (int yi = 0; yi < numY; yi++) {
 		winningLabel[yi][i].clear();
+		winningLabel[yi][i].valid = true;
 	    }
 	    for (int yi = model.edgeGen.firstY(i); yi < numY; yi = model.edgeGen.nextY(yi,i)) {
 		if (i > 0) {
@@ -190,6 +191,7 @@ class Viterbi implements Serializable {
 	double corrScore = fillArray(dataSeq, lambda,calcCorrectScore);
 
 	finalSoln.clear();
+	finalSoln.valid = true;
 	for (int yi = 0; yi < model.numY; yi++) {
 	    finalSoln.add(winningLabel[yi][dataSeq.length()-1], 0);
 	}

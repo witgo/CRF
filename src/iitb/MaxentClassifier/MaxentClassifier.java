@@ -26,7 +26,10 @@ public class MaxentClassifier {
     }
     void train(String trainFile) throws IOException {
 	// read training data from the  given file.
-	crfModel.train(new DataSet(FileData.read(trainFile,dataDesc)));
+        double params[] = crfModel.train(new DataSet(FileData.read(trainFile,dataDesc)));
+        System.out.println("Trained model");
+        for (int i = 0; i < params.length; i++)
+            System.out.println(featureGen.featureName(i) + " " + params[i]);
     }
     void test(String testFile)  throws IOException {
 	FileData fData = new FileData();
