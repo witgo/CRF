@@ -47,11 +47,15 @@ public abstract class FeatureTypes implements Serializable {
     int offsetLabelIndependentId(FeatureImpl f) {
     	return (labelIndependentId(f)-thisTypeId)/offset;
     }
+    static int featureTypeId(FeatureImpl f) {
+        return f.strId.id % offset;
+    }
     public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
     public int maxFeatureId() {return Integer.MAX_VALUE;}
     private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException  {
         s.defaultReadObject();
         offset = Math.max(offset,thisTypeId+1);
     }
+    public int getTypeId() {return thisTypeId;}
 };
 
