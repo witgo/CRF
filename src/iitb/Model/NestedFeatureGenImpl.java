@@ -53,6 +53,7 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
     public void startScanFeaturesAt(DataSequence d, int prevPos, int pos) {
 	data = d;
 	cposEnd = pos;
+	cposStart = prevPos+1;
 	for (int i = 0; i < features.size(); i++) {
 	    getFeature(i).startScanFeaturesAt(data,prevPos,cposEnd);
 	}
