@@ -58,16 +58,23 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 *      in this array.
 	 */
 	String patternString[][] = {
-		{"isInitCapital",     		"[A-Z][a-zA-Z]+"        },
+		{"isInitCapital",     		"[A-Z][a-z]+"        },
 		{"isAllCapital",      		"[A-Z]+"                },
 		{"isAllSmallCase",      	"[a-z]+"                },
 		{"isAlpha",           		"[a-zA-Z]+"             },
 		{"isAlphaNumeric",      	"[a-zA-Z0-9]+"          },
-		{"endsWithDot",                 "[^.]+\\."              },
-		{"endsWithComma",       	"[^,]+[,]"              },
-		{"containsSpecialCharacters", 	".*[#;:\\-/<>'\"()&].*"	},
-		{"onlySpecialCharacters", 	"([#;:\\-/<>'\"()&])+"	},
-		{"isDigit", "\\d+"}
+		{"endsWithDot",             "\\p{Alnum}+\\."        },
+		{"singleCapLetterWithDot",  "[A-Z]\\."  			},
+		{"endsWithComma",       	"\\+[,]"              },
+		{"endsWithPunctuation",     ".+[;:,.?!]"				},
+		{"containsSpecialCharacters",".*[#;:\\-/<>'\"()&].*"	},
+		{"singlePunctuation", 		"\\p{Punct}"			},
+		{"containsDigit", 			".*\\d+.*"				},				
+		{"isDigits", 				"\\d+"					},
+		{"isAYear", 				"\\d{4}"				},
+		{"isNumberRange", 			"\\d+\\s*([-]{1,2}\\s*\\d+)?"},
+		{"isURL", 					"\\p{Alpha}+://(\\w+\\.)\\w+(:(\\d{2}|\\d{4}))?(/\\w+)*(/|(/\\w+\\.\\w+))?"	},
+		{"isEmailId", 				"\\w+@(\\w+\\.)+\\w+"	}
 	};
 
 	Pattern p[];
@@ -113,6 +120,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		for(int i = 0; i < patternString.length; i++){
 			//System.out.println("i"+ i +" " + patternString[i][1]);
 			p[i] = Pattern.compile(patternString[i][1]);
+
 		}
 	}
 
@@ -138,6 +146,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
 		for(int i = 0; i < patternString.length; i++){
+			//System.out.println("i"+ i +" " + patternString[i][1]);
 			p[i] = Pattern.compile(patternString[i][1]);
 		}
 	}
