@@ -39,4 +39,7 @@ public class SegmentCRF extends CRF {
 			Util.printDbg("SegmentCRF: Applying on " + dataSeq);
 		segmentViterbi.bestLabelSequence(dataSeq,lambda);
 	}
+	public double score(DataSequence dataSeq) {
+		return segmentViterbi.viterbiSearch(dataSeq,lambda,true);
+	}
 }

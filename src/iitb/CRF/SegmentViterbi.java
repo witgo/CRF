@@ -166,6 +166,26 @@ public class SegmentViterbi extends SparseViterbi {
         }
     }	
     Iter getIter(){return new SegmentIter();}
+    /**
+     * @return
+     */
+    int prevSegEnd = -1;
+    protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
+    	SegmentDataSequence data = (SegmentDataSequence)dataSeq;
+    	if (data.getSegmentEnd(i-ell+1) != i)
+    		return 0;
+    	if ((i - ell >= 0) && (prevSegEnd != i-ell))
+    		return RobustMath.LOG0;
+    	prevSegEnd = i;
+    	if ((labelConstraints != null) && labelConstraints.conflicting(data.y(i))) {
+    		for (int segStart = 0; segStart < i-ell+1; segStart = data.getSegmentEnd(segStart)+1) {
+    			int segEnd = data.getSegmentEnd(segStart);
+    			if (labelConstraints.disallowedPairs.conflictingPair(data.y(i),data.y(segStart),segEnd==i-ell))
+    				return RobustMath.LOG0;
+    		}
+    	}
+    	return	(Ri.getQuick(dataSeq.y(i)) + ((i-ell >= 0)?Mi.get(dataSeq.y(i-ell),dataSeq.y(i)):0));
+    }
     public void bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
         viterbiSearch(dataSeq, lambda,false);
         Soln ybest = finalSoln.get(0);

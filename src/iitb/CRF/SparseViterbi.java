@@ -121,6 +121,12 @@ class SparseViterbi extends Viterbi {
         int nextEll(int i) {return ell--;}
     }
     Iter getIter(){return new Iter();}
+    /**
+     * @return
+     */
+    protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
+    	return	(Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
+    }
     class ContextUpdate implements IntIntDoubleFunction, IntDoubleFunction {
         int i, ell;
         Iter iter;
@@ -150,14 +156,16 @@ class SparseViterbi extends Viterbi {
                         System.out.println("Ri "+Ri);
                         System.out.println("Mi "+ Mi);
                     }
-                }
-            if (calcScore)
-                corrScore += (Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
+                    
+                    if (calcScore) {
+                    	corrScore += getCorrectScore(dataSeq, i, ell);
+                    }
+                }	
             }
             return corrScore;
         }
     };    
-    ContextUpdate contextUpdate;
+	ContextUpdate contextUpdate;
     void allocateScratch(int numY) {
         Mi = new LogSparseDoubleMatrix2D(numY,numY);
         Ri = new LogSparseDoubleMatrix1D(numY);
