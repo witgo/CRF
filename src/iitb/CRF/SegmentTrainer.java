@@ -77,23 +77,22 @@ class SegmentTrainer extends SparseTrainer {
                     }
                 }
                 double thisSeqLogli = 0;
-                boolean noneFired=true;
+               				
                 alpha_Y_Array[0] = allZeroVector; //.assign(0);
                 
                 int trainingSegmentEnd=-1;
                 int trainingSegmentStart = 0;
                 boolean trainingSegmentFound = true;
-                
+                boolean noneFired=true;
                 for (int segEnd = 0; segEnd < dataSize; segEnd++) {
                     alpha_Y_Array[segEnd-base].assign(RobustMath.LOG0);
-                    
             		if (trainingSegmentEnd < segEnd) {
             			if ((!trainingSegmentFound)&& noneFired) {
             				System.out.println("Error: Training segment ("+trainingSegmentStart + " "+ trainingSegmentEnd + ") not found amongst candidate segments");
             			}
             			trainingSegmentFound = false;
             		    trainingSegmentStart = segEnd;
-            		    trainingSegmentEnd = ((SegmentDataSequence)dataSeq).getSegmentEnd(segEnd);
+            		    trainingSegmentEnd =((SegmentDataSequence)dataSeq).getSegmentEnd(segEnd);
             		}
                     
                     for (int nc = candidateSegs.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
