@@ -163,8 +163,13 @@ public class NestedEdgeIterator implements EdgeIterator {
 	outerEdgeIter.start();
 	
 	outerEdge = outerEdgeIter.next();
+
+	//check for the null edge
+	if(outerEdge == null)
+		outerEdgesSent = true;
+	else
+		outerEdgesSent = false;
 	index1 = index2 = 0;
-	outerEdgesSent = false;
     }
     public boolean hasNext() {
 	return (label < model.numLabels) || !outerEdgesSent;
