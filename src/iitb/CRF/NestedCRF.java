@@ -23,6 +23,9 @@ public class NestedCRF extends CRF {
 	    return new NestedCollinsTrainer(params);
 	return new NestedTrainer(params);
     }
+    public void apply(DataSequence dataSeq) {
+    	apply((SegmentDataSequence)dataSeq);
+    }
     public void apply(SegmentDataSequence dataSeq) {
 	if (params.debugLvl > 2) 
 	    Util.printDbg("NestedCRF: Applying on " + dataSeq);

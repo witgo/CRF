@@ -1,7 +1,5 @@
 package iitb.CRF;
 
-import cern.colt.function.*;
-import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
 
 
