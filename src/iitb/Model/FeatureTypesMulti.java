@@ -26,7 +26,7 @@ public class FeatureTypesMulti extends FeatureTypes {
     transient DataSequence dataSeq;
 
     public FeatureTypesMulti(FeatureTypes s) {
-	super(null);
+	super(s.model);
 	single = s;
     }
     void advance() {

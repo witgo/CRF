@@ -72,29 +72,44 @@ class SegmentTrainer extends SparseTrainer {
                 double thisSeqLogli = 0;
                 boolean noneFired=true;
                 alpha_Y_Array[0].assign(0);
-                for (int i = 0; i < dataSeq.length(); i++) {
-                    alpha_Y_Array[i-base].assign(RobustMath.LOG0);
-                    for (int nc = candidateSegs.numCandSegmentsEndingAt(i)-1; nc >= 0; nc--) {
-                        int ell = i - candidateSegs.candSegmentStart(i,nc)+1;
+                
+                int trainingSegmentEnd=-1;
+                int trainingSegmentStart = 0;
+                boolean trainingSegmentFound = true;
+                
+                for (int segEnd = 0; segEnd < dataSeq.length(); segEnd++) {
+                    alpha_Y_Array[segEnd-base].assign(RobustMath.LOG0);
+                    
+            		if (trainingSegmentEnd < segEnd) {
+            			if ((!trainingSegmentFound) && noneFired) {
+            				System.out.println("Error: Training segment ("+trainingSegmentStart + " "+ trainingSegmentEnd + ") not found amongst candidate segments");
+            			}
+            			trainingSegmentFound = false;
+            		    trainingSegmentStart = segEnd;
+            		    trainingSegmentEnd = ((SegmentDataSequence)dataSeq).getSegmentEnd(segEnd);
+            		}
+                    
+                    for (int nc = candidateSegs.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
+                        int ell = segEnd - candidateSegs.candSegmentStart(segEnd,nc)+1;
                         // compute the Mi matrix
-                        computeLogMi(dataSeq,i-ell,i,featureGenNested,lambda,Mi_YY,Ri_Y);
+                        computeLogMi(dataSeq,segEnd-ell,segEnd,featureGenNested,lambda,Mi_YY,Ri_Y);
                         boolean mAdded = false, rAdded = false;
-                        if (i-ell >= 0) {
-                            Mi_YY.zMult(alpha_Y_Array[i-ell-base],newAlpha_Y,1,0,true);
+                        if (segEnd-ell >= 0) {
+                            Mi_YY.zMult(alpha_Y_Array[segEnd-ell-base],newAlpha_Y,1,0,true);
                             newAlpha_Y.assign(Ri_Y,sumFunc);
                         } else 
                             newAlpha_Y.assign(Ri_Y);
-                        alpha_Y_Array[i-base].assign(newAlpha_Y, RobustMath.logSumExpFunc);
+                        alpha_Y_Array[segEnd-base].assign(newAlpha_Y, RobustMath.logSumExpFunc);
                         
                         // find features that fire at this position..
-                        featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
+                        featureGenNested.startScanFeaturesAt(dataSeq, segEnd-ell,segEnd);
                         while (featureGenNested.hasNext()) { 
                             Feature feature = featureGenNested.next();
                             int f = feature.index();
                             int yp = feature.y();
                             int yprev = feature.yprev();
                             float val = feature.value();
-                            if (dataSeq.holdsInTrainingData(feature,i-ell,i)) {
+                            if (dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd)) {
                                 grad[f] += val;
                                 thisSeqLogli += val*lambda[f];
                                 noneFired=false;
@@ -108,21 +123,32 @@ class SegmentTrainer extends SparseTrainer {
                                 */
                             }
                             if (yprev < 0) {
-                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (newAlpha_Y.get(yp)+Math.log(val)+beta_Y[i].get(yp)));
+                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (newAlpha_Y.get(yp)+Math.log(val)+beta_Y[segEnd].get(yp)));
                             } else {
-                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
+                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[segEnd].get(yp)));
                             }
                             
                             if (params.debugLvl > 3) {
-                            	System.out.println(f + " " + feature + " " + dataSeq.holdsInTrainingData(feature,i-ell,i));
+                            	System.out.println(f + " " + feature + " " + dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd));
                             }
+                        }
+                        if ((segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
+                        	trainingSegmentFound = true;
+                        	double val1 = Ri_Y.get(dataSeq.y(trainingSegmentEnd));
+                        	double val2 = 0;
+                        	if (trainingSegmentStart > 0) {
+                        		val2 = Mi_YY.get(dataSeq.y(trainingSegmentStart-1), dataSeq.y(trainingSegmentEnd));
+                        	}
+                        	if ((val1 == RobustMath.LOG0) || (val2 == RobustMath.LOG0)) {
+                        		System.out.println("Error: training labels not covered in generated features " + val1 + " "+val2);
+                        	}
                         }
                     }
                     if (params.debugLvl > 2) {
-                        System.out.println("Alpha-i " + alpha_Y_Array[i-base].toString());
+                        System.out.println("Alpha-i " + alpha_Y_Array[segEnd-base].toString());
                         System.out.println("Ri " + Ri_Y.toString());
                         System.out.println("Mi " + Mi_YY.toString());
-                        System.out.println("Beta-i " + beta_Y[i].toString());
+                        System.out.println("Beta-i " + beta_Y[segEnd].toString());
                     }
                     
                 }
@@ -173,8 +199,6 @@ class SegmentTrainer extends SparseTrainer {
 		featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
 		Iterator constraints = dataSeq.constraints(prevPos,pos);
 		double defaultValue = 0;
-		Mi.assign(defaultValue);
-		Ri.assign(defaultValue);	
 		if (constraints != null) {
 			for (; constraints.hasNext();) {
 				Constraint constraint = (Constraint)constraints.next();
@@ -188,6 +212,9 @@ class SegmentTrainer extends SparseTrainer {
 					}
 				}
 			}
+		} else {
+			Mi.assign(defaultValue);
+			Ri.assign(defaultValue);	
 		}
 		SparseTrainer.computeLogMiInitDone(featureGenNested,lambda,Mi,Ri,defaultValue);
 	}
