@@ -89,18 +89,6 @@ class WordScoreFeatures extends FeatureTypes {
     }
 };
 
-/*
-class WordPropertyFeatures extends FeatureTypes {
-    int stateId;
-    public WordPropertyFeatures(Model m) {
-	super(m);
-    }
-    public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-	// extract properties of this word..
-	
-    }
-};
-*/
 
 class KnownInOtherState extends FeatureTypes {
     int stateId;
