@@ -72,10 +72,21 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     }
     private static final long serialVersionUID = 1L;
     FeatureGeneratorNested fgen;
+    FeatureImpl feature = new FeatureImpl();
     int numFeatures = 0;
     int scanNum = 0;
     int dataIndex = 0;
-    FeatureImpl feature = new FeatureImpl();
+    int y[];
+    int yprev[];
+    int index[];
+    float val[];
+    int offset[], endOffset[];
+    int indexPtr;
+    int thisKey;
+    int maxKey=0;
+    int numData = 0;
+    int maxDataLen=0;
+    int maxSegLen=0;
     /**
      * 
      */
@@ -91,16 +102,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         return fgen.maxMemory();
     }
 
-    int y[];
-    int yprev[];
-    int index[];
-    float val[];
-    int offset[], endOffset[];
-    int indexPtr;
-    int thisKey;
-    int maxKey=0;
-    int numData = 0;
-    int maxDataLen=0;
+  
     public void startDataScan() {
         scanNum++;
         if (scanNum==2) {
@@ -109,6 +111,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             yprev = new int[numFeatures];
             index = new int[numFeatures];
             val = new float[numFeatures];
+            maxKey = maxSegLen*numData*maxDataLen;
             offset = new int[maxKey+1];
             endOffset = new int[maxKey+1];
             numFeatures = 0;
@@ -124,9 +127,12 @@ public class FeatureGenCache implements FeatureGeneratorNested {
      */
     public void startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
         thisKey = dataIndex*maxDataLen + pos + (pos-prevPos-1)*maxDataLen*numData;
-        if (scanNum <= 2) {
-            maxKey = Math.max(maxKey,thisKey);
+        if (scanNum == 1) {
+            maxSegLen = Math.max(maxSegLen,pos-prevPos);
             maxDataLen = Math.max(maxDataLen,data.length());
+        } else
+            assert(thisKey < maxKey+1);
+        if (scanNum <= 2) {
             fgen.startScanFeaturesAt(data,prevPos,pos);
         } else {
             indexPtr = offset[thisKey];
