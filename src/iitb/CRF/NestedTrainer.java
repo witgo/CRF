@@ -66,8 +66,8 @@ class NestedTrainer extends Trainer {
 		for (int ell = 1; (ell <= featureGenNested.maxMemory()) && (i+ell < dataSeq.length()); ell++) {		    
 		    // compute the Mi matrix
 		    featureGenNested.startScanFeaturesAt(dataSeq, i, i+ell);
-		    if (! featureGenNested.hasNext())
-			break;
+		    //if (! featureGenNested.hasNext())
+		    //	break;
 		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true);
 		    tmp_Y.assign(beta_Y[i+ell]);
 		    tmp_Y.assign(Ri_Y,multFunc);
@@ -84,7 +84,7 @@ class NestedTrainer extends Trainer {
 		    segmentStart = i;
 		    segmentEnd = dataSeq.getSegmentEnd(i);
 		}
-		if (segmentEnd-segmentStart > featureGenNested.maxMemory()) {
+		if (segmentEnd-segmentStart+1 > featureGenNested.maxMemory()) {
 		    if (icall <= 1) {
 			System.out.println("Ignoring record with segment length greater than maxMemory " + numRecord);
 		    }
@@ -99,8 +99,8 @@ class NestedTrainer extends Trainer {
 		for (int ell = 1; (ell <= featureGenNested.maxMemory()) && (i-ell >= base); ell++) {
 		    // compute the Mi matrix
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
-		    if (!featureGenNested.hasNext())
-			break;
+		    //		    if (!featureGenNested.hasNext())
+		    //	break;
 		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true);
 		    // find features that fire at this position..
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
@@ -223,8 +223,8 @@ class NestedTrainer extends Trainer {
 		for (int ell = 1; (ell <= featureGenNested.maxMemory()) && (i+ell < dataSeq.length()); ell++) {		    
 		    // compute the Mi matrix
 		    featureGenNested.startScanFeaturesAt(dataSeq, i, i+ell);
-		    if (! featureGenNested.hasNext())
-			break;
+		    //if (! featureGenNested.hasNext())
+		    //	break;
 		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false);
 		    tmp_Y.assign(beta_Y[i+ell]);
 		    tmp_Y.assign(Ri_Y,sumFunc);
@@ -252,8 +252,8 @@ class NestedTrainer extends Trainer {
 		for (int ell = 1; (ell <= featureGenNested.maxMemory()) && (i-ell >= base); ell++) {
 		    // compute the Mi matrix
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
-		    if (!featureGenNested.hasNext())
-			break;
+		    // if (!featureGenNested.hasNext())
+		    //	break;
 		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false);
 		    // find features that fire at this position..
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
