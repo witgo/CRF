@@ -22,7 +22,10 @@ public class Counters {
     }
     public void init(int maxVal[]) {
 	clear();
-	for (int i = 0; i < maxVals.length; maxVals[i] = maxVal[i],i++);
+	for (int i = 0; i < maxVals.length; maxVals[i] = maxVal[i],i++) {
+		if (maxVal[i]==0)
+			cnts[cnts.length-1]=maxVal[cnts.length-1];
+	}
     }
     public void init(int maxVal) {
     	clear();
