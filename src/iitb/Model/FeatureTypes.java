@@ -33,6 +33,9 @@ public abstract class FeatureTypes {
     public void setFeatureIdentifier(int fId, int stateId, Object name, FeatureImpl f) {
 	f.strId.init(fId*offset + thisTypeId,stateId,name);
     }
+    public void setFeatureIdentifier(int fId, FeatureImpl f) {
+	f.strId.init(fId*offset + thisTypeId);
+    }
     int labelIndependentId(FeatureImpl f) {
 	return ((f.strId.id-thisTypeId)-f.strId.stateId*offset)/model.numStates()+thisTypeId;
     }

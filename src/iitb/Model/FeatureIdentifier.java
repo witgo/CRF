@@ -21,6 +21,9 @@ public class FeatureIdentifier implements Cloneable {
 	id = fid;
 	stateId = s;
     }
+    void init(int fid) {
+	id = fid;
+    }
     public void copy(FeatureIdentifier fid) {
 	init(fid.id,fid.stateId,fid.name);
     }

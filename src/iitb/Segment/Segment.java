@@ -215,7 +215,7 @@ public class Segment {
 
 	allocModel();
 	featureGen.train(trainData);
-	crfModel.train(trainData);
+	double featureWts[] = crfModel.train(trainData);
 	if (options.getInt("debugLvl") > 1) {
 	    Util.printDbg("Training done");
 	}
@@ -223,6 +223,9 @@ public class Segment {
 	featureGen.write(baseDir+"/learntModels/"+outDir+"/features");
 	if (options.getInt("debugLvl") > 1) {
 	    Util.printDbg("Writing model to "+ baseDir+"/learntModels/"+outDir+"/crf");
+	}
+	if (options.getProperty("showModel") != null) {
+	    featureGen.displayModel(featureWts);
 	}
     }
 

@@ -18,6 +18,7 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
 		features.add(new FeatureTypesMulti(new UnknownFeature(model,dict)));
 		features.add(new FeatureTypesMulti(new WordFeatures(model, dict)));
 		features.add(new SegmentConcatRegexFeatures(model,maxMemOverall));
+		features.add(new FeatureTypesEachLabel(model, new FeatureTypesSegmentLength(model)));
 		}
     }
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options) throws Exception {
