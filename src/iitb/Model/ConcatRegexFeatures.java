@@ -292,4 +292,8 @@ public class ConcatRegexFeatures extends FeatureTypes {
 			index++;
 		}
 	}
+
+	public int maxFeatureId(){
+	    return idbase * (patternString.length - 1) + (idbase -1); //(maximum base i.e. most significat bits + maximum offset)
+	}
 };
