@@ -13,11 +13,13 @@ public class EdgeFeatures extends FeatureTypes {
 	Object labelNames[];
 	public EdgeFeatures(Model m, Object labels[]) {
 		super(m);
-		edgeIter = m.edgeIterator();
 		labelNames=labels;
 	}
 	public EdgeFeatures(Model m) {
 		this(m,null);
+	}
+	protected void setEdgeIter() {
+	    edgeIter = model.edgeIterator();
 	}
 	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 		if (prevPos < 0) {
@@ -25,12 +27,16 @@ public class EdgeFeatures extends FeatureTypes {
 			return false;
 		} else {
 			edgeNum = 0;
-			edgeIter.start();
-			return true;
+			if (edgeIter == null) {
+			    setEdgeIter();
+			}
+			if (edgeIter != null)
+			    edgeIter.start();
+			return hasNext();
 		}
 	}
 	public boolean hasNext() {
-		return (edgeNum < model.numEdges());
+		return (edgeIter != null) && (edgeNum < model.numEdges());
 	}	
 	public boolean lastEdgeWasOuter() {return edgeIsOuter;}
 	public void next(FeatureImpl f) {
