@@ -135,7 +135,8 @@ class Trainer {
 	boolean doScaling = params.doScaling;
 
 	diter.startScan();
-	for (int numRecord = 0; diter.hasNext(); numRecord++) {
+	int numRecord = 0;
+	for (numRecord = 0; diter.hasNext(); numRecord++) {
 	    DataSequence dataSeq = (DataSequence)diter.next();
 	    if (params.debugLvl > 1) {
 		Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
@@ -257,7 +258,9 @@ class Trainer {
 	
 	if (params.debugLvl > 0)
 	    Util.printDbg("Iter " + icall + " log likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
-
+	    if (icall == 0) {
+	        System.out.println("Number of training records" + numRecord);
+	    }
 	} catch (Exception e) {
 	    System.out.println("Alpha-i " + alpha_Y.toString());
 	    System.out.println("Ri " + Ri_Y.toString());

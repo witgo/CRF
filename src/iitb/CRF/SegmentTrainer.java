@@ -149,6 +149,12 @@ class SegmentTrainer extends SparseTrainer {
                         	if ((val1 == RobustMath.LOG0) || (val2 == RobustMath.LOG0)) {
                         		System.out.println("Error: training labels not covered in generated features " + val1 + " "+val2
                         				+ " yprev " + dataSeq.y(trainingSegmentStart-1) + " y " + dataSeq.y(trainingSegmentEnd));
+                        		System.out.println(dataSeq);
+                        		featureGenNested.startScanFeaturesAt(dataSeq, segEnd-ell,segEnd);
+                        		while (featureGenNested.hasNext()) { 
+                        		    Feature feature = featureGenNested.next();
+                        		    System.out.println(feature + " " + feature.yprev() + " "+feature.y());
+                        		}
                         	}
                         }
                     }

@@ -59,7 +59,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         // features.add(new KnownInOtherState(model, dict));
         //	features.add(new KernelFeaturesForLongEntity(model,new WordFeatures(model, dict)));
         features.add(new WordFeatures(model, dict));
-        //	features.add(new WordScoreFeatures(model, dict));
+        features.add(new FeatureTypesEachLabel(model,new ConcatRegexFeatures(model,0,0)));
     }
     FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
@@ -253,7 +253,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 if (featureToReturn.id < 0){
                     continue;
                 }
-                if ((cposStart > 0) && (cposEnd < data.length()-1))
+                if (((cposStart > 0) && (cposEnd < data.length()-1)) 
+                        || (featureToReturn.y() >= model.numStates())
+                        || (featureToReturn.yprev() >= model.numStates()))
                     return;
                 if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
                 		&& ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
