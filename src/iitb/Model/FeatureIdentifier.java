@@ -1,4 +1,6 @@
 package iitb.Model;
+import java.util.StringTokenizer;
+
 public class FeatureIdentifier implements Cloneable {
     public int id;
     public Object name;
@@ -7,6 +9,12 @@ public class FeatureIdentifier implements Cloneable {
     }
     FeatureIdentifier(int fid, int s, Object n) {
 	init(fid,s,n);
+    }
+    FeatureIdentifier(String strRep) {
+	StringTokenizer strTok = new StringTokenizer(strRep, ":");
+	name = strTok.nextToken();
+	id = Integer.parseInt(strTok.nextToken());
+	stateId = Integer.parseInt(strTok.nextToken());
     }
     void init(int fid, int s, Object n) {
 	name = n;
@@ -23,7 +31,7 @@ public class FeatureIdentifier implements Cloneable {
 	return (id == ((FeatureIdentifier)o).id);
     }
     public String toString() {
-	return name.toString() + "."  + id+ "." + stateId;
+	return name.toString() + ":"  + id+ ":" + stateId;
     }
     public Object clone() {
 	return new FeatureIdentifier(id,stateId,name);

@@ -23,6 +23,7 @@ public class FeatureGenRecord implements FeatureGenerator {
 	public int y() {return _y;}
 	public int yprev() {return -1;}
 	public float value() {return val;}
+	public int[] yprevArray() {return null;}
     };
     FeatureColumn feature, featureToReturn;
     FeatureGenRecord(int numColumns, int numYs) {

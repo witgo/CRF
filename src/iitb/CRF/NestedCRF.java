@@ -18,13 +18,13 @@ public class NestedCRF extends CRF {
     public NestedCRF(int numLabels, FeatureGeneratorNested fgen, String arg) {
 	super(numLabels,fgen,arg);
 	featureGenNested = fgen;
+	nestedViterbi = new NestedViterbi(this,1);
     }
     public NestedCRF(int numLabels, FeatureGeneratorNested fgen, java.util.Properties configOptions) {
 	super(numLabels,fgen,configOptions);
 	featureGenNested = fgen;
     }
     protected Trainer getTrainer() {
-	nestedViterbi = new NestedViterbi(this,1);
 	if (params.trainerType.startsWith("SegmentCollins"))
 	    return new NestedCollinsTrainer(params);
 	return new NestedTrainer(params);

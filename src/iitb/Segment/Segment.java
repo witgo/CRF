@@ -30,7 +30,7 @@ public class Segment {
         
     String modelArgs = "";
     String featureArgs = "";
-    String modelGraphType = "";
+    String modelGraphType = "naive";
 
     LabelMap labelMap;
     Options options;

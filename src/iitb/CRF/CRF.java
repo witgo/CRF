@@ -50,6 +50,7 @@ public class CRF {
 	numY = histMgr.numY;
 	params = new CrfParams(configOptions);
 	edgeGen = histMgr.getEdgeGenerator();
+	viterbi = new Viterbi(this,1);
     }
 
     /**
@@ -93,7 +94,6 @@ public class CRF {
      */
     public double[] train(DataIter trainData, Evaluator evaluator) {
 	lambda = new double[featureGenerator.numFeatures()];	
-	viterbi = new Viterbi(this,1);
 	trainer = getTrainer();
 	trainer.train(this, histMgr.mapTrainData(trainData), lambda, evaluator);
 	return lambda;

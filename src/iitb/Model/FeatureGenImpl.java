@@ -60,7 +60,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 
     boolean featureCollectMode = false;
     class FeatureMap {
-	Hashtable strToInt;
+	Hashtable strToInt = new Hashtable();
 	FeatureIdentifier idToName[];
 	public int getId(FeatureImpl f) {
 	    return getId(f.identifier());
@@ -72,6 +72,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    return -1;
 	}
 	private void collectNames() {
+	    //	    System.out.println(strToInt.size());
 	    idToName = new FeatureIdentifier[strToInt.size()];
 	    for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
 		Object key = e.nextElement();
@@ -80,7 +81,6 @@ public class FeatureGenImpl implements FeatureGenerator {
 	}
 	public int collectFeatureIdentifiers(DataIter trainData, int maxMem) {
 	    featureCollectMode = true;
-	    strToInt = new Hashtable();
 	    for (trainData.startScan(); trainData.hasNext();) {
 		DataSequence seq = trainData.next();
 		for (int l = 0; l < seq.length(); l++) {
@@ -110,7 +110,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    String line;
 	    for(int l = 0; (l < len) && ((line=in.readLine())!=null); l++) {
 		StringTokenizer entry = new StringTokenizer(line," ");
-		String key = entry.nextToken();
+		FeatureIdentifier key = new FeatureIdentifier(entry.nextToken());
 		int pos = Integer.parseInt(entry.nextToken());
 		strToInt.put(key,new Integer(pos));
 	    }
