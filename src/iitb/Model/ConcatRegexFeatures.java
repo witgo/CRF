@@ -72,7 +72,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		{"singlePunctuation", 		"\\p{Punct}"			},
 		{"containsDigit", 			".*\\d+.*"				},				
 		{"isDigits", 				"\\d+"					},
-		{"isAYear", 				"(\(\\d{4}\)|\\d{4})"	},
+		{"isAYear", 				"(\\(\\d{4}\\)|\\d{4})"	},
 		{"isNumberRange", 			"\\d+\\s*([-]{1,2}\\s*\\d+)?"},
 		{"isURL", 					"\\p{Alpha}+://(\\w+\\.)\\w+(:(\\d{2}|\\d{4}))?(/\\w+)*(/|(/\\w+\\.\\w+))?"	},
 		{"isEmailId", 				"\\w+@(\\w+\\.)+\\w+"	}
