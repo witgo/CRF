@@ -9,7 +9,7 @@ package iitb.CRF;
  *
  */
 public interface ConstraintDisallowedPairs extends Constraint {
-    boolean conflictingPair(int label1, int label2);
+    boolean conflictingPair(int label1, int label2, boolean adjacent);
     /**
      * 
      * @param label

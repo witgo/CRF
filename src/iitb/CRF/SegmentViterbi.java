@@ -20,8 +20,9 @@ public class SegmentViterbi extends SparseViterbi {
         ConstraintDisallowedPairs disallowedPairs;
         class Intersects implements TIntProcedure {
             int label;
+            int prevLabel;
             public boolean execute(int arg0) {
-                return !disallowedPairs.conflictingPair(label,arg0);
+                return !disallowedPairs.conflictingPair(label,arg0,(arg0==prevLabel));
             }
         }
         Intersects intersectTest = new Intersects();
@@ -33,13 +34,16 @@ public class SegmentViterbi extends SparseViterbi {
         }
         /**
          * @param set
+         * @param prevLabel
          * @param i
          * @return
          */
-        private boolean valid(TIntHashSet set, int label) {
+        private boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
+            disallowedPairs.conflictingPair(label,prevLabel,true);
              intersectTest.label = label;
+             intersectTest.prevLabel = prevLabel;
              return set.forEach(intersectTest);
         }
         /**
@@ -92,9 +96,11 @@ public class SegmentViterbi extends SparseViterbi {
         }
         protected void setPrevSoln(Soln prevSoln, double score) {
             super.setPrevSoln(prevSoln,score);
-            labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
-            if ((labelConstraints != null) && labelConstraints.conflicting(prevSoln.label))
-                labelsOnPath.add(prevSoln.label);
+            if (prevSoln != null) {
+            	labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
+            	if ((labelConstraints != null) && labelConstraints.conflicting(prevSoln.label))
+            		labelsOnPath.add(prevSoln.label);
+            }
         }       
     }
     class EntryForLabelConstraints extends Entry {
@@ -112,7 +118,7 @@ public class SegmentViterbi extends SparseViterbi {
         int findInsert(int insertPos, double score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
-                    if (labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label)) {
+                    if ((prev == null) || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
                         insert(insertPos, score, prev);
                         insertPos++;
                     }

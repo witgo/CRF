@@ -140,19 +140,20 @@ class SparseViterbi extends Viterbi {
                 for (iter.start(i,dataSeq); (ell = iter.nextEll(i)) > 0;) {
                     // compute Mi.
                     computeLogMi(dataSeq, i, ell, lambda);
-                    if (model.params.debugLvl > 1) {
-                        System.out.println("Ri "+Ri);
-                        System.out.println("Mi "+ Mi);
-                    }
                     if (i - ell < 0) {
                         Ri.forEachNonZero(this);
                     } else {
                         Mi.forEachNonZero(this);
                     }
+                    
+                    if (model.params.debugLvl > 1) {
+                        System.out.println("Ri "+Ri);
+                        System.out.println("Mi "+ Mi);
+                    }
                 }
-            }
             if (calcScore)
                 corrScore += (Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
+            }
             return corrScore;
         }
     };    
@@ -166,7 +167,8 @@ class SparseViterbi extends Viterbi {
         contextUpdate.iter = getIter();
     }
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
-        viterbiSearch(dataSeq, lambda,false);
+        double corrScore = viterbiSearch(dataSeq, lambda,false);
+        System.out.println("Correct score " + corrScore);
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
         int pos=-1;
@@ -188,7 +190,7 @@ class SparseViterbi extends Viterbi {
             context = new Context[dataSeq.length()];
             
             for (int l = 0; l < context.length; l++) {
-                context[l] = new Context(model.numY,beamsize,l);
+                context[l] = newContext(model.numY,beamsize,l);
             }
         }
         double corrScore = contextUpdate.fillArray(dataSeq, lambda,calcCorrectScore);
@@ -202,7 +204,7 @@ class SparseViterbi extends Viterbi {
             }
         }
         if (model.params.debugLvl > 1) {
-            System.out.println("Score of best sequence "+finalSoln.get(0).score);
+            System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }
         return corrScore;
     }
