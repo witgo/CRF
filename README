@@ -1,0 +1,4 @@
+You will need jdk1.4 or above and ant to compile.
+
+Make sure to set the classpath by running "settings.sh" after
+setting CRF_HOME to the directory where you have unpackaged this distribution.

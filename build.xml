@@ -1,0 +1,70 @@
+<project name="CRF" default="dist" basedir=".">
+    <description>
+        crf tool build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="lib" location="lib"/>
+  <property name="doc" location="doc"/>
+<!-- <property name="stylesheet" value="stylesheet.css"/> -->
+  <property name="link" value="http://java.sun.com/j2se/1.4.1/docs/api"/>
+  <property name="windowtitle" value="CRF- API specification"/>
+  <property name="compile.debug" value="true"/>
+  <path id="compile.classpath">
+     <pathelement location="${build}"/>
+     <pathelement location="lib/LBFGS.jar"/>
+     <pathelement location="lib/colt.jar"/>
+  </path>
+
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${doc}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" debug="${compile.debug}" source="1.4"
+    classpathref="compile.classpath"/>
+  </target>
+
+  <target name="docs" depends="compile" description="generates documentation" >
+    <javadoc sourcepath="${src}"
+           defaultexcludes="yes"
+           destdir="${doc}"
+           version="true"
+           use="true"
+           public="true"
+           windowtitle="CRF API"
+           packagenames="iitb.*"
+	   classpathref="compile.classpath"
+	   source="1.4"
+	   >
+           <doctitle><![CDATA[<h1>CRF API Specification</h1>]]></doctitle>
+           <bottom><![CDATA[<font size="-1"><a href="mailto:sunita@iitb.ac.in">Submit a bug or feature</a>. </font>]]></bottom> 
+    </javadoc>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <!-- Put everything in ${build} into the CRF.jar file -->
+    <jar jarfile="${lib}/CRF.jar" basedir="${build}"/>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <delete dir="${build}"/>
+    <delete file="${lib}/CRF.jar"/>
+  </target>
+
+  <target name="allclean" depends="clean"
+        description="clean up including doc" >
+    <!-- Delete the ${build} and ${lib} and ${doc} directory trees -->
+    <delete dir="${doc}"/>
+  </target>
+</project>
