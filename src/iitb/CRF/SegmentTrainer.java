@@ -19,6 +19,13 @@ class SegmentTrainer extends SparseTrainer {
         logTrainer = true;
     }
     DoubleMatrix1D alpha_Y_Array[];
+    LogSparseDoubleMatrix1D allZeroVector;
+    void init(CRF model, DataIter data, double[] l) {
+    	super.init(model,data,l);
+    	allZeroVector = new LogSparseDoubleMatrix1D(numY);
+    	allZeroVector.assign(0);
+    }
+    
     
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         try {
@@ -48,9 +55,9 @@ class SegmentTrainer extends SparseTrainer {
                     for (int i = 0; i < beta_Y.length; i++)
                         beta_Y[i] = new LogSparseDoubleMatrix1D(numY);
                 }
-                // compute beta values in a backward scan.
-                // also scale beta-values as much as possible to avoid numerical overflows
-                beta_Y[dataSeq.length()-1].assign(0);
+                int dataSize = dataSeq.length();
+                DoubleMatrix1D oldBeta =  beta_Y[dataSeq.length()-1];
+                beta_Y[dataSeq.length()-1] = allZeroVector;
                 for (int i = dataSeq.length()-2; i >= 0; i--) {
                     beta_Y[i].assign(RobustMath.LOG0);
                 }
@@ -64,24 +71,24 @@ class SegmentTrainer extends SparseTrainer {
                             continue;
                         // compute the Mi matrix
                         computeLogMi(dataSeq,i,i+ell,featureGenNested,lambda,Mi_YY,Ri_Y);
-                        tmp_Y.assign(beta_Y[i+ell]);
-                        tmp_Y.assign(Ri_Y,sumFunc);
+                        tmp_Y.assign(Ri_Y);
+                        if (i+ell < dataSize-1) tmp_Y.assign(beta_Y[i+ell], sumFunc);
                         Mi_YY.zMult(tmp_Y, beta_Y[i],1,1,false);
                     }
                 }
                 double thisSeqLogli = 0;
                 boolean noneFired=true;
-                alpha_Y_Array[0].assign(0);
+                alpha_Y_Array[0] = allZeroVector; //.assign(0);
                 
                 int trainingSegmentEnd=-1;
                 int trainingSegmentStart = 0;
                 boolean trainingSegmentFound = true;
                 
-                for (int segEnd = 0; segEnd < dataSeq.length(); segEnd++) {
+                for (int segEnd = 0; segEnd < dataSize; segEnd++) {
                     alpha_Y_Array[segEnd-base].assign(RobustMath.LOG0);
                     
             		if (trainingSegmentEnd < segEnd) {
-            			if ((!trainingSegmentFound) && noneFired) {
+            			if ((!trainingSegmentFound)&& noneFired) {
             				System.out.println("Error: Training segment ("+trainingSegmentStart + " "+ trainingSegmentEnd + ") not found amongst candidate segments");
             			}
             			trainingSegmentFound = false;
@@ -140,7 +147,8 @@ class SegmentTrainer extends SparseTrainer {
                         		val2 = Mi_YY.get(dataSeq.y(trainingSegmentStart-1), dataSeq.y(trainingSegmentEnd));
                         	}
                         	if ((val1 == RobustMath.LOG0) || (val2 == RobustMath.LOG0)) {
-                        		System.out.println("Error: training labels not covered in generated features " + val1 + " "+val2);
+                        		System.out.println("Error: training labels not covered in generated features " + val1 + " "+val2
+                        				+ " yprev " + dataSeq.y(trainingSegmentStart-1) + " y " + dataSeq.y(trainingSegmentEnd));
                         	}
                         }
                     }
@@ -168,7 +176,7 @@ class SegmentTrainer extends SparseTrainer {
                     System.out.println("Sequence likelihood "  + thisSeqLogli + " " + lZx + " " + Math.exp(lZx));
                     System.out.println("Last Alpha-i " + alpha_Y_Array[dataSeq.length()-1-base].toString());
                 }
-                
+                beta_Y[dataSeq.length()-1] = oldBeta;
             }
             if (params.debugLvl > 2) {
                 for (int f = 0; f < lambda.length; f++)
