@@ -15,3 +15,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 [This is an instance of the University of Illinois/NCSA Open Source
 agreement, obtained from http://www.opensource.org/licenses/UoI-NCSA.php]
+
+See the file third-party-license.txt for license information of the third
+party software used in this package.
