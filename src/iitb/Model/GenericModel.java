@@ -209,7 +209,7 @@ public class GenericModel extends Model {
     public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
     throws Exception {
     	stateIds.clear();
-    	for (int i = 0; i < len; stateIds.add(0));
+    	for (int i = 0; i < len; i++,stateIds.add(0));
         for (int i = 0; i < numStartStates(); i++) {
             if (pathToEnd(startState(i),len-1,1,stateIds)) {
                 stateIds.setQuick(0,startState(i));
@@ -219,6 +219,7 @@ public class GenericModel extends Model {
         throw new Exception("No path in graph");
     }
     boolean pathToEnd(int s, int lenLeft, int start, TIntArrayList stateIds) {
+        assert (lenLeft >= 0);
         if (lenLeft == 0) {
             return isEndState(s);
         }

@@ -169,10 +169,13 @@ class SparseViterbi extends Viterbi {
         viterbiSearch(dataSeq, lambda,false);
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
+        int pos=-1;
         while (ybest != null) {
+            pos = ybest.pos;
             dataSeq.set_y(ybest.pos, ybest.label);
             ybest = ybest.prevSoln;
         }
+        assert(pos==0);
     }
     Context newContext(int numY, int beamsize, int pos){
         return new Context(numY,beamsize,pos);        
