@@ -7,10 +7,9 @@ import iitb.CRF.*;
  */ 
 
 
-public class CompleteModel implements Model {
-    int numLabels;
+public class CompleteModel extends Model {
     public CompleteModel(int nlabels) {
-	numLabels = nlabels;
+	super(nlabels);
     }
     public int numStates() {return numLabels;}
     public int label(int stateNum) {return stateNum;}

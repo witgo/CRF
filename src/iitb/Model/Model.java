@@ -9,39 +9,51 @@ import iitb.CRF.*;
  * @author Sunita Sarawagi
  */
 
-class Edge {
-    int start;
-    int end;
-    Edge() {;}
-    Edge(int s, int e) {
-	start = s;
-	end = e;
-    }
-    String tostring() {
-	return (start + " -> " + end);
-    }
-};
-
 interface EdgeIterator {
     void start();
     boolean hasNext();
     Edge next();
 };
 
-public interface Model {
-    public int numStates();
-    public int label(int stateNum);
-    public int numEdges();
-    public EdgeIterator edgeIterator();
-    public int numStartStates();
-    public int numEndStates();
-    public boolean isEndState(int i);
-    public boolean isStartState(int i);
+public abstract class Model {
+    int numLabels;
+    Model(int nlabels) {
+	numLabels = nlabels;
+    }
+    public int numberOfLabels() {return numLabels;}
+    public abstract int numStates();
+    public abstract int label(int stateNum);
+    public abstract int numEdges();
+    public abstract EdgeIterator edgeIterator();
+    public abstract int numStartStates();
+    public abstract int numEndStates();
+    public abstract boolean isEndState(int i);
+    public abstract boolean isStartState(int i);
     /**
        return the i-th start state
      */
-    public int startState(int i);
-    public int endState(int i);
-    public void stateMappings(DataSequence data) throws Exception;
-    public void stateMappings(DataSequence data, int len, int start) throws Exception;
+    public abstract int startState(int i);
+    public abstract int endState(int i);
+    public abstract void stateMappings(DataSequence data) throws Exception;
+    public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
+    
+    public void printGraph() {
+	System.out.println("Numnodes = " + numStates() + " NumEdges " + numEdges());
+	EdgeIterator iter = edgeIterator();
+	for (iter.start(); iter.hasNext(); ) {
+	    Edge edge = iter.next();
+	    System.out.println(edge.start + "-->" + edge.end);
+	}
+	System.out.print("Start states");
+	for (int i = 0; i< numStartStates(); i++)
+	    System.out.print(" " + startState(i));
+	System.out.println("");
+
+	System.out.print("End states");
+	for (int i = 0; i< numEndStates(); i++)
+	    System.out.print(" " + endState(i));
+	System.out.println("");
+
+
+    }
 };

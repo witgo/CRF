@@ -13,8 +13,14 @@ import java.io.*;
 public class StartFeatures  extends FeatureTypes {
     int stateId;
     int startStateNum;
+    Object fname;
     public StartFeatures(Model m) {
 	super(m);
+	fname = "S.";
+    }
+    public StartFeatures(Model m, Object name) {
+	super(m);
+	fname=name;
     }
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 	if (prevPos >= 0) {
@@ -30,8 +36,7 @@ public class StartFeatures  extends FeatureTypes {
 	return (stateId >= 0);
     }
     public void next(FeatureImpl f) {
-	f.type = "Start";
-	f.strId = "S"+stateId;
+	setFeatureIdentifier(stateId,stateId,fname,f);
 	f.yend = stateId;
 	f.ystart = -1;
 	f.val = 1;

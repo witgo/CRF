@@ -2,8 +2,7 @@ package iitb.Model;
 import iitb.CRF.*;
 import java.util.*;
 
-public class NestedModel implements Model {
-    int numLabels;
+public class NestedModel extends Model {
     int _numStates;
     int _numEdges;
     int nodeOffsets[]; // the number of states in the labels before this.
@@ -13,7 +12,7 @@ public class NestedModel implements Model {
     int endStates[];
 
     public NestedModel(int num, String specs) throws Exception {
-	numLabels = num;
+	super(num);
 	nodeOffsets = new int[numLabels];
 	inner = new Model[numLabels];
 
@@ -22,7 +21,7 @@ public class NestedModel implements Model {
 	for(int i=0 ; i<numLabels ; i++) {
 	    assert start.hasMoreTokens();
 	    String thisStruct = start.nextToken();
-	    inner[i] = new GenericModel(thisStruct);
+	    inner[i] = new GenericModel(thisStruct,i);
 	}
 	_numEdges = 0;
 	_numStates = 0;

@@ -14,10 +14,12 @@ import java.io.*;
  */
 
 public abstract class FeatureTypes {
-    int offset;
+    static int offset = 0;
+    int thisTypeId;
     public Model model;
     public FeatureTypes(Model m) {
 	model = m;
+	thisTypeId = offset++;
     }
     public  boolean startScanFeaturesAt(DataSequence data, int pos) {
 	return startScanFeaturesAt(data,pos-1,pos);
@@ -25,6 +27,12 @@ public abstract class FeatureTypes {
     public abstract boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos);
     public abstract boolean hasNext();
     public abstract void next(FeatureImpl f);
+    public void setFeatureIdentifier(int fId, int stateId, String name, FeatureImpl f) {
+	setFeatureIdentifier( fId,  stateId, (Object)name,  f);
+    }
+    public void setFeatureIdentifier(int fId, int stateId, Object name, FeatureImpl f) {
+	f.strId.init(fId*offset + thisTypeId,stateId,name);
+    }
 };
 
 

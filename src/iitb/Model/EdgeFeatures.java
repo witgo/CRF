@@ -11,9 +11,14 @@ import java.io.*;
 public class EdgeFeatures extends FeatureTypes {
     EdgeIterator edgeIter;
     int edgeNum;
-    public EdgeFeatures(Model m) {
+    Object labelNames[];
+    public EdgeFeatures(Model m, Object labels[]) {
 	super(m);
 	edgeIter = m.edgeIterator();
+	labelNames=labels;
+    }
+    public EdgeFeatures(Model m) {
+	this(m,null);
     }
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 	if (prevPos < 0) {
@@ -30,9 +35,13 @@ public class EdgeFeatures extends FeatureTypes {
     }	
     public void next(FeatureImpl f) {
 	Edge e = edgeIter.next();
-	f.type = "Edge";
-	f.strId = "E"+model.label(e.start)+"_"+model.label(e.end);
-	//	f.strId = "E"+(e.start)+"_"+(e.end);
+	Object name;
+	if (labelNames == null) {
+	    name = "E."+model.label(e.start);
+	} else {
+	    name = labelNames[model.label(e.start)];
+	}
+	setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end), model.label(e.end),name,f);
 	f.ystart = e.start;
 	f.yend = e.end;
 	f.val = 1;

@@ -40,6 +40,9 @@ public class FeatureGenImpl implements FeatureGenerator {
     public void addFeature(FeatureTypes fType) {
 	features.add(fType);
     }
+    public void setDict(WordsInTrain d) {
+	dict = d;
+    }
     protected void addFeatures() { 
 	features.add(new EdgeFeatures(model));
 	features.add(new StartFeatures(model));
@@ -58,28 +61,41 @@ public class FeatureGenImpl implements FeatureGenerator {
     boolean featureCollectMode = false;
     class FeatureMap {
 	Hashtable strToInt;
+	FeatureIdentifier idToName[];
 	public int getId(FeatureImpl f) {
-	    if (strToInt.get(f.strId) != null)
-		return ((Integer)strToInt.get(f.strId)).intValue();
+	    return getId(f.identifier());
+	}
+	public int getId(Object key) {
+	    if (strToInt.get(key) != null) {
+		return ((Integer)strToInt.get(key)).intValue();
+	    }
 	    return -1;
 	}
-	public int collectFeatureIdentifiers(DataIter trainData) {
+	private void collectNames() {
+	    idToName = new FeatureIdentifier[strToInt.size()];
+	    for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
+		Object key = e.nextElement();
+		idToName[getId(key)] = (FeatureIdentifier)key;
+	    }
+	}
+	public int collectFeatureIdentifiers(DataIter trainData, int maxMem) {
 	    featureCollectMode = true;
 	    strToInt = new Hashtable();
 	    for (trainData.startScan(); trainData.hasNext();) {
 		DataSequence seq = trainData.next();
 		for (int l = 0; l < seq.length(); l++) {
-		    for (startScanFeaturesAt(seq,l); hasNext(); ) {
-			FeatureImpl feature = nextNoId();
-			if (strToInt.get(feature.strId) == null) {
-			    strToInt.put(feature.strId, new Integer(strToInt.size()));
+		    for (int m = 1; (m <= maxMem) && (l-m >= -1); m++) {
+			for (startScanFeaturesAt(seq,l-m,l); hasNext(); ) {
+			    FeatureImpl feature = nextNoId();
+			    if (getId(feature) < 0) {
+				strToInt.put(feature.identifier().clone(), new Integer(strToInt.size()));
+			    }
 			}
-		    
 		    }
 		}
 	    }
 	    featureCollectMode = false;
-	    System.out.println("Number of features "+strToInt.size());
+	    collectNames();
 	    return strToInt.size();
 	}
 	public void write(PrintWriter out) throws IOException {
@@ -98,21 +114,29 @@ public class FeatureGenImpl implements FeatureGenerator {
 		int pos = Integer.parseInt(entry.nextToken());
 		strToInt.put(key,new Integer(pos));
 	    }
+	    collectNames();
 	    return strToInt.size();
 	}
+	public FeatureIdentifier getIdentifier(int id) {return idToName[id];} 
+	public String getName(int id) {return idToName[id].toString();} 
     };
     FeatureMap featureMap;
-
+    static Model getModel(String modelSpecs, int numLabels) throws Exception {
+	// create model..
+	if (modelSpecs.equalsIgnoreCase("naive")) {
+	    return new CompleteModel(numLabels);
+	} else {
+	    return new NestedModel(numLabels, modelSpecs);
+	}
+    }
     public FeatureGenImpl(String modelSpecs, int numLabels) throws Exception {
 	this(modelSpecs,numLabels,true);
     }
     public FeatureGenImpl(String modelSpecs, int numLabels, boolean addFeatureNow) throws Exception {
-	// create model..
-	if (modelSpecs.equalsIgnoreCase("naive")) {
-	    model = new CompleteModel(numLabels);
-	} else {
-	    model = new NestedModel(numLabels, modelSpecs);
-	}
+	this(getModel(modelSpecs,numLabels),numLabels,addFeatureNow);
+    }
+    public FeatureGenImpl(Model m, int numLabels, boolean addFeatureNow) throws Exception {
+	model = m;
 	features = new Vector();
 	featureToReturn = new FeatureImpl();
 	feature = new FeatureImpl();
@@ -126,13 +150,14 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    model.stateMappings(seq);
 	}
     }
+    public int maxMemory() {return 1;}
     public void train(DataIter trainData) throws Exception {
 	// map the y-values in the training set.
-	stateMappings(trainData);
+        stateMappings(trainData);
 	if (dict != null) dict.train(trainData,model.numStates());
-	totalFeatures = featureMap.collectFeatureIdentifiers(trainData);
+	totalFeatures = featureMap.collectFeatureIdentifiers(trainData,maxMemory());
     };
-    void printStats() {
+    public void printStats() {
 	System.out.println("Num states " + model.numStates());
 	System.out.println("Num edges " + model.numEdges());
 	if (dict != null) System.out.println("Num words in dictionary " + dict.dictionaryLength());
@@ -154,7 +179,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    if (!currentFeatureType.hasNext())
 		break;
 	    while (currentFeatureType.hasNext()) {
-		featureToReturn.id=0;
+		featureToReturn.init();
 		currentFeatureType.next(featureToReturn);
 		if (returnWithId) {
 		    featureToReturn.id = featureMap.getId(featureToReturn);
@@ -170,6 +195,9 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    }
 	}
 	featureToReturn.id = -1;
+    }
+    public void startScanFeaturesAt(DataSequence d, int prev, int p) {
+	startScanFeaturesAt(d,p);
     }
     public void startScanFeaturesAt(DataSequence d, int p) {
 	data = d;
@@ -193,6 +221,10 @@ public class FeatureGenImpl implements FeatureGenerator {
     }
     public int numFeatures() {
 	return totalFeatures;
+    }
+    public FeatureIdentifier featureIdentifier(int id) {return featureMap.getIdentifier(id);}
+    public String featureName(int featureIndex) {
+	return featureMap.getName(featureIndex);
     }
     public int numStates() {
 	return model.numStates();

@@ -11,8 +11,14 @@ import java.io.*;
 public class EndFeatures  extends FeatureTypes {
     int stateId;
     int endStateNum;
+    Object fname;
     public EndFeatures(Model m) {
 	super(m);
+	fname="End.";
+    }
+    public EndFeatures(Model m, Object fname) {
+	super(m);
+	this.fname = fname;
     }
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 	if (pos < data.length()-1) {
@@ -28,8 +34,7 @@ public class EndFeatures  extends FeatureTypes {
 	return (stateId >= 0);
     }
     public void next(FeatureImpl f) {
-	f.type = "End";
-	f.strId = "E"+stateId;
+	setFeatureIdentifier(stateId,stateId,fname,f);
 	f.yend = stateId;
 	f.ystart = -1;
 	f.val = 1;
