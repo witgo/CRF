@@ -62,6 +62,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		{"isAllCapital",      		"[A-Z]+"                },
 		{"isAllSmallCase",      	"[a-z]+"                },
 		{"isAlpha",           		"[a-zA-Z]+"             },
+		{"isWord",           		"[a-zA-Z][a-zA-Z]+"             },
 		{"isAlphaNumeric",      	"[a-zA-Z0-9]+"          },
 		{"endsWithDot",             "\\p{Alnum}+\\."        },
 		{"singleCapLetterWithDot",  "[A-Z]\\."  			},
@@ -75,7 +76,8 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		{"isAYear", 				"(\\(\\d{4}\\)|\\d{4})"	},
 		{"isNumberRange", 			"\\d+\\s*([-]{1,2}\\s*\\d+)?"},
 		{"isURL", 					"\\p{Alpha}+://(\\w+\\.)\\w+(:(\\d{2}|\\d{4}))?(/\\w+)*(/|(/\\w+\\.\\w+))?"	},
-		{"isEmailId", 				"\\w+@(\\w+\\.)+\\w+"	}
+		{"isEmailId", 				"\\w+@(\\w+\\.)+\\w+"	},
+		{"containsDashes",			".*--.*"}
 	};
 
 	Pattern p[];

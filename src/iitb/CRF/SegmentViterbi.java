@@ -125,6 +125,8 @@ public class SegmentViterbi extends SparseViterbi {
                     if ((prev == null) || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
                         insert(insertPos, score, prev);
                         insertPos++;
+                    } else if (prev != null) {
+                        // System.out.println("Constraint violation");
                     }
                     break;
                 }
