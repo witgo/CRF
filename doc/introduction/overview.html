@@ -1,0 +1,100 @@
+<html>
+<head>
+<title>
+Conditional Random Field (CRF) Documentation
+</title>
+</head>
+<body>
+<a name="top"><H2 align="center"> Conditional Random Field (CRF) </H2></a>
+<HR>
+<table align="right">
+<tbody>
+<tr>
+<td>
+<a href="index.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="seqtask.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+<BR>
+<H2>1. Overview</H2> 
+<!-- CONTENT -->
+<P align="justify">
+	This package is an implementation of Conditional Random Fields (CRFs), which
+	are undirected graphical models used for sequence learning tasks.  
+	CRFs are proposed by John Lafferty, Andrew McCallum and Fernando Pereira in <a href="http://citeseer.nj.nec.com/lafferty01conditional.html">Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data</a>. 
+	The code, here, follows notations and algorithm described by F. Sha and F. Pereira in <a href="http://www.cis.upenn.edu/%7Epereira/papers/shallow.pdf">Shallow parsing with conditional random fields</a>.
+	The package is built in a way that makes it possible to use it in various sequential learning tasks such as <I>Information Extraction</I>,
+	<I>Segmentation</I> of text into attributes, and <I>Sequence Classification</I>.  
+</P>
+
+The various directories available in the package are as follows:<BR><BR>
+<table>
+	<tr><td width="15%"><B>build/</B></td><td>:</td><td> Stores all the compiled java class files</td></tr>
+	<tr><td width="15%"><B>doc/</B>	</td><td>:</td><td> Javadoc and this documentation for the package </td></tr>
+	<tr><td width="15%"><B>samples/</B></td><td>:</td><td> A sample dataset and the corresponding configuration file </td></tr>
+	<tr><td width="15%"><B>src/</B></td><td>:</td><td> Java source files </td></tr>
+	<tr><td width="15%"><B>lib/</B></td><td>:</td><td> <i>jar</i> files</td></tr>
+</table>
+<P align="justify">
+	You need to install <a href="http://www.java.sun.com/j2se/">J2SE1.4</a> or above, and set JAVA_HOME to point to the directory where you have installed it. 
+	Also, you would need <a href="http://ant.apache.org/">Apache Ant</a> package to compile the code. Refer to the 
+	README file provided with the distribution to know more about installation.
+</P>
+
+<P align="justify">
+	An example use of the package is provided as sample code; it gives an
+	application of the CRF package to a text segmentation task.  This example 
+	uses CRF to segment a string or text into predefined fields or attributes.  
+	The code for the application can be found in <B>src/iitb/Segment</B> directory which demonstrates implementation
+	of various interfaces needed to use the package. A sample
+	dataset is given in the <B>samples/</B> directory, along with the configuration file
+	for the same. The training and test sets are US addresses, which are required
+	to be segmented into constituent fields (as given in the training set). The
+	instructions to run the application are given in the README file.
+</P>
+<p align="justify">
+The code of the distribution is organized into various packages. The source code can be found in the <B>src/</B> directory of the distribution. A summary of various packages is given below.<BR><BR>
+
+<table width="100%" valign="top" align="justify">
+	<tr valign="top" ><td width="15%"><B>iitb.CRF</B></td><td>:</td><td> Core package; contains implementation of training and inferencing algorithms and defines various interfaces to be implemented by the user of the distribution.</td></tr>
+	<tr valign="top"><td width="15%"><B>iitb.Model</B></td><td>:</td><td> Stores implementation of various graphs, features, and feature generator (see <a href="seqtask.html">next</a> section).</td></tr>
+	<tr valign="top"> <td width="15%"><B>iitb.Utils</B></td><td>:</td><td> Common classes used by other packages.</td></tr>
+	<tr valign="top"><td width="15%"><B>iitb.MaxentClassifier</B></td><td>:</td><td> An application of CRF to a maximum entropy based classification task.</td></tr>
+	<tr valign="top"><td width="15%"><B>iitb.Segment</B></td><td>:</td><td> An application of CRF to a text segmentation task.</td></tr>
+</table>
+
+
+</p>
+<!-- CONTENT -->
+<a href="#top">top</a>
+<!-- Draw a horizontal rule to separate above informative part form footer -->
+
+<hr>
+<table align="center">
+<tbody>
+<tr>
+<td>
+<a href="index.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="seqtask.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<table align="center" width="100%">
+<tbody>
+<tr>
+<td align="center"><B>
+		Copyright &copy; 2004 KReSIT, IIT Bombay. All rights reserved </B>
+</td>
+
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

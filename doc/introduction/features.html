@@ -1,0 +1,238 @@
+<html>
+<head>
+<title>
+Conditional Random Field (CRF) Documentation
+</title>
+</head>
+<body>
+<a name="top"><H2 align="center"> Conditional Random Field (CRF) </H2></a>
+<HR>
+<table align="right">
+<tbody>
+<tr>
+<td>
+<a href="interfaces.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="models.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+<BR>
+<H2>4. Features, Feature Types, and Feature Generator</H2>
+<p align="justify">
+The <b>iitb.Model</b> package contains an implementation of the <a href="interfaces.html#Feature">Feature</a> as
+well as the <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a> interface. It also contains an abstract 
+class named  
+<a href="features.html#FeatureTypes">FeatureTypes</a>. The package also provides several implemented feature types which 
+are described below.
+</p>
+
+<h3><a name="FeatureImpl">FeatureImpl class</a></h3>
+<p align="justify">
+The FeatureImpl class is an implementation of the <a href="interfaces.html#Feature">Feature</a> interface.
+It encapsulates feature id, current label(yend), previous label(s)(ystart), and a value for the
+feature. You would not require to implement this interface unless
+your implementation of feature types class requires.
+</p>
+<h3><a name="FeatureTypes">FeatureTypes class</a></h3>
+<p align="justify">
+FeatureTypes is a factory class that defines a class of similar kind of features. It
+is an abstract class that provides an advanced user of this package the facility
+to implement new features. A user is just required to extend this class in order
+to add new features. 
+Following are the important methods of the class:
+	<ul>
+	<li><i>startScanFeaturesAt(DataSequence data, int prevPos, int pos)</i><br> This method is used to instruct the FeatureTypes to generate all the features for label of the token at the position <i>pos</i> in the data sequence <i>data</i>.
+	The previous position indicates the previous label assigned to the current sequence.
+	Since, this implementation of the CRF is a one order markov model, a feature can have dependancy on previous label of the current sequence only.
+	This method initiates generation of the features in given FeatureTypes.
+	<li><i>hasNext()</i><br> This method is used to check if there are any more features for the current scan intitaited in startScanFeaturesAt().
+	<li><i>next(FeatureImpl f)</i><br> 
+	An important function of this class, it
+	basically contains the code for generating the next feature i.e. this function
+	will contain the code for capturing the characteristic that the user wants 
+	to capture in the form of a feature.  
+	A <a href="interfaces.html#Feature">Feature</a>,
+	object passed to this function as an argument, will be assigned the values of the
+	newly generated feature. The features are generated on-the-fly as and when
+	needed for efficiency reasons.  
+	</ul>
+	Few tips regrading how to implement your own FeatureTypes class is given at the end of this section.	
+	In order to make this package easy to use in a
+	common application, this package provides implementation of some of the commonly
+	used features such as EdgeFeatures, WordFeatures and the like. Typically, an
+	application will define a number of features for capturing different properties
+	of the input data.
+A brief description of each of these feature types is given below.
+</p>
+
+<ul>
+	<li>
+		<i>EdgeFeatures:</i>
+		<div align="justify">
+		These are transition features, solely dependent upon current
+		label and previous 'y' values. The feature encodes transition information and
+		allows sequential information to be included in the model.
+		</div>
+	</li>
+	<li>
+		<i>StartFeatures:</i>
+		<div align="justify">
+		These features fire when the current label in consideration is a start state. 
+		This feature checks whether the current label can be a start
+		state or not, and fires accordingly.
+		</div>
+		
+	</li>
+	<li>
+		<i>EndFeatures:</i>
+		<div align="justify">
+		These features fire when the current label in consideration is an end state.
+		This feature checks whether the current label can be an end state or not, and
+		fires accordingly.
+		</div>
+	</li>
+
+	<li>
+		<i>WordFeatures:</i>
+		<div align="justify">
+		These features simply check whether the current token is
+		present in the dictionary in the particular state under consideration or not. The dictionary is
+		created on-the-fly from the training set. 
+		</div>
+	</li>
+	<li>
+		<i>WordScoreFeatures:</i>
+		<div align="justify">
+		These return log of the ratio of current word with the
+		label y to the total words with label y. 
+		</div>
+	</li>
+	<li>
+		<i>UnknownFeatures:</i>
+		<div align="justify">
+		These features fire when the current token is not observed at
+		the time of training.  
+		</div>
+	</li>
+<li>
+	<i>KnownInOtherState:</i><div align="justify">
+		These features fire for those states (labels) where the
+		token does not appear, but it appears in other states with greater
+		than RARE_THRESOLD frequency.</div>
+	</li>
+</ul>
+
+<p align="justify">
+A Feature is identified by its name and a unique id assigned to it. Public Class FeatureIdentifier 
+is used to give an identification to a feature.
+
+In order to generate the WordFeatures, UnknownFeatures, and WordScoreFeatures described above, a dictionary
+of words is maintained. This dictionary basically gives a mapping of words seen during training with 
+their respective class labels. The WordsInTrain class provides this functionality. A brief description of this class is as under.
+</p>
+
+<h4>WordsInTrain</h4>
+<div align="justify">
+This class encapsulates dictionary or vocabulary built on-the-fly from the
+training set.  Basically, it is a set of data-structures which are described 
+below.</div>
+
+<ul>
+	<li>
+		<i>HashMap dictionary:</i>
+		This is a HashMap indexed by word to HEntry; HEntry is inner class
+		which is described below.
+	</li>
+	<li>
+		<i> cntsArray:</i>
+	This array is a two dimensional array which stores for each word a count
+	of the number of occurrences of that word in all the states.
+	</li>
+	<li>
+		<i> cntsOverAllWords:</i>
+	This array stores for each state a total count of all the words appearing in that state as observed during 
+	training.
+	</li>
+	<li>
+		<i>allTotal:</i>
+		This is the total count of all words.
+	</li>
+	<li align="justify">
+		<i>HEntry:</i> This class encapsulates information about a single word's count. 
+		It includes 'index' (which is the index of the word in above arrays -- cntsArray,
+		cntsOverAllWords), 'cnt' (which is the count of the word), and stateArray[numStates]
+		(which stores the count of the word in each state). 
+	</li>
+</ul>
+<h3><a name="FeatureGenImpl">FeatureGenImpl class</a></h3>
+<p align="justify">
+	FeatureGenImpl is a feature generator class which implements the <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a> interface. 
+	As described earlier, a feature generator works as a repository for feature types objects.
+	These feature types objects are added to the feature generator using the addFeatures() method of the <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a> interface.
+	If you have created new features by extending the <a href="features.html#FeatureTypes">FeatureTypes</a> class, you will need to add the new feature types in the feature generator.
+	To add your own feature types, you can extend the <a href="features.html#FeatureGenImpl">FeatureGenImpl</a> 
+	and override the addFeatures() method. 
+	But, if your application needs the functionality not provided by the current
+	<a href="features.html#FeatureGenImpl">FeatureGenImpl</a> class, you may want to create a new feature generator class by implementing the <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a> interface.
+</p>
+
+<h3><a name="FeatureTypesImpl">Implementing your own FeatureTypes:</a></h3>
+
+<p align="justify">
+Typically, you would have one of two types of features to implement.
+
+<ol>
+<li>A State feature that outputs a boolean feature for a pattern/property for each label.  An example is the UnknownFeatures class.
+<li>A transition feature that is a function of not just the current state but also the previous state.  An example is the EdgeFeatures class.
+</ol>
+</p>
+<p align="justify">
+Here are a few tips on creating your own state features.<br>
+
+Create a derived class of <a href="#FeatureTypes">FeatureTypes</a> for each class of pattern that you would like to detect.   You want a feature to be associated for each label for each pattern in this type. There is a convenient class FeatureTypesEachLabel for outputing a feature for each label.  So, you just need to worry about outputing every applicable pattern for each data position given in startScanFeatureAt() on every call to next(). On a next() call you need to fill in the value of the feature (typically 1 but can be any real-value) and set the id and name of the feature.  The state where it is fired (the yend field) will be set by the outer FeatureTypesEachLabel wrapper.   The id field is the most tricky since you have to make sure to assign a unique id to each distinct pattern that you generate.  The name of the feature will be the string pattern that will be useful for viewing later.  However, you are responsible for assigning a unique id for each pattern.  The id-s you assign do not have to be contiguous and they only have to be unique within each FeatureType.  The function setIdentifier is used to assign the id and this function adds a few bits for each FeatureType to make them unique overall.   You want the generation of ids to be fast.
+</p>
+You add different FeatureTypes to the FeatureGenImpl class using the .add() routine as follows:
+<pre>
+FeatureGenImpl fgen = new FeatureGenImpl(modelSpecs, numLabels, false); // last false to disable default addition of features.
+
+fgen.add(new EdgeFeatures);
+fgen.add(new FeatureTypesEachLabel(new MyPatternFeature1());
+fgen.add(new FeatureTypesEachLabel(new MyPatternFeature2());
+..
+.
+</pre>
+<p align="justify">
+The <a href="#FeatureTypes">FeatureTypes</a> class also supports some advanced methods like train() to enable you to collect any statistics you want from the trianing data and use that to drive the features that you output.
+</p>
+<a href="#top">top</a>
+
+<!-- Draw a horizontal rule to separate above informative part form footer -->
+
+<hr>
+<table align="center">
+<tbody>
+<tr>
+<td>
+<a href="interfaces.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="models.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<table align="center" width="100%">
+<tbody>
+<tr>
+<td align="center"><B>
+		Copyright &copy; 2004 KReSIT, IIT Bombay. All rights reserved </B>
+</td>
+
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

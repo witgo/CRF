@@ -1,0 +1,212 @@
+<html>
+<head>
+<title>
+Conditional Random Field (CRF) Documentation
+</title>
+</head>
+<body>
+<a name="top"><H2 align="center"> Conditional Random Field (CRF) </H2></a>
+<HR>
+<table align="right">
+<tbody>
+<tr>
+<td>
+<a href="features.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="parameters.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+<BR>
+<H2>5. Models</H2> 
+<!-- CONTENT -->
+<P align="justify">
+The package allows you to input the knowledge about the relationships among the labels through an input graph.
+A <i>graph</i> here is defined by a quadruple (V, E, S, En), where V is the set of vertices (states or nodes), 
+E is the set of edges, S is the set of start states and En is the set of end states. Note that S and En are subsets of V.
+The nodes in the graph represent states; each state is associated with a label (<I>y</I>). 
+A <i>label</i> can be associated with more than one <i>state</i>. 
+Edges of the graph represent dependence relationship between the states of the model.
+Given a set of labels and their dependencies in a given application domain, different kind of graphs can be defined.
+<P>
+
+<P align="justify">
+You can specify certain types of graphs to be used for learning.
+This can be done using the <I>modelGraph</I> parameter given in the configuration file input to the system.
+The supported graph models are described below.
+</P>
+<BR>
+<B>1. Naive (Complete) Model</B>
+
+<P align="justify">
+	Given a set of labels, this model associates exactly one state with each label. 
+	It constructs an edge between every pair of states (including an edge from a state to itself). 
+	This model can be used for the cases where the sequential relationship is to be learned
+	from the given dataset. 
+	EdgeFeature can be used in this model which will learn weights according to the probability 
+	of transition from one state to another, from the training set.
+	Specify <i>modelGraph="naive"</i> in the configuration file to create a naive graphical model. 
+	<a href="#fig1">Figure 1</a> shows a naive model with three labels. 
+	<i>Note</i>: In all figures, a circle indicates a state, a directed arrow from one state to other indicates an edge, start state is shown by a directed arrow input to the state, and an end state is indicated by a double circle.
+	
+</P>
+
+<a name="fig1">
+<table width="100%">
+	<tr><td align="center"><img src="images/naive.jpg" alt="Naive model image"></img></td></tr>
+	<tr><td align="center"><B>Figure 1: Naive model</B></a></td></tr>
+</table>
+</a>
+
+<B>2. No Edge Model</B>
+<P align="justify">
+	This model again constructs one state for each label in the label set. 
+	As the name implies, there are no edges in the graph.
+	Hence, this model does not encode any sequential relationship between the labels of the model.
+	<br> 
+	Specify <i>modelGraph="noEdge"</i> to create a no edge model.
+	<a href="#fig2">Figure 2</a> shows a no edge model with three labels.
+</P>
+<a name="fig2">
+<table width="100%">
+	<tr><td align="center"><img src="images/noedge.jpg" alt="NoEdge model image"></img></td></tr>
+	<tr><td align="center"><B>Figure 2: NoEdge model</B></a></td></tr>
+</table>
+</a>
+<B>3. Nested Model</B>
+<P align="justify">
+	This model allows you to create multiple states for a given label.  The
+	idea here is to create two models -- an <i>outer</i> and an <i>inner</i> model.  The
+	<i>outer</i> model encodes sequential relationship among labels and
+	can be any one of the above two models, while the <i>inner</i> model
+	is a graph consisting of states associated with same label and edges between
+	them.  This inner model allows you to model a sequence of tokens
+	all having the same label.  It represents a set of states associated with each
+	node of the outer model.  
+</P>
+<P align="justify">
+	Conceptually, this model consists of two
+	models: an <i>inner</i> and a <i> outer</i> model, but actually, there is only one 
+	model.  The two models are merged into a single flat graphical model by
+	creating edges between the end state(s) of one inner model to the start state(s) of another inner model, 
+	for each edge in the outer model.
+</P>	
+<P align="justify">
+	For example, consider two outer model nodes <i>y_i</i> and <i>y_j</i> connected by the
+	edge <i>e_ij</i>.  Assume that the inner model of <i>y_i</i> contains <i>3</i> end states and inner model of <i>y_j</i> contains <i>4</i> start states.
+	In the resultant model, there will be a set of <i>12</i> edges resulting from
+	the outer model edge <i>e_ij</i>.  Thus, the resultant set of edges for edge <i>e_ij</i> is:<div align="center">
+	{(<i>y_ip</i>, <i>y_jq</i>): <i>1</i> &lt = <i>p</i> &lt = <i>3</i>, <i>1</i> &lt = <i>q</i> &lt = <i>4</i>, where <i>y_ip</i> is an end state of the inner model for node <i>y_i</i> and <i>y_jq</i> is a start state of the inner model for node <i>y_j</i>}</div>
+</P>
+<P align="justify">
+	Various types of inner models supported by this package are described below:
+	<ul>
+	<li> <i>Boundary:</i>
+	This is the standard begin-continue-end and unique model. 
+	It consist of 4 states with one unique state and 3 states connected in a chain like structure as shown 
+	in the figure.
+	<a href="#fig3">Figure 3</a> shows boundary model.
+	<br>
+	<br>
+	<a name="fig3">
+	<table width="100%">
+	<tr><td align="center"><img src="images/boundary.jpg" alt="Boundary model image"></img></td><tr>
+	<tr><td align="center"><B>Figure 3: Boundary model</B></a></td></tr>
+	</table>
+	</a>
+	<li><i>k-chain:</i>This model is a single chain of nodes from start to end.
+	<a href="#fig4">Figure 4</a> shows 4-chain model.
+	<br>
+	<br>
+	<a name="fig4">
+	<table width="100%">
+	<tr><td align="center"><img src="images/chain.jpg" alt="Chain model image"></img></td></tr>
+	<tr><td align="center"><B>Figure 4: Chain model</B></a></td></tr>
+	</table>
+	</a>
+	<li> <i>k-parallel:</i>	This model is a k-parallel path graph. 
+	The length of each path varies from 1 to k.
+	The last path is actually a chain which can accept k or more tokens.
+	<a href="#fig5">Figure 5</a> shows 3-parallel model.
+	<br>
+	<br>
+	<a name="fig5">
+	<table width="100%">
+	<tr><td align="center"><img src="images/parallel.jpg" alt="Parallel model image"></img></td></tr>
+	<tr><td align="center"><B>Figure 5: Parallel model</B></a></td></tr>
+	</table>
+	</a>
+	</ul>
+</P>
+<P align="justify">
+	
+	A few examples of the graph property along with their explanations are given below.
+	For each example, the number of labels are assumed to be <i>3</i>.
+</P>
+<ul>
+<li><i>modelGraph="naive"</i>
+<div align="justify">
+
+		A simple naive model which consists of a set of states (one for each label), and edges going between each 
+		pair of states in the graph. An example naive model is shown in <a href="#fig1">Figure 1</a>.
+</div>
+<li><i>modelGraph="noEdge"</i>
+<div align="justify">
+	The graph is a set of states each labelled with a unique label with no edges between them.
+</div>
+<li><i>modelGraph="naive,4-chain,2-parallel,boundary"</i>
+	<div align="justify">
+		This is an example of a NestedModel. Here, the graph specifications are separated by comma. 
+		The first token specifies the graph type for the outer model which is a naive model in this example.
+		Rest of the tokens specify the inner graph models -- one for each label in the outer model. 
+		The number of inner models specification has to be exactly same as the number of labels. 
+		In the above example, the first inner model, which corresponds to label 0, is a 4-chain model.
+		The next two inner models for labels 1 and 2 are respectively a 2-parallel and a boundary model.
+		The resultant graph is shown in <a href="#fig6">Figure 6</a>.
+	</div>
+	
+<li><i>modelGraph="noEdge,4-chain,2-parallel,boundary"</i>
+	<div align="justify">This is again a
+	NestedModel. The only difference here is that, here, the outer model is a
+	noEdge model.
+	</div>
+</ul>
+	<a name="fig6">
+	<table width="100%">
+	<tr><td align="center"><img src="images/nested.jpg" alt="Nested model image"></img></td></tr>
+	<tr><td align="center"><B>Figure 6: Nested model - "naive,4-chain,2-parallel,boundary"</B></a></td></tr>
+	</table>
+	</a>
+</P>
+
+<!-- CONTENT -->
+<a href="#top">top</a>
+<!-- Draw a horizontal rule to separate above informative part form footer -->
+
+<hr>
+<table align="center">
+<tbody>
+<tr>
+<td>
+<a href="features.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="parameters.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<table align="center" width="100%">
+<tbody>
+<tr>
+<td align="center"><B>
+		Copyright &copy; 2004 KReSIT, IIT Bombay. All rights reserved </B>
+</td>
+
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>
+Conditional Random Field (CRF) Documentation
+</title>
+</head>
+<body>
+<a name="top"><H2 align="center"> Conditional Random Field (CRF) </H2></a>
+<HR>
+<table align="right">
+<tbody>
+<tr>
+<td>
+<a href="models.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="references.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+<BR>
+<H2>6. Configuration Parameters</H2> 
+<!-- CONTENT -->
+<P align="justify">
+There are certain parameters that can be accepted by the <b>iitb.CRF</b> package. 
+While creating an instance of the CRF class, you will have to pass these parameters as a java.util.Properties object.
+You might want to specify certain parameters like <i>numLabels</i> and <i>modelGraph</i> which will be 
+used to create the graphical model for your application as described in the <a href="models.html">Models</a> section.
+Some of the parameters which are commonly used are described below. Refer the source code for the advanced parameters.
+</P>
+
+<table>
+	<tr><td width="15%"><B>maxIters</B></td><td>:</td><td> Number of training iterations over the training set; 
+	default set to 100</td></tr>
+	<tr><td width="15%"><B>trainer</B></td><td>:</td><td>Training algorithms: default is the 
+	standard maximum log-likelihood trainer; you can specify "Collins" for Discriminative training of the model</td></tr>
+	<tr><td width="15%"><B></B></td><td>:</td><td> A sample dataset and the corresponding configuration file </td></tr>
+	<tr><td width="15%"><B>numLabels</B></td><td>:</td><td>Number of labels</td></tr>
+	<tr><td width="15%"><B>modelGraph</B></td><td>:</td><td> As described in the <a href="models.html">Models</a> section</td></tr>
+</table>
+<P align="justify">
+</P>
+
+
+
+<!-- CONTENT -->
+<a href="#top">top</a>
+<!-- Draw a horizontal rule to separate above informative part form footer -->
+
+<hr>
+<table align="center">
+<tbody>
+<tr>
+<td>
+<a href="models.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="references.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<table align="center" width="100%">
+<tbody>
+<tr>
+<td align="center"><B>
+		Copyright &copy; 2004 KReSIT, IIT Bombay. All rights reserved </B>
+</td>
+
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

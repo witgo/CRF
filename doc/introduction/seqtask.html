@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>
+Conditional Random Field (CRF) Documentation
+</title>
+</head>
+<body>
+<a name="top"><H2 align="center"> Conditional Random Field (CRF) </H2></a>
+<HR>
+<table align="right">
+<tbody>
+<tr>
+<td>
+<a href="overview.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="interfaces.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+<br>
+<H2>2. Using CRF for Sequential Learning</H2> 
+
+	<p align="justify">
+	Training and inferencing are the two essential components of a learning task. 
+	A labeled set of examples (referred to as training set in literature), is used in case of 
+	supervised learning to learn the parameters of the model.
+	The training algorithm learns a model using the training set, which can then be applied to an 
+	unseen instance to predict the property for which the model is learned.
+	This process of predicting the property for an unseen instance using the learned model is referred to as <i>inferencing</i>.  
+	</p>
+	<p align="justify">
+	A sequential learning task differs from a conventional record based
+	learning application in that the basic data instance (<b>x</b>)
+	here is a sequence of tokens (x_i, i = 1,2... n, n = |<b>x</b>|), and the task is to assign a label (from some predefined set of values) to each of these tokens. 
+	Thus, the task here is to predict the label sequence <b>y</b> for the token sequence <b>x</b>.
+	A particular label assigned to a token may depend upon the position of
+	the token (i for x_i) in the sequence, as well as the labels assigned to previous
+	token(s) (Markov property). CRFs, being conditional models, as opposed
+	to generative models like HMMs, allow large range dependencies on x
+	values in the sequence without making the inferencing
+	problem intractable. These large range x dependencies are encoded by
+	functions defined over the history for the current token. History for a
+	token captures the characteristics of the tokens within a window
+	around the current token, current label (y) in
+	consideration, and optionally previous	y value(s).  These functions are
+	known as <i>features</i>.
+	</p>
+	<p align="justify">
+	To use CRF for a sequential learning task, you should have a training set.
+	Also, you would like to specify various features to encode various dependencies for the particular task at hand.
+	The training set, as described above, will be used to learn a model. 
+	The learned model, here, is a set of parameters (known as weights) which corresponds to the 
+	importance of the features used in the task (more details about the learning process can be 
+	obtained from the <a href="references.html">references</a>).
+	</p>
+	<p align="justify">
+	The core component of the package are the learning and inferencing
+	algorithms.  The learning algorithm expects a 
+	<a href="interfaces.html#DataIter">DataIter</a> interface to access the
+	training set. Also, each training or test instance is required to be
+	accessed through the <a href="interfaces.html#DataSequence">DataSequence</a>
+	interface. 
+	Thus, you will need to encapsulate your single sequential data instance into a class which implements the <a href="interfaces.html#DataSequence">DataSequence</a> interface.
+	These are the basic interface that you will need to create; details given in <a href="interfaces.html">next</a> section.
+	</p>
+	<p align="justify">
+	The package also implements some of the most commonly used features in a typical sequential learning task. Details about the implemented features can be found in the <a href="features.html">Features</a> section.
+	However, based on your application domain, you may want to add new features to the learning task.
+	The package has the flexibility to define new features through the provided interfaces related to features.
+	</p>
+	<p align="justify">
+	The learning and inferencing algorithms use a feature generator to access various features used for the task. 
+	The interface for feature generator is defined in <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a>.
+	The package contains an implementation (<a href="features.html#FeatureGenImpl">FeatureGenImpl</a>) of the <a href="interfaces.html#FeatureGenerator">FeatureGenerator</a> interface.
+	For most users, <a href="features.html#FeatureGenImpl">FeatureGenImpl</a> class with the default features would suffice for their tasks. 
+	An advance user, who needs to create and add his/her own features, would need to extend this 
+	<a href="features.html#FeatureGenImpl">FeatureGenImpl</a> class or implement a new feature generator class depending on his/her requirements. The 
+	<a href="interfaces.html#Feature">Feature</a> interface defines a feature, a sample implementation of which is the <a href="features.html#FeatureImpl">FeatureImpl</a> class provided with the package.
+	The package also defines an abstract class <a href="features.html#FeatureTypes">FeatureTypes</a> which 
+	encapsulates a set of similar features. 
+	To add new features, you would need to extend this <a href="features.html#FeatureTypes">FeatureTypes</a> class. 
+	Once you implement new features by extending <a href="features.html#FeatureTypes">FeatureTypes</a> class, you would want to add it to a feature generator class so that the new features are used for the learning task.
+	More details about how to create new features and how to add them to a feature generator can be found in the <a href="interfaces.html">Various Interfaces</a> and <a href="features.html">Features</a> sections.
+	</p>
+	<P align="justify">
+	For sequential learning problems, it becomes essential to encode transition from one label type to another.
+	Also, for some tasks, a single entity to be labeled may consist of a sequence of tokens.
+	For example, in the address segmentation task, we may need to encode the fact that with high probability the area name would be followed by a city name. 
+	Also, an area name may consist of more than one word.
+	The package supports encoding of such transitions as well as of multiple tokens per label by allowing a user to input a graph of labels representing various relationships. 
+	More details about this input parameter can be found in the <a href="models.html">Models</a> section.
+	</P>
+<h3> <a name="steps">Steps for Using CRF for Sequential Learning</a></h3>
+	<P align="justify">
+The following are the steps to train a model using the CRF:
+	</P>
+
+<ol>
+	<li> Create an instance of the feature generator class --  
+	<a href="features.html#FeatureGenImpl">FeatureGenImpl</a> or a new feature 
+	generator that you might have created. 
+	Also, pass the required parameters like the modelGraph value 
+	(see <a href="models.html">Models</a> section) and number of labels in the label set, to the constructor.
+	<li>Create an instance of the <b>iitb.CRF</b> class. 
+	This class is the interface for the training and inference routine of
+	the package.  You will need to pass the object of the feature generator
+	just created as one of the parameters to the constructor of the iitb.CRF class.
+	<li>Read the instances of the training set in the objects of the class
+	implementing the <a href="interfaces.html#DataSequence">DataSequence</a>
+	interface.  Also, create an object of the class implementing the <a
+	href="interfaces.html#DataIter">DataIter</a> interface to encapsulate
+	these data sequences.  
+	<li> Call the train routine of the feature generator
+	class to train the dictionary (i.e. to construct on-the-fly dictionary
+	for creating dictionary features; see <a
+	href="features.html#FeatureTypes">FeatureTypes</a> for details). Pass
+	the <a href="interfaces.html#DataIter">DataIter</a> object to the train
+	routine.  
+	<li> Call the train routine of the CRF object. Again, you will
+	have to  pass the training set iterator object to this train routine.  </ol>
+
+	<P align="justify">
+	Once the model is learnt from the training set, you can apply it to 
+	an unseen or test instance by calling the apply() method of the iitb.CRF class.
+	You can save the model by calling the write() methods of both the iitb.CRF
+	class as well as the feature generator, so as to be able to use it later
+	for inferencing.  You can use the read() methods of these classes to
+	retrieve the parameters of a previously learnt model.
+	</P>
+	<P align="justify">
+	A template for implementing your own CRF application using this package can be found <a href="CRFAppl.java">here</a>.
+	</p>
+
+<a href="#top">top</a>
+<!-- Draw a horizontal rule to separate above informative part form footer -->
+
+<hr>
+<table align="center">
+<tbody>
+<tr>
+<td>
+<a href="overview.html">Prev</a> | 
+<a href="index.html">Home</a> |
+<a href="interfaces.html">Next</a>
+</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<table align="center" width="100%">
+<tbody>
+<tr>
+<td align="center"><B>
+		Copyright &copy; 2004 KReSIT, IIT Bombay. All rights reserved </B>
+</td>
+
+</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
