@@ -137,6 +137,12 @@ class HistoryManager implements Serializable {
 	    }
 	    return feature;
 	}
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#featureName(int)
+     */
+    public String featureName(int featureIndex) {
+        return fgen.featureName(featureIndex);
+    }
     };
     class DataSequenceHist implements DataSequence {
 	Counters cntr;

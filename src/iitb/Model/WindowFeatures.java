@@ -61,7 +61,8 @@ public class WindowFeatures extends FeatureTypes {
          * @return
          */
         private int boundary(int boundary, int offset, int maxLen) {
-            return Math.max(0,Math.min(boundary+offset,maxLen));
+           // return Math.max(0,Math.min(boundary+offset,maxLen));
+            return boundary+offset;
         }
         public String toString() {
         	return winName;
@@ -79,14 +80,17 @@ public class WindowFeatures extends FeatureTypes {
 	}
 
 	boolean advance(boolean firstCall) {
-	    while (!single.hasNext() || firstCall) {
+	    while (firstCall || !single.hasNext()) {
 	        currentWindow--;
 	        if (currentWindow < 0)
 	            return false;
 	        int rightB = windows[currentWindow].rightBoundary(prevPos+1,pos,dataLen-1);
 	        int leftB = windows[currentWindow].leftBoundary(prevPos+1,pos,rightB);
-	        single.startScanFeaturesAt(dataSeq,leftB-1, rightB);
-	        firstCall = false;
+	 
+	        if ((leftB < dataLen) && (rightB >= 0) && (leftB <= rightB)) {
+	            single.startScanFeaturesAt(dataSeq,Math.max(leftB,0)-1, Math.min(rightB,dataLen-1));
+	            firstCall = false;
+	        }
 	    }
 	    return true;
 	}

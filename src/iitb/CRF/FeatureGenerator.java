@@ -16,4 +16,5 @@ public interface FeatureGenerator extends Serializable {
     void startScanFeaturesAt(DataSequence data, int pos);
     boolean hasNext();
     Feature next();
+    public String featureName(int featureIndex);
 };

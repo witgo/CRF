@@ -52,4 +52,10 @@ public class FeatureGenRecord implements FeatureGenerator {
 	featureToReturn.val = dataRecord.getColumn(featureToReturn.colId);
 	return featureToReturn;
     }
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#featureName(int)
+     */
+    public String featureName(int featureIndex) {
+        return "ColumnId=" + (featureIndex % numCols) + " label="+(featureIndex/numCols);
+    }
 };

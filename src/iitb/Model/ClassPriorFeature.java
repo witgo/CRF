@@ -44,7 +44,7 @@ public class ClassPriorFeature extends FeatureTypes {
         f.val = 1;
         String name="";
         if (featureCollectMode) {
-            name = "Bias " + thisClassId;
+            name = "Bias_" + thisClassId;
         }
         setFeatureIdentifier(thisClassId,thisClassId,name,f);
         thisClassId--;

@@ -188,7 +188,21 @@ public class SegmentViterbi extends SparseViterbi {
     				return RobustMath.LOG0;
     		}
     	}
-    	return	(Ri.getQuick(dataSeq.y(i)) + ((i-ell >= 0)?Mi.get(dataSeq.y(i-ell),dataSeq.y(i)):0));
+    	if (model.params.debugLvl > 0) {
+    	    // output features that hold
+    	    segmentModel.featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
+    	    while (segmentModel.featureGenNested.hasNext()) {
+    	        Feature f = segmentModel.featureGenNested.next();
+    	        if (((CandSegDataSequence)data).holdsInTrainingData(f,i-ell,i)) {
+    	            System.out.println("Feature " + (i-ell) + " " + i + " " + segmentModel.featureGenerator.featureName(f.index()) + " " + segmentModel.lambda[f.index()]);
+    	        }
+    	    }
+    	}
+    	double val = (Ri.getQuick(dataSeq.y(i)) + ((i-ell >= 0)?Mi.get(dataSeq.y(i-ell),dataSeq.y(i)):0));
+    	if (Double.isInfinite(val)) {
+    	    System.out.println("Infinite score");
+    	}
+    	return val;
     }
     public void bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
         viterbiSearch(dataSeq, lambda,false);
@@ -202,7 +216,7 @@ public class SegmentViterbi extends SparseViterbi {
     Context newContext(int numY, int beamsize, int pos){
         if (labelConstraints == null)
             return new Context(numY,beamsize,pos);        
-        return  new ContextForLabelConstraints(numY,(beamsize==1)?10:beamsize,pos); 
+        return  new ContextForLabelConstraints(numY,(beamsize==1)?5:beamsize,pos); 
     }
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
