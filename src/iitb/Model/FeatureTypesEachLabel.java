@@ -8,7 +8,7 @@ public class  FeatureTypesEachLabel extends FeatureTypes {
     int numStates;
     int stateId;
     FeatureImpl featureImpl;
-    FeatureTypesEachLabel(Model m, FeatureTypes single) {
+    public FeatureTypesEachLabel(Model m, FeatureTypes single) {
 	super(m);
 	numStates = model.numStates();
 	this.single = single;
@@ -27,12 +27,10 @@ public class  FeatureTypesEachLabel extends FeatureTypes {
 	}
 	return true;
     }
-    boolean startScan() {
-	stateId = numStates;
-	return advance();
-    }
     public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
-	return single.startScanFeaturesAt(data,prevPos,pos);
+	stateId = numStates;
+	single.startScanFeaturesAt(data,prevPos,pos);
+	return advance();
     }
     public boolean hasNext() {
 	return (stateId  < numStates);
@@ -40,7 +38,7 @@ public class  FeatureTypesEachLabel extends FeatureTypes {
     public  void next(iitb.Model.FeatureImpl f) {
 	f.copy(featureImpl);
 	f.yend = stateId;
-	setFeatureIdentifier(featureImpl.strId.id*numStates+stateId, stateId, featureImpl.strId.name, f);
+	single.setFeatureIdentifier(featureImpl.strId.id*numStates+stateId, stateId, featureImpl.strId.name, f);
 	advance();
     }
 };
