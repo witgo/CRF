@@ -30,6 +30,7 @@ public abstract class Model implements Serializable {
     public abstract int label(int stateNum);
     public abstract int numEdges();
     public abstract EdgeIterator edgeIterator();
+    public EdgeIterator innerEdgeIterator() {return null;}
     public abstract int numStartStates();
     public abstract int numEndStates();
     public abstract boolean isEndState(int i);

@@ -66,5 +66,11 @@ public class SingleEdgeIterator implements EdgeIterator {
     public EdgeIterator edgeIterator() {
 	return new SingleEdgeIterator(this);
     }
+	/* (non-Javadoc)
+	 * @see iitb.Model.Model#innerEdgeIterator()
+	 */
+	public EdgeIterator innerEdgeIterator() {
+		return null;
+	}
 };
 

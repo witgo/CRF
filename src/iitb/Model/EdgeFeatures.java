@@ -25,9 +25,6 @@ public class EdgeFeatures extends FeatureTypes {
 			return false;
 		} else {
 			edgeNum = 0;
-			if (edgeIter == null){
-				edgeIter = model.edgeIterator();
-			}
 			edgeIter.start();
 			return true;
 		}
