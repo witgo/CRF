@@ -66,6 +66,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		{"endsWithDot",                 "[^.]+\\."              },
 		{"endsWithComma",       	"[^,]+[,]"              },
 		{"containsSpecialCharacters", 	".*[#;:\\-/<>'\"()&].*"	},
+		{"onlySpecialCharacters", 	"([#;:\\-/<>'\"()&])+"	},
 		{"isDigit", "\\d+"}
 	};
 
