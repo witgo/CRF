@@ -18,9 +18,9 @@ public class CrfParams {
     /** penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
 	set this to zero, if no penalty needed
     */
-    public double invSigmaSquare = 1.0;
+    public double invSigmaSquare = 0.01;
     /** Maximum number of iterations over the training data during training */
-    public int maxIters = 50;
+    public int maxIters = 100;
     /** Convergence criteria for finding optimum lambda using BFGS */
     public double epsForConvergence = 0.0001;
     /** The number of corrections used in the BFGS update. */
@@ -31,6 +31,10 @@ public class CrfParams {
     public int debugLvl = 1; // controls amount of status information output
 
     public boolean doScaling = true;
+
+    public boolean doRobustScale = false;
+
+    java.util.Properties miscOptions;
     /**
      * constructor with default values as follows.
      * initValue = 0;
@@ -48,27 +52,24 @@ public class CrfParams {
      *  will set the initValue param to 0.1 and maxIters param to 20.
      */
     public CrfParams(String args) {
+	this(stringToOptions(args));
+    }
+    static java.util.Properties stringToOptions(String args) {
+	java.util.Properties opts = new java.util.Properties();
 	StringTokenizer tok = new StringTokenizer(args, " ");
 	while (tok.hasMoreTokens()) {
 	    String name = tok.nextToken();
-	    if (name.equals("initValue")) {
-		initValue = Double.parseDouble(tok.nextToken());
-	    } else if (name.equals("maxIters")) {
-		maxIters = Integer.parseInt(tok.nextToken());
-	    } else if (name.equals("invSigmaSquare")) {
-	        invSigmaSquare = Double.parseDouble(tok.nextToken());
-	    } else if (name.equals("debugLvl")) {
-		debugLvl = Integer.parseInt(tok.nextToken());
-		System.out.println("Debug level :" + debugLvl);
-	    } else if (name.equals("trainer")) {
-		trainerType = tok.nextToken();
-	    } else if (name.equals("scale")) {
-		doScaling = tok.nextToken().equalsIgnoreCase("true");
-	    }
+	    String value = tok.nextToken();
+	    opts.put(name,value);
 	}
+	return opts;
     }
     
     public CrfParams(java.util.Properties opts) {
+	parseParameters(opts);
+    }
+    public void parseParameters(java.util.Properties opts) {
+	miscOptions = opts;
 	if (opts.getProperty("initValue") != null) {
 	    initValue = Double.parseDouble(opts.getProperty("initValue"));
 	} 
@@ -80,13 +81,21 @@ public class CrfParams {
 	} 
 	if (opts.getProperty("debugLvl") != null) {
 	    debugLvl = Integer.parseInt(opts.getProperty("debugLvl"));
-	    System.out.println("Debug level :" + debugLvl);
 	} 
-	if (opts.getProperty("trainer") != null) {
-	    trainerType = opts.getProperty("trainer");
-	}
 	if (opts.getProperty("scale") != null) {
 	    doScaling = opts.getProperty("scale").equalsIgnoreCase("true");
+	}
+	if (opts.getProperty("robustScale") != null) {
+	    doRobustScale = opts.getProperty("robustScale").equalsIgnoreCase("true");
+	}
+	if (opts.getProperty("epsForConvergence") != null) {
+	    epsForConvergence = Double.parseDouble(opts.getProperty("epsForConvergence"));
+	}
+	if (opts.getProperty("mForHessian") != null) {
+	    mForHessian = Integer.parseInt(opts.getProperty("mForHessian"));
+	}
+	if (opts.getProperty("trainer") != null) {
+	    trainerType = opts.getProperty("trainer");
 	}
 	
     }

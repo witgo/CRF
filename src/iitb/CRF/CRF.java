@@ -22,8 +22,10 @@ public class CRF {
     int numY;
     Trainer trainer;
     FeatureGenerator featureGenerator;
-
+    EdgeGenerator edgeGen;
+    HistoryManager histMgr;
     public CrfParams params;
+    Viterbi viterbi;
     
     /**
      * @param numLabels is the number of distinct class labels or y-labels
@@ -35,16 +37,19 @@ public class CRF {
      * @see iitb.CRF.CrfParams 
      */
     public CRF(int numLabels, FeatureGenerator fgen, String arg) {
-	featureGenerator = fgen;
-	numY = numLabels;
-
-	params = new CrfParams(arg);
+	this(numLabels, fgen, CrfParams.stringToOptions(arg));
     }
 
     public CRF(int numLabels, FeatureGenerator fgen, java.util.Properties configOptions) {
-	featureGenerator = fgen;
-	numY = numLabels;
+	this(numLabels,1,fgen,configOptions);
+    }
+
+    public CRF(int numLabels, int histsize, FeatureGenerator fgen, java.util.Properties configOptions) {
+	histMgr = new HistoryManager(histsize,numLabels);
+	featureGenerator = histMgr.getFeatureGen(fgen);
+	numY = histMgr.numY;
 	params = new CrfParams(configOptions);
+	edgeGen = histMgr.getEdgeGenerator();
     }
 
     /**
@@ -70,104 +75,35 @@ public class CRF {
 	    lambda[pos++] = Double.parseDouble(line);
 	}
     }
-    public void train(DataIter trainData) {
+    protected Trainer getTrainer() {
+	if (params.trainerType.startsWith("Collins"))
+	    return new CollinsTrainer(params);
+	return new Trainer(params);
+    }
+    /**
+     * Trains the model given the data
+     * @return the learnt parameter value as an array
+     */
+    public double[] train(DataIter trainData) {
+	return train(trainData,null);
+    }
+    /**
+     * Trains the model given the data
+     * @return the learnt parameter value as an array
+     */
+    public double[] train(DataIter trainData, Evaluator evaluator) {
 	lambda = new double[featureGenerator.numFeatures()];	
-	trainer = new Trainer(params);
-	trainer.train(this, trainData, lambda);
-    }
-
-    static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
-			     DenseDoubleMatrix2D Mi_YY,
-			     DenseDoubleMatrix1D Ri_Y, boolean takeExp) {
-	Mi_YY.assign(0);
-	Ri_Y.assign(0);
-	while (featureGen.hasNext()) { 
-	    Feature feature = featureGen.next();
-	    int f = feature.index();
-	    int yp = feature.y();
-	    int yprev = feature.yprev();
-	    float val = feature.value();
-	    //	    System.out.println(feature.toString());
-	 
-	    if (yprev < 0) {
-		// this is a single state feature.
-		double oldVal = Ri_Y.get(yp);
-		Ri_Y.set(yp,oldVal+lambda[f]*val);
-	    } else {
-		Mi_YY.set(yprev,yp,Mi_YY.get(yprev,yp)+lambda[f]*val);
-	    }
-	}
-	if (takeExp) {
-	    for(int r = 0; r < Mi_YY.rows(); r++) {
-		Ri_Y.set(r,Math.exp(Ri_Y.get(r)));
-		for(int c = 0; c < Mi_YY.columns(); c++) {
-		    Mi_YY.set(r,c,Math.exp(Mi_YY.get(r,c)));
-		}
-	    }
-	}
-    }
-    static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
-			     DataSequence dataSeq, int i, 
-			     DenseDoubleMatrix2D Mi_YY,
-			     DenseDoubleMatrix1D Ri_Y, boolean takeExp) {
-	featureGen.startScanFeaturesAt(dataSeq, i);
-	computeLogMi(featureGen, lambda, Mi_YY, Ri_Y, takeExp);
-    }
-
-    double gamma[]; // scratch space for temporary computation.
-    double gammaPrev[]; // scratch space for temporary computation.
-    int winningLabel[][];
-    DenseDoubleMatrix2D Mi;
-    DenseDoubleMatrix1D Ri;
-    void allocateScratch() {
-	gamma = new double[numY];
-	gammaPrev = new double[numY];
-	Mi = new DenseDoubleMatrix2D(numY,numY);
-	Ri = new DenseDoubleMatrix1D(numY);
-	winningLabel = new int[numY][];
+	viterbi = new Viterbi(this,1);
+	trainer = getTrainer();
+	trainer.train(this, histMgr.mapTrainData(trainData), lambda, evaluator);
+	return lambda;
     }
     public void apply(DataSequence dataSeq) {
 	if (params.debugLvl > 1) 
 	    Util.printDbg("CRF: Applying on " + dataSeq);
-	if (gamma == null) {
-	    allocateScratch();
-	}
-	for (int y = 0; y < gammaPrev.length; gamma[y] = 0, gammaPrev[y++] = 0);
-	if ((winningLabel[0] == null) || (winningLabel[0].length < dataSeq.length())) {
-	    for (int yi = 0; yi < winningLabel.length; winningLabel[yi++]=new int[dataSeq.length()]);
-	}
-	for (int i = 0; i < dataSeq.length(); i++) {
-	    // compute Mi.
-	    computeLogMi(featureGenerator,lambda,dataSeq,i,Mi,Ri,false);
-	    for (int yi = 0; yi < numY; yi++) {
-		gamma[yi] = Ri.get(yi);
-		if (i > 0) {
-		for (int yp = 0; yp < numY; yp++) {
-		    double val = gammaPrev[yp]+Mi.get(yp,yi)+Ri.get(yi);
-		    if (gamma[yi] < val) {
-			gamma[yi] = val;
-			winningLabel[yi][i] = yp;
-		    } 
-		}
-		}
-		if (params.debugLvl > 1) 
-		    Util.printDbg(i +" y " + yi + " gamma " + gamma[yi]);
-	    }
-	    double temp[] = gammaPrev;
-	    gammaPrev = gamma;
-	    gamma = temp;
-	}
-	// find best gamma..
-	int ybest = 0;
-	for (int yInd = 0; yInd < gammaPrev.length; yInd++) {
-	    if (gammaPrev[ybest] < gammaPrev[yInd])
-		ybest = yInd;
-	}
+	viterbi.bestLabelSequence(dataSeq,lambda);
 	for(int i = dataSeq.length()-1; i >= 0; i--) {
-	    dataSeq.set_y(i, ybest);
-	    ybest = winningLabel[ybest][i];
+	    histMgr.set_y(dataSeq, i, dataSeq.y(i));
 	}
-	if (params.debugLvl > 1)
-	    Util.printDbg("Returning sequence labels ");
     }
 };
