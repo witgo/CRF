@@ -7,51 +7,54 @@ import iitb.CRF.*;
  */ 
 
 public class EdgeFeatures extends FeatureTypes {
-    transient EdgeIterator edgeIter = null;
-    int edgeNum;
-    Object labelNames[];
-    public EdgeFeatures(Model m, Object labels[]) {
-	super(m);
-	edgeIter = m.edgeIterator();
-	labelNames=labels;
-    }
-    public EdgeFeatures(Model m) {
-	this(m,null);
-    }
-    public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-	if (prevPos < 0) {
-	    edgeNum = model.numEdges();
-	    return false;
-	} else {
-	    edgeNum = 0;
-	    if (edgeIter == null){
-	        edgeIter = model.edgeIterator();
-	    }
-	    edgeIter.start();
-	    return true;
+	transient EdgeIterator edgeIter = null;
+	int edgeNum;
+	transient boolean edgeIsOuter;
+	Object labelNames[];
+	public EdgeFeatures(Model m, Object labels[]) {
+		super(m);
+		edgeIter = m.edgeIterator();
+		labelNames=labels;
 	}
-    }
-    public boolean hasNext() {
-	return (edgeNum < model.numEdges());
-    }	
-    public void next(FeatureImpl f) {
-	Edge e = edgeIter.next();
-	Object name="";
-	if (featureCollectMode) {
-	    if (labelNames == null) {
-		name = "E."+model.label(e.start);
-	    } else {
-		name = labelNames[model.label(e.start)];
-	    }
+	public EdgeFeatures(Model m) {
+		this(m,null);
 	}
-	if (model.isOuterEdge(e,edgeNum)) {
-	    setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end), model.label(e.end),name,f);
-	} else {
-	    setFeatureIdentifier(edgeNum,e.end,name,f);
+	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
+		if (prevPos < 0) {
+			edgeNum = model.numEdges();
+			return false;
+		} else {
+			edgeNum = 0;
+			if (edgeIter == null){
+				edgeIter = model.edgeIterator();
+			}
+			edgeIter.start();
+			return true;
+		}
 	}
-	f.ystart = e.start;
-	f.yend = e.end;
-	f.val = 1;
-	edgeNum++;
-    }
+	public boolean hasNext() {
+		return (edgeNum < model.numEdges());
+	}	
+	public boolean lastEdgeWasOuter() {return edgeIsOuter;}
+	public void next(FeatureImpl f) {
+		edgeIsOuter = edgeIter.nextIsOuter();
+		Edge e = edgeIter.next();
+		Object name="";
+		if (featureCollectMode) {
+			if (labelNames == null) {
+				name = "E."+model.label(e.start);
+			} else {
+				name = labelNames[model.label(e.start)];
+			}
+		}
+		if (edgeIsOuter) {
+			setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end) + model.numEdges(), model.label(e.end),name,f);
+		} else {
+			setFeatureIdentifier(edgeNum,e.end,name,f);
+		}
+		f.ystart = e.start;
+		f.yend = e.end;
+		f.val = 1;
+		edgeNum++;
+	}
 };

@@ -210,6 +210,12 @@ public class GenericEdgeIterator implements EdgeIterator {
 	edgeNum++;
 	return edges[edgeNum-1];
     }
+	/* (non-Javadoc)
+	 * @see iitb.Model.EdgeIterator#nextIsOuter()
+	 */
+	public boolean nextIsOuter() {
+		return true;
+	}
 };
     public EdgeIterator edgeIterator() {
 	return new GenericEdgeIterator(_edges);

@@ -10,6 +10,8 @@ public class NoEdgeModel extends CompleteModel {
 	public void start(){}
 	public boolean hasNext(){return false;}
 	public Edge next(){return null;}
+	public boolean nextIsOuter() {
+		return false;}
     };
     EmptyEdgeIter emptyIter;
     public NoEdgeModel(int nlabels) {

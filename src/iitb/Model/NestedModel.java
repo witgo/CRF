@@ -135,9 +135,6 @@ public class NestedModel extends Model {
 	    lstart=lend;
 	}
     }
-    boolean isOuterEdge(Edge e, int num) {
-	return (num < outer.numEdges());
-    }
 
 public class NestedEdgeIterator implements EdgeIterator {
     NestedModel model;
@@ -209,12 +206,18 @@ public class NestedEdgeIterator implements EdgeIterator {
 	return edge;
     }
     public Edge next() {
-	if (label < model.numLabels) {
+	if (!nextIsOuter()) {
 	    return nextInnerEdge();
 	} else {
 	    return nextOuterEdge();
 	}
     }
+	/* (non-Javadoc)
+	 * @see iitb.Model.EdgeIterator#nextIsOuter()
+	 */
+	public boolean nextIsOuter() {
+		return (label >= model.numLabels);
+	}
 };
     public EdgeIterator edgeIterator() {
 	return new NestedEdgeIterator(this);
@@ -231,15 +234,10 @@ public class NestedEdgeIterator implements EdgeIterator {
 	System.out.println(model.numEndStates());
 	EdgeIterator edgeIter = model.edgeIterator();
 	//	EdgeIterator edgeIter2 = model.edgeIterator();
-	while (edgeIter.hasNext()) {
+	for (int edgeNum = 0; edgeIter.hasNext(); edgeNum++) {
+	    boolean edgeIsOuter = edgeIter.nextIsOuter();
 	    Edge e = edgeIter.next();
-	    System.out.println(e.start + " -> " + e.end + ";");
-	}
-	System.out.println("Second scan");
-	edgeIter.start();
-	while (edgeIter.hasNext()) {
-	    Edge e = edgeIter.next();
-	    System.out.println(e.start + " -> " + e.end + ";");
+	    System.out.println(e.start + "("+ model.label(e.start) + ")" + " -> " + e.end + ":" + edgeIsOuter+ ";");
 	}
 	} catch (Exception e) {
 	    System.out.println(e.getMessage());

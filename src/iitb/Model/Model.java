@@ -15,6 +15,7 @@ interface EdgeIterator {
     void start();
     boolean hasNext();
     Edge next();
+    boolean nextIsOuter(); // returns true if the next edge it will return is outer
 };
 
 public abstract class Model implements Serializable {
@@ -41,8 +42,6 @@ public abstract class Model implements Serializable {
     public  void stateMappings(SegmentDataSequence data) throws Exception {stateMappings((DataSequence)data);}
     public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
 
-    boolean isOuterEdge(Edge e, int num) {return true;}
-    
     public void printGraph() {
 	System.out.println("Numnodes = " + numStates() + " NumEdges " + numEdges());
 	EdgeIterator iter = edgeIterator();

@@ -59,6 +59,9 @@ public class SingleEdgeIterator implements EdgeIterator {
 	}
 	return edgeToReturn;
     }
+	public boolean nextIsOuter() {
+		return true;
+	}
 };
     public EdgeIterator edgeIterator() {
 	return new SingleEdgeIterator(this);
