@@ -13,7 +13,7 @@ public class KnownInOtherState extends FeatureTypes {
     WordsInTrain dict;
     float wordFreq;
     int wordPos;
-    public KnownInOtherState(Model m, WordsInTrain d) {
+    public KnownInOtherState(FeatureGenImpl m, WordsInTrain d) {
 	super(m);
 	dict = d;
     }

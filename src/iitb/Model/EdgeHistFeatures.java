@@ -14,7 +14,7 @@ public class EdgeHistFeatures extends FeatureTypes {
     Counters ctr;
     boolean allDone;
     int histArr[];
-    public EdgeHistFeatures(Model m,String name, String labels[], int histsize) {
+    public EdgeHistFeatures(FeatureGenImpl m,String name, String labels[], int histsize) {
 	super(m);
 	fname=name;
 	labelNames=labels;

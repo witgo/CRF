@@ -14,11 +14,11 @@ public class StartFeatures  extends FeatureTypes {
     int stateId;
     int startStateNum;
     Object fname;
-    public StartFeatures(Model m) {
+    public StartFeatures(FeatureGenImpl m) {
 	super(m);
 	fname = "S.";
     }
-    public StartFeatures(Model m, Object name) {
+    public StartFeatures(FeatureGenImpl m, Object name) {
 	super(m);
 	fname=name;
     }

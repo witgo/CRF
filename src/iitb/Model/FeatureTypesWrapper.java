@@ -17,10 +17,8 @@ public class FeatureTypesWrapper extends FeatureTypes {
 	 * @param m
 	 */
 	public FeatureTypesWrapper(FeatureTypes ftype) {
-		super(ftype.model);
+		super(ftype);
 		this.ftype = ftype;
-		model.offset--;
-		this.thisTypeId = ftype.thisTypeId;
 	}
 
 	/* (non-Javadoc)

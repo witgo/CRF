@@ -74,7 +74,7 @@ public class WindowFeatures extends FeatureTypes {
 	 * 
 	 */
 	public WindowFeatures(Window windows[], FeatureTypes single) {
-		super(single.model);
+		super(single);
 		this.single = single;
 		this.windows = windows;
 	}

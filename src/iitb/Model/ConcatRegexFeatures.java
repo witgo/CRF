@@ -107,14 +107,14 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 * file. This should be follwoed by one pattern definition on each line. The first word is the name of the pattern
 	 * and second word is regular expression for the pattern.
 	 *
-	 * @param m			a {@link Model} object
+	 * @param fgen			a {@link Model} object
 	 * @param relSegmentStart	index of the reltive position for left boundary
 	 * @param relSegmentEnd		index of the reltive position for right boundary
 	 * @param maxMemory		maximum size of a segment
 	 * @param patternFile		file which contains the pattern definition
 	 */
-	public ConcatRegexFeatures(Model m, int relSegmentStart, int relSegmentEnd, int maxMemory, String patternFile){
-		super(m);
+	public ConcatRegexFeatures(FeatureGenImpl fgen, int relSegmentStart, int relSegmentEnd, int maxMemory, String patternFile){
+		super(fgen);
 		
 		assert(relSegmentEnd >= relSegmentStart);
 		this.relSegmentStart = relSegmentStart;
@@ -153,7 +153,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 * @param relSegmentEnd		index of the reltive position for right boundary
 	 * @param maxMemory		maximum size of a segment
 	 */
-	public ConcatRegexFeatures(Model m, int relSegmentStart, int relSegmentEnd, int maxMemory){	    
+	public ConcatRegexFeatures(FeatureGenImpl m, int relSegmentStart, int relSegmentEnd, int maxMemory){	    
 		super(m);
 		assert(relSegmentEnd >= relSegmentStart);
 		this.relSegmentStart = relSegmentStart;
@@ -176,7 +176,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 * @param relSegmentStart	index of the reltive position for left boundary
 	 * @param relSegmentEnd		index of the reltive position for right boundary
 	 */
-	public ConcatRegexFeatures(Model m, int relSegmentStart, int relSegmentEnd){
+	public ConcatRegexFeatures(FeatureGenImpl m, int relSegmentStart, int relSegmentEnd){
 		this(m, relSegmentStart, relSegmentEnd, 1);
 	}
 
@@ -188,7 +188,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 * @param relSegmentEnd		index of the reltive position for right boundary
 	 * @param patternFile		file which contains the pattern definition
 	 */
-	public ConcatRegexFeatures(Model m, int relSegmentStart, int relSegmentEnd, String patternFile){
+	public ConcatRegexFeatures(FeatureGenImpl m, int relSegmentStart, int relSegmentEnd, String patternFile){
 		this(m, relSegmentStart, relSegmentEnd, 1, patternFile);
 	}
 	private int sign(int boundary){
@@ -320,4 +320,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	public int maxFeatureId(){
 	    return idbase * (patternString.length - 1) + (idbase -1); //(maximum base i.e. most significat bits + maximum offset)
 	}
+	int offsetLabelIndependentId(FeatureImpl f) {
+	    return f.strId.id;
+    }
 };

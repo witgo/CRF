@@ -197,7 +197,7 @@ public class SegmentViterbi extends SparseViterbi {
     	    while (segmentModel.featureGenNested.hasNext()) {
     	        Feature f = segmentModel.featureGenNested.next();
     	        if (((CandSegDataSequence)data).holdsInTrainingData(f,i-ell,i)) {
-    	            System.out.println("Feature " + (i-ell) + " " + i + " " + segmentModel.featureGenerator.featureName(f.index()) + " " + segmentModel.lambda[f.index()]);
+    	            System.out.println("Feature " + (i-ell) + " " + i + " " + segmentModel.featureGenerator.featureName(f.index()) + " " + segmentModel.lambda[f.index()] + " " + f.value());
     	        }
     	    }
     	}

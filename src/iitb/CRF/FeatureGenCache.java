@@ -126,6 +126,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
      * @see iitb.CRF.FeatureGeneratorNested#startScanFeaturesAt(iitb.CRF.DataSequence, int, int)
      */
     public void startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
+        assert(scanNum > 0);
         thisKey = dataIndex*maxDataLen + pos + (pos-prevPos-1)*maxDataLen*numData;
         if (scanNum == 1) {
             maxSegLen = Math.max(maxSegLen,pos-prevPos);
@@ -141,7 +142,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             offset[thisKey]=numFeatures;
             endOffset[thisKey]=numFeatures;
         }
-    }
+    }	
 
     /* (non-Javadoc)
      * @see iitb.CRF.FeatureGenerator#numFeatures()

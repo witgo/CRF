@@ -35,7 +35,7 @@ public class RegexCountFeatures extends FeatureTypes {
     /**
      * @param m
      */
-    public RegexCountFeatures(Model m, int maxSegmentLength) {
+    public RegexCountFeatures(FeatureGenImpl m, int maxSegmentLength) {
         super(m);
         this.maxSegmentLength = maxSegmentLength;
         p = new Pattern[patternString.length];

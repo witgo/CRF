@@ -5,7 +5,7 @@ package iitb.Model;
  */
 public class  FeatureTypesSegmentLength extends FeatureTypes {
     int segLen;
-    public FeatureTypesSegmentLength(Model m) {
+    public FeatureTypesSegmentLength(FeatureGenImpl m) {
 	super(m);
     }
     public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {

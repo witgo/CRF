@@ -13,7 +13,7 @@ public class UnknownFeature extends FeatureTypes {
     private static final long serialVersionUID = 6122L;
 	int stateId;
     WordsInTrain dict;
-    public UnknownFeature(Model m, WordsInTrain d) {
+    public UnknownFeature(FeatureGenImpl m, WordsInTrain d) {
 	super(m);
 	dict = d;
     }

@@ -17,10 +17,10 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
     Edge edge;
     int edgeNum;
     
-    public EdgeLinearHistFeatures(Model m, Object labels[][], int histsize) {
+    public EdgeLinearHistFeatures(FeatureGenImpl m, Object labels[][], int histsize) {
 	super(m);
 	fnames=labels;
-	edgeIter = m.edgeIterator();
+	edgeIter = model.edgeIterator();
 	this.histsize = histsize;
 	histArr = new int[histsize];
     }

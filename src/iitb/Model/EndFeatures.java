@@ -11,11 +11,11 @@ public class EndFeatures  extends FeatureTypes {
     int stateId;
     int endStateNum;
     Object fname;
-    public EndFeatures(Model m) {
+    public EndFeatures(FeatureGenImpl m) {
 	super(m);
 	fname="End.";
     }
-    public EndFeatures(Model m, Object fname) {
+    public EndFeatures(FeatureGenImpl m, Object fname) {
 	super(m);
 	this.fname = fname;
     }

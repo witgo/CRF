@@ -16,7 +16,7 @@ public class WordFeatures extends FeatureTypes {
     WordsInTrain dict;
     int _numWordStatePairs;
     public static int RARE_THRESHOLD=0;
-    public WordFeatures(Model m, WordsInTrain d) {
+    public WordFeatures(FeatureGenImpl m, WordsInTrain d) {
 	super(m);
 	dict = d;
     }

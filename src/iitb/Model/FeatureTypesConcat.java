@@ -20,8 +20,8 @@ public class FeatureTypesConcat extends FeatureTypes {
 	/**
 	 * @param m
 	 */
-	public FeatureTypesConcat(Model model, FeatureTypes single, int maxMemory) {
-		super(model);
+	public FeatureTypesConcat(FeatureGenImpl fgen, FeatureTypes single, int maxMemory) {
+		super(fgen);
 		this.single = single;
 		// TODO: set this properly for different classes.
 		int maxId = single.maxFeatureId()+1; // for the feature not firing.
@@ -42,6 +42,7 @@ public class FeatureTypesConcat extends FeatureTypes {
 		for (int i = 0; (i < pos-prevPos) && (i < maxConcatLength); i++) {
 			if (single.startScanFeaturesAt(data,pos-i-1,pos-i) && single.hasNext()) {
 				single.next(feature);
+				// this could be wrong since label information is not present in single.
 				int thisId = offsetLabelIndependentId(feature)+1;
 				bitMap = bitMap | (thisId << i*numBits);
 				if (featureCollectMode()) {
@@ -80,4 +81,5 @@ public class FeatureTypesConcat extends FeatureTypes {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
+	
 }

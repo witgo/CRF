@@ -11,13 +11,13 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
 	    maxMemOverall = Integer.parseInt(options.getProperty("MaxMemory"));
 	} 
 	if (addFeatureNow) {
-		features.add(new EdgeFeatures(model));
-		features.add(new StartFeatures(model));
-		features.add(new EndFeatures(model));
+		features.add(new EdgeFeatures(this));
+		features.add(new StartFeatures(this));
+		features.add(new EndFeatures(this));
 		dict = new WordsInTrain();
-		features.add(new FeatureTypesMulti(new UnknownFeature(model,dict)));
-		features.add(new FeatureTypesMulti(new WordFeatures(model, dict)));
-		features.add(new FeatureTypesEachLabel(model, new FeatureTypesSegmentLength(model)));
+		features.add(new FeatureTypesMulti(new UnknownFeature(this,dict)));
+		features.add(new FeatureTypesMulti(new WordFeatures(this, dict)));
+		features.add(new FeatureTypesEachLabel(this, new FeatureTypesSegmentLength(this)));
 		WindowFeatures.Window windows[] = new WindowFeatures.Window[] {
 		        	new WindowFeatures.Window(0,true,0,true,"start"), 
 		        	new WindowFeatures.Window(0,false,0,false,"end"),
@@ -28,9 +28,9 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
 /*		features.add(new FeatureTypesEachLabel(model, 
 				new WindowFeatures(windows, new FeatureTypesConcat(model,
 						new ConcatRegexFeatures(model,0,0), maxMemOverall))));		
-*/		features.add(new FeatureTypesEachLabel(model, 
+*/		features.add(new FeatureTypesEachLabel(this, 
 				new WindowFeatures(windows, new FeatureTypesMulti(
-						new ConcatRegexFeatures(model,0,0)))));
+						new ConcatRegexFeatures(this,0,0)))));
 
 		}
     }

@@ -32,6 +32,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     FeatureTypes currentFeatureType;
     FeatureImpl featureToReturn, feature;
     public Model model;
+    int numFeatureTypes=0;
     int totalFeatures;
     
     transient DataSequence data;
@@ -51,16 +52,16 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         return dict;
     }
     protected void addFeatures() { 
-        features.add(new EdgeFeatures(model));
-        features.add(new StartFeatures(model));
-        features.add(new EndFeatures(model));
+        addFeature(new EdgeFeatures(this));
+        addFeature(new StartFeatures(this));
+        addFeature(new EndFeatures(this));
         
         dict = new WordsInTrain();
-        features.add(new UnknownFeature(model,dict));
-        // features.add(new KnownInOtherState(model, dict));
-        //	features.add(new KernelFeaturesForLongEntity(model,new WordFeatures(model, dict)));
-        features.add(new WordFeatures(model, dict));
-        features.add(new FeatureTypesEachLabel(model,new ConcatRegexFeatures(model,0,0)));
+        addFeature(new UnknownFeature(this,dict));
+        // addFeature(new KnownInOtherState(model, dict));
+        //	addFeature(new KernelFeaturesForLongEntity(model,new WordFeatures(model, dict)));
+        addFeature(new WordFeatures(this, dict));
+        addFeature(new FeatureTypesEachLabel(this,new ConcatRegexFeatures(this,0,0)));
     }
     FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
@@ -72,7 +73,6 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         FeatureIdentifier idToName[];
         FeatureMap(){
             featureCollectMode = true;
-            model.featureCollectMode = true;
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
@@ -94,7 +94,6 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         void freezeFeatures() {
             //	    System.out.println(strToInt.size());
             featureCollectMode = false;
-            model.featureCollectMode=false;
             idToName = new FeatureIdentifier[strToInt.size()];
             for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
                 Object key = e.nextElement();

@@ -37,7 +37,7 @@ class SegmentTrainer extends SparseTrainer {
         try {
             FeatureGeneratorNested featureGenNested = featureGenCache;
             if (featureGenNested==null)
-                featureGenNested = new FeatureGenCache((FeatureGeneratorNested)featureGenerator);
+                featureGenNested = (FeatureGeneratorNested)featureGenerator;
             double logli = 0;
             for (int f = 0; f < lambda.length; f++) {
                 grad[f] = -1*lambda[f]*params.invSigmaSquare;

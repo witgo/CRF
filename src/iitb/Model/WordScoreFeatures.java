@@ -15,7 +15,7 @@ public class WordScoreFeatures extends FeatureTypes {
     int wordPos;
     
     WordsInTrain dict;
-    public WordScoreFeatures(Model m, WordsInTrain d) {
+    public WordScoreFeatures(FeatureGenImpl m, WordsInTrain d) {
 	super(m);
 	dict = d;
     }

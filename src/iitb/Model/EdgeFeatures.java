@@ -11,11 +11,11 @@ public class EdgeFeatures extends FeatureTypes {
 	protected int edgeNum;
 	transient boolean edgeIsOuter;
 	Object labelNames[];
-	public EdgeFeatures(Model m, Object labels[]) {
+	public EdgeFeatures(FeatureGenImpl m, Object labels[]) {
 		super(m);
 		labelNames=labels;
 	}
-	public EdgeFeatures(Model m) {
+	public EdgeFeatures(FeatureGenImpl m) {
 		this(m,null);
 	}
 	protected void setEdgeIter() {

@@ -14,10 +14,10 @@ public class ClassPriorFeature extends FeatureTypes {
     private static final long serialVersionUID = 16L;
     transient int thisClassId;
     /**
-     * @param m
+     * @param fgen
      */
-    public ClassPriorFeature(Model m) {
-        super(m);
+    public ClassPriorFeature(FeatureGenImpl fgen) {
+        super(fgen);
     }
 
     /* (non-Javadoc)

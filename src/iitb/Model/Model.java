@@ -21,8 +21,6 @@ interface EdgeIterator {
 
 public abstract class Model implements Serializable {
     int numLabels;
-    int offset=0;
-    boolean featureCollectMode=true;
     public String name;
     Model(int nlabels) {
 	numLabels = nlabels;

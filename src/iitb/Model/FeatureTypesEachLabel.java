@@ -15,11 +15,12 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 
 	FeatureImpl featureImpl;
 
-	public FeatureTypesEachLabel(Model m, FeatureTypes single) {
-		super(m);
+	public FeatureTypesEachLabel(FeatureGenImpl fgen, FeatureTypes single) {
+		super(fgen);
 		numStates = model.numStates();
 		this.single = single;
 		featureImpl = new FeatureImpl();
+		thisTypeId = single.thisTypeId;
 	}
 
 	boolean advance() {
@@ -50,11 +51,6 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 		single.setFeatureIdentifier(featureImpl.strId.id * numStates + stateId,
 				stateId, featureImpl.strId.name, f);
 		advance();
-	}
-
-	int labelIndependentId(FeatureImpl f) {
-		return ((f.strId.id - single.thisTypeId) - f.strId.stateId * model.offset)
-				/ model.numStates() + single.thisTypeId;
 	}
 	
 	/* (non-Javadoc)
