@@ -58,6 +58,9 @@ class Viterbi implements Serializable {
     Viterbi(CRF model, int bs) {
 	this.model = model;
 	beamsize = bs;
+	if (model.params.miscOptions.getProperty("beamSize") != null)
+	    beamsize = Integer.parseInt(model.params.miscOptions.getProperty("beamSize"));
+
     }
     class Entry {
 	Soln solns[];

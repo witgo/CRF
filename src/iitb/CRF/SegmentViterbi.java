@@ -83,7 +83,8 @@ public class SegmentViterbi extends SparseViterbi {
         }
         void copy(Soln soln) {
             super.copy(soln);
-            labelsOnPath = ((SolnWithLabelsOnPath)soln).labelsOnPath;
+            labelsOnPath.clear();
+            labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
         }
         private static final long serialVersionUID = 1L;
         TIntHashSet labelsOnPath;
@@ -97,10 +98,11 @@ public class SegmentViterbi extends SparseViterbi {
         }
         protected void setPrevSoln(Soln prevSoln, double score) {
             super.setPrevSoln(prevSoln,score);
-            if (prevSoln != null) {
+            if ((prevSoln != null) && (labelConstraints != null)) {
                 labelsOnPath.clear();
             	labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
-            	if ((labelConstraints != null) && labelConstraints.conflicting(prevSoln.label))
+            	assert(labelConstraints.valid(labelsOnPath,label,prevSoln.label));
+            	if (labelConstraints.conflicting(prevSoln.label))
             		labelsOnPath.add(prevSoln.label);
             }
         }       
@@ -200,7 +202,7 @@ public class SegmentViterbi extends SparseViterbi {
     Context newContext(int numY, int beamsize, int pos){
         if (labelConstraints == null)
             return new Context(numY,beamsize,pos);        
-        return  new ContextForLabelConstraints(numY,beamsize,pos); 
+        return  new ContextForLabelConstraints(numY,(beamsize==1)?10:beamsize,pos); 
     }
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
