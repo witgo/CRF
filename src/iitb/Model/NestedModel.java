@@ -104,6 +104,19 @@ public class NestedModel extends Model {
 	assert false;
     }
 
+    public void stateMappings(SegmentDataSequence data) throws Exception {
+	if (data.length() == 0)
+	    return;
+	for (int lstart = 0; lstart < data.length();) {
+	    int lend = data.getSegmentEnd(lstart)+1;
+	    int label = data.y(lstart);
+	    inner[label].stateMappings(data,lend-lstart, lstart);
+	    for (int k = lstart; k < lend; k++) {
+		data.set_y(k, nodeOffsets[label]+data.y(k));
+	    }
+	    lstart=lend;
+	}
+    }
     public void stateMappings(DataSequence data) throws Exception {
 	if (data.length() == 0)
 	    return;

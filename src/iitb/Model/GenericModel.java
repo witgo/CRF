@@ -10,6 +10,7 @@ import java.io.*;
 
 
 public class GenericModel extends Model {
+    String name;
     int _numStates;
     Edge _edges[];  // edges have to be sorted by their starting node id.
     int edgeStart[]; // the index in the edges array where edges out of node i start.
@@ -19,25 +20,33 @@ public class GenericModel extends Model {
     public int label(int s) {return (myLabel == -1)?s:myLabel;}
     public GenericModel(String spec, int thisLabel) throws Exception {
 	super(1);
+	name = spec;
 	myLabel = thisLabel;
-	if (spec.endsWith("-chain")) {
+	if (spec.endsWith("-chain") || spec.endsWith("-long")) {
 	    StringTokenizer tok = new StringTokenizer(spec,"-");
 	    int len = Integer.parseInt(tok.nextToken());
 	    _numStates = len;
-	    _edges = new Edge[len];
-	    edgeStart = new int[len];
-	    for (int i = 0; i < len-1; i++) {
-		_edges[i] = new Edge(i,i+1);
-		edgeStart[i] = i;
-	    }
-	    if (len > 1)
-		_edges[len-1] = new Edge(len-2,len-2);
-	    else
-		_edges[0] = new Edge(0,0);
 	    startStates = new int[1];
 	    startStates[0] = 0;
-	    endStates = new int[1];
-	    endStates[0] = len-1;
+	    edgeStart = new int[_numStates];
+	    if (len == 1) {
+		_edges = new Edge[1];
+		_edges[0] = new Edge(0,0);
+		endStates = new int[1];
+		endStates[0] = 0;
+		edgeStart[0] = 0;
+	    } else {
+		_edges = new Edge[2*(len-1)];
+		for (int i = 0; i < len-1; i++) {
+		    _edges[2*i] = new Edge(i,i+1);
+		    _edges[2*i+1] = new Edge(i,len-1);
+		    edgeStart[i] = 2*i;
+		}
+		_edges[_edges.length-1] = new Edge(len-2,len-2);
+		endStates = new int[2];
+		endStates[0] = 0; // to allow one word entities.
+		endStates[1] = len-1;
+	    }
 	} else if (spec.endsWith("parallel")) {
 	    StringTokenizer tok = new StringTokenizer(spec,"-");
 	    int len = Integer.parseInt(tok.nextToken());
@@ -80,7 +89,7 @@ public class GenericModel extends Model {
 	    endStates = new int[2];
 	    endStates[0] = 0;
 	    endStates[1] = 3;
-	    edgeStart = new int[4];
+	    edgeStart = new int[_numStates];
 	    edgeStart[0] = 4;
 	    edgeStart[1] = 0;
 	    edgeStart[2] = 2;

@@ -36,6 +36,9 @@ public abstract class FeatureTypes {
 };
 
 
+/*
+ * Implements the bag of features model for a given input sequence
+ */
 class FeatureTypesMulti extends FeatureTypes {
     FeatureTypes single;
     int currPos;

@@ -143,7 +143,11 @@ public class FeatureGenImpl implements FeatureGenerator {
     public void stateMappings(DataIter trainData) throws Exception {
 	for (trainData.startScan(); trainData.hasNext();) {
 	    DataSequence seq = trainData.next();
-	    model.stateMappings(seq);
+	    if (model instanceof SegmentDataSequence) {
+		model.stateMappings((SegmentDataSequence)seq);
+	    } else {
+		model.stateMappings(seq);
+	    }
 	}
     }
     public int maxMemory() {return 1;}

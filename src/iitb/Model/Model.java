@@ -35,6 +35,7 @@ public abstract class Model {
     public abstract int startState(int i);
     public abstract int endState(int i);
     public abstract void stateMappings(DataSequence data) throws Exception;
+    public  void stateMappings(SegmentDataSequence data) throws Exception {stateMappings((DataSequence)data);}
     public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
     
     public void printGraph() {
