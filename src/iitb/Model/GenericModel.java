@@ -1,4 +1,5 @@
 package iitb.Model;
+import gnu.trove.TIntArrayList;
 import iitb.CRF.*;
 import java.util.*;
 import java.io.*;
@@ -193,6 +194,7 @@ public class GenericModel extends Model {
         return false;
     }
     
+    
     public int stateMappingGivenLength(int label, int len, int posFromStart) throws Exception {
         for (int i = 0; i < numStartStates(); i++) {
             int stateId = pathToEnd(startState(i),len-1,posFromStart-1);
@@ -203,6 +205,31 @@ public class GenericModel extends Model {
             }
         }
         throw new Exception("No path in graph");  
+    }
+    public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
+    throws Exception {
+    	stateIds.clear();
+    	for (int i = 0; i < len; stateIds.add(0));
+        for (int i = 0; i < numStartStates(); i++) {
+            if (pathToEnd(startState(i),len-1,1,stateIds)) {
+                stateIds.setQuick(0,startState(i));
+                return;
+            }
+        }
+        throw new Exception("No path in graph");
+    }
+    boolean pathToEnd(int s, int lenLeft, int start, TIntArrayList stateIds) {
+        if (lenLeft == 0) {
+            return isEndState(s);
+        }
+        for (int e = edgeStart[s]; (e < numEdges()) && (_edges[e].start == s); e++) {
+            int child = _edges[e].end;
+            if (pathToEnd(child,lenLeft-1,start+1,stateIds)) {
+                stateIds.setQuick(start,child);
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

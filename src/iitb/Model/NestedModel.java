@@ -1,4 +1,5 @@
 package iitb.Model;
+import gnu.trove.TIntArrayList;
 import iitb.CRF.*;
 import java.util.*;
 
@@ -146,6 +147,13 @@ public class NestedModel extends Model {
     public int stateMappingGivenLength(int label, int len, int posFromStart) 
     throws Exception {
     	return inner[label].stateMappingGivenLength(label,len,posFromStart)+nodeOffsets[label];
+	}
+    public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
+    throws Exception {
+    	inner[label].stateMappingGivenLength(label,len,stateIds);
+       	for(int i = stateIds.size()-1; i >= 0; i--) {
+    		stateIds.setQuick(i, stateIds.getQuick(i)+ nodeOffsets[label]);
+       	}
 	}
 public class NestedEdgeIterator implements EdgeIterator {
     NestedModel model;

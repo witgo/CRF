@@ -1,6 +1,7 @@
 package iitb.Model;
 import java.io.Serializable;
 
+import gnu.trove.TIntArrayList;
 import iitb.CRF.*;
 /**
  *
@@ -101,4 +102,12 @@ public abstract class Model implements Serializable {
 			dataSeq.setSegment(segStart,segEnd,label(dataSeq.y(segStart)	));
 		}
 	}
+	/**
+	 * @param label
+	 * @param len
+	 * @param stateIds
+	 * @return
+	 */
+	 public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
+	    throws Exception {;}
 };
