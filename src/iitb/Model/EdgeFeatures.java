@@ -7,8 +7,8 @@ import iitb.CRF.*;
  */ 
 
 public class EdgeFeatures extends FeatureTypes {
-	transient EdgeIterator edgeIter = null;
-	int edgeNum;
+	transient protected EdgeIterator edgeIter = null;
+	protected int edgeNum;
 	transient boolean edgeIsOuter;
 	Object labelNames[];
 	public EdgeFeatures(Model m, Object labels[]) {

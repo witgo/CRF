@@ -122,4 +122,10 @@ public class WindowFeatures extends FeatureTypes {
 	    advance(false);
 	}
 
+	public boolean requiresTraining() {
+		return single.requiresTraining();
+	}
+	public void train(DataSequence data, int pos) {
+		single.train(data, pos);
+	}
 }

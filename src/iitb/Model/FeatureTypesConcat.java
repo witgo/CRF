@@ -71,4 +71,10 @@ public class FeatureTypesConcat extends FeatureTypes {
 		feature.strId.id = -1;
 	}
 
+	public boolean requiresTraining() {
+		return single.requiresTraining();
+	}
+	public void train(DataSequence data, int pos) {
+		single.train(data, pos);
+	}
 }

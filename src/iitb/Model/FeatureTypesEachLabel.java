@@ -1,4 +1,7 @@
 package iitb.Model;
+
+import iitb.CRF.DataSequence;
+
 /**
  * This can be used as a wrapper around a FeatureTypes class that wants to
  * generate a feature for each label. 
@@ -52,6 +55,19 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	int labelIndependentId(FeatureImpl f) {
 		return ((f.strId.id - single.thisTypeId) - f.strId.stateId * offset)
 				/ model.numStates() + single.thisTypeId;
+	}
+	
+	/* (non-Javadoc)
+	 * @see iitb.Model.FeatureTypes#requiresTraining()
+	 */
+	public boolean requiresTraining() {
+		return single.requiresTraining();
+	}
+	/* (non-Javadoc)
+	 * @see iitb.Model.FeatureTypes#train(iitb.CRF.DataSequence, int)
+	 */
+	public void train(DataSequence data, int pos) {
+		single.train(data, pos);
 	}
 };
 	
