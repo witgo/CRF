@@ -20,9 +20,17 @@ public class NestedModel extends Model {
 	StringTokenizer start = new StringTokenizer(specs, ",");
 	assert start.hasMoreTokens();
 	outer = Model.getNewBaseModel(numLabels, (String)start.nextToken());
+	String commonStruct = null;
 	for(int i=0 ; i<numLabels ; i++) {
-	    assert start.hasMoreTokens();
-	    String thisStruct = start.nextToken();
+		String thisStruct = commonStruct;
+		if (thisStruct == null) {
+			assert start.hasMoreTokens();
+			thisStruct = start.nextToken();
+			if (thisStruct.endsWith("*")) {
+				thisStruct = thisStruct.substring(0,thisStruct.length()-1);
+				commonStruct = thisStruct;
+			}
+	    }
 	    inner[i] = new GenericModel(thisStruct,i);
 	}
 	_numEdges = 0;
