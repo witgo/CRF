@@ -40,6 +40,8 @@ public class ClassPriorFeature extends FeatureTypes {
      */
     public void next(FeatureImpl f) {
         f.yend = thisClassId;
+        f.ystart = -1;
+        f.val = 1;
         String name="";
         if (featureCollectMode) {
             name = "Bias " + thisClassId;

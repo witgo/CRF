@@ -20,7 +20,7 @@ public class FeatureImpl implements Feature, Serializable {
 	ystart = -1;
 	id = 0;
     }
-    public FeatureImpl() {;}
+    public FeatureImpl() {init();}
     public FeatureImpl(FeatureImpl f) {copy(f);}
     public void copy(Feature featureToReturn) {
     	id = featureToReturn.index();
