@@ -6,6 +6,8 @@
  */
 package iitb.CRF;
 
+import gnu.trove.TIntFloatHashMap;
+
 /**
  * @author sunita
  *
@@ -45,5 +47,10 @@ public class SegmentCRF extends CRF {
 	    if (segmentViterbi==null)
 	        segmentViterbi = new SegmentViterbi(this,1);
 		return segmentViterbi.viterbiSearch(dataSeq,lambda,true);
+	}
+	public void singleSegmentClassScores(CandSegDataSequence dataSeq, TIntFloatHashMap scores) {
+	    if (segmentViterbi==null)
+	        segmentViterbi = new SegmentViterbi(this,1);
+		segmentViterbi.singleSegmentClassScores(dataSeq,lambda,scores); 
 	}
 }

@@ -18,7 +18,7 @@ public class  FeatureTypesSegmentLength extends FeatureTypes {
     public  void next(iitb.Model.FeatureImpl f) {
     	f.val = 1;
     	f.ystart = -1;
-    	if (featureCollectMode)
+    	if (featureCollectMode())
 			f.strId.init(segLen, 0, "Length." + segLen);
 		else
 			f.strId.init(segLen);

@@ -66,13 +66,13 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         return (FeatureTypes)features.elementAt(i);
     }
     
-    static boolean featureCollectMode = false;
+    boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
         Hashtable strToInt = new Hashtable();
         FeatureIdentifier idToName[];
         FeatureMap(){
             featureCollectMode = true;
-            FeatureTypes.featureCollectMode = true;	    
+            model.featureCollectMode = true;
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
@@ -94,7 +94,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         void freezeFeatures() {
             //	    System.out.println(strToInt.size());
             featureCollectMode = false;
-            FeatureTypes.featureCollectMode = false;
+            model.featureCollectMode=false;
             idToName = new FeatureIdentifier[strToInt.size()];
             for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
                 Object key = e.nextElement();

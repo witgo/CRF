@@ -43,7 +43,7 @@ public class EdgeFeatures extends FeatureTypes {
 		edgeIsOuter = edgeIter.nextIsOuter();
 		Edge e = edgeIter.next();
 		Object name="";
-		if (featureCollectMode) {
+		if (featureCollectMode()) {
 			if (labelNames == null) {
 				name = "E."+model.label(e.start);
 			} else {

@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import iitb.CRF.SparseViterbi.Context;
 import iitb.CRF.SparseViterbi.Entry;
+import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
 import gnu.trove.TIntProcedure;
 
@@ -213,6 +214,24 @@ public class SegmentViterbi extends SparseViterbi {
         while (ybest != null) {
             dataSeq.setSegment(ybest.prevPos()+1,ybest.pos,ybest.label);
             ybest = ybest.prevSoln;
+        }
+    }
+    public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
+        viterbiSearch(dataSeq, lambda,false);
+        scores.clear();
+        int i = dataSeq.length()-1;
+        if (i >= 0) {
+            context[i].getNonZeros(validPrevYs, prevContext);
+            double norm	 = RobustMath.LOG0;
+            for (int prevPx = 0; prevPx < validPrevYs.size(); prevPx++) {
+                Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
+                assert (soln.prevSoln == null); // only applicable for single segment.
+                norm = RobustMath.logSumExp(norm,soln.score);
+            }
+            for (int prevPx = 0; prevPx < validPrevYs.size(); prevPx++) {
+                Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
+                scores.put(soln.label,(float)Math.exp(soln.score-norm));
+            }
         }
     }
     Context newContext(int numY, int beamsize, int pos){

@@ -17,12 +17,12 @@ public class FeatureIdentifier implements Cloneable, Serializable {
 	id = Integer.parseInt(strTok.nextToken());
 	stateId = Integer.parseInt(strTok.nextToken());
     }
-    void init(int fid, int s, Object n) {
+    public void init(int fid, int s, Object n) {
 	name = n;
 	id = fid;
 	stateId = s;
     }
-    void init(int fid) {
+    public void init(int fid) {
 	id = fid;
     }
     public void copy(FeatureIdentifier fid) {

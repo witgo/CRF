@@ -44,7 +44,7 @@ public class FeatureTypesConcat extends FeatureTypes {
 				single.next(feature);
 				int thisId = offsetLabelIndependentId(feature)+1;
 				bitMap = bitMap | (thisId << i*numBits);
-				if (featureCollectMode) {
+				if (featureCollectMode()) {
 					name = feature.strId.name + "." + name;
 					if (thisId > (1 << numBits)) {
 						System.out.println("Error in max-feature-id value " + feature);

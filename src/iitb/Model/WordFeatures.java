@@ -39,7 +39,7 @@ public class WordFeatures extends FeatureTypes {
 	return (stateId != -1);
     }
     public void next(FeatureImpl f) {
-        if (featureCollectMode)
+        if (featureCollectMode())
             setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,"W_"+token,f);
         else
             setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,token,f); 

@@ -279,7 +279,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 */
 	public void next(FeatureImpl f) {
 
-		if(FeatureGenImpl.featureCollectMode){
+		if(featureCollectMode()){
 			//This is a feature collection mode, so return id and name
 			f.strId.name = patternString[index][0] + "_" + window + "_" + Integer.toBinaryString(curId);
 		}

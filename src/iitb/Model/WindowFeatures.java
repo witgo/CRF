@@ -119,7 +119,7 @@ public class WindowFeatures extends FeatureTypes {
 	public void next(FeatureImpl f) {
 	    single.next(f);
 	    String name = "";
-	    if (featureCollectMode) {
+	    if (featureCollectMode()) {
 	        name += f.strId.name + ".W." + windows[currentWindow];
 	    }
 	    setFeatureIdentifier(f.strId.id*windows.length+currentWindow, f.strId.stateId, name, f);

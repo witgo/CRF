@@ -72,7 +72,7 @@ public class RegexCountFeatures extends FeatureTypes {
 		patternOccurence[index] = Math.min(maxSegmentLength,patternOccurence[index]);
 		f.strId.id = maxSegmentLength * (index+1) + patternOccurence[index];
 		f.ystart = -1;
-		if(FeatureGenImpl.featureCollectMode){
+		if(featureCollectMode()){
 			f.strId.name = patternString[index][0] + "_Count_" + patternOccurence[index];
 			//System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
 		}

@@ -53,7 +53,7 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	}
 
 	int labelIndependentId(FeatureImpl f) {
-		return ((f.strId.id - single.thisTypeId) - f.strId.stateId * offset)
+		return ((f.strId.id - single.thisTypeId) - f.strId.stateId * model.offset)
 				/ model.numStates() + single.thisTypeId;
 	}
 	

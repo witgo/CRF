@@ -19,7 +19,7 @@ public class FeatureTypesWrapper extends FeatureTypes {
 	public FeatureTypesWrapper(FeatureTypes ftype) {
 		super(ftype.model);
 		this.ftype = ftype;
-		offset--;
+		model.offset--;
 		this.thisTypeId = ftype.thisTypeId;
 	}
 
