@@ -59,7 +59,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	return (FeatureTypes)features.elementAt(i);
     }
 
-    boolean featureCollectMode = false;
+    static boolean featureCollectMode = false;
     class FeatureMap {
 	Hashtable strToInt = new Hashtable();
 	FeatureIdentifier idToName[];
