@@ -13,10 +13,10 @@ package iitb.CRF;
  * Window - Preferences - Java - Code Style - Code Templates
  */
 public abstract class RestrictConstraint extends Constraint {
-	/**
-	 * @return
-	 */
-	public abstract int numAllowed();
-	public abstract int allowed(int c);
-	public final int type() {return ALLOW_ONLY;}	
+	public final int type() {return ALLOW_ONLY;}
+    public abstract void startScan();
+    public abstract boolean hasNext();
+    public abstract void advance();
+    public abstract int y();
+    public abstract int yprev();
 }

@@ -41,7 +41,8 @@ public abstract class Model implements Serializable {
     public abstract void stateMappings(DataSequence data) throws Exception;
     public  void stateMappings(SegmentDataSequence data) throws Exception {stateMappings((DataSequence)data);}
     public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
-
+    public int stateMappingGivenLength(int label, int len, int posFromStart) throws Exception {return label;}
+    
     public void printGraph() {
 	System.out.println("Numnodes = " + numStates() + " NumEdges " + numEdges());
 	EdgeIterator iter = edgeIterator();

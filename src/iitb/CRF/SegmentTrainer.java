@@ -206,21 +206,33 @@ class SegmentTrainer extends SparseTrainer {
 			FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
 		featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
 		Iterator constraints = dataSeq.constraints(prevPos,pos);
-		double defaultValue = 0;
+		double defaultValue = RobustMath.LOG0;
+		Mi.assign(defaultValue);
+		Ri.assign(defaultValue);
 		if (constraints != null) {
 			for (; constraints.hasNext();) {
 				Constraint constraint = (Constraint)constraints.next();
 				if (constraint.type() == Constraint.ALLOW_ONLY) {
-					defaultValue = RobustMath.LOG0;
-					Mi.assign(defaultValue);
-					Ri.assign(defaultValue);
 					RestrictConstraint cons = (RestrictConstraint)constraint;
+					/*
 					for (int c = cons.numAllowed()-1; c >= 0; c--) {
 						Ri.set(cons.allowed(c),0);
+					}
+					*/
+					for (cons.startScan(); cons.hasNext();) {
+					    cons.advance();
+					    int y = cons.y();
+					    int yprev = cons.yprev();
+					    if (yprev < 0) {
+					        Ri.set(y,0);
+					    } else {
+					        Mi.set(yprev,y,0);
+					    }
 					}
 				}
 			}
 		} else {
+		    defaultValue = 0;
 			Mi.assign(defaultValue);
 			Ri.assign(defaultValue);	
 		}
