@@ -1,6 +1,8 @@
 package iitb.CRF;
 
 
+import java.io.Serializable;
+
 import cern.colt.matrix.impl.*;
 /**
  *
@@ -11,7 +13,8 @@ import cern.colt.matrix.impl.*;
  */ 
 
 
-class Soln {
+class Soln implements Serializable {
+    private static final long serialVersionUID = 812L;
     double score=-1*Double.MAX_VALUE;
     Soln prevSoln=null;
     int label = -1;
@@ -40,7 +43,8 @@ class Soln {
     }
 };
 
-class Viterbi {
+class Viterbi implements Serializable {
+    private static final long serialVersionUID = 8122L;
     CRF model;
     int beamsize;
     Viterbi(CRF model, int bs) {
