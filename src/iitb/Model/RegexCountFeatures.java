@@ -74,7 +74,7 @@ public class RegexCountFeatures extends FeatureTypes {
 		f.ystart = -1;
 		if(FeatureGenImpl.featureCollectMode){
 			f.strId.name = patternString[index][0] + "_Count_" + patternOccurence[index];
-			System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
+			//System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
 		}
     	advance();
     }
