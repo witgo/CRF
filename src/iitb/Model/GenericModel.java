@@ -80,7 +80,7 @@ public class GenericModel extends Model {
 	    endStates = new int[2];
 	    endStates[0] = 0;
 	    endStates[1] = 3;
-
+	    edgeStart = new int[4];
 	    edgeStart[0] = 4;
 	    edgeStart[1] = 0;
 	    edgeStart[2] = 2;
