@@ -9,17 +9,46 @@ import cern.colt.matrix.DoubleMatrix2D;
 class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
-    static final double MINUS_LOG_EPSILON = 50; //-1*Math.log(Double.MIN_VALUE);
+    static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
     
+    static class LogExpCache {
+        static int CUT_OFF = 6;
+        static int NUM_FINE = 10000;
+        static int NUM_COARSE = 1000;
+        static boolean useCache = false;
+        static double vals[] = new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+1];
+        static {
+            for(int i = vals.length-1; i >= 0; vals[i--]=-1);
+        }
+        static double lookupAdd(double val) {
+            if (!useCache)
+                return Math.log(Math.exp(-1*val) + 1.0);
+            int index = 0;
+            //assert ((val < MINUS_LOG_EPSILON) && (val > 0));
+            if (val < CUT_OFF) {
+                index = (int)Math.rint(val*NUM_FINE);
+            } else {
+                index = NUM_FINE*CUT_OFF + (int)Math.rint((val-CUT_OFF)*NUM_COARSE);
+            }
+            if (vals[index] < 0) 
+                vals[index] = Math.log(Math.exp(-1*val) + 1.0);
+            return vals[index];
+        }
+    };
     static double logSumExp(double v1, double v2) {
-        if (v1 == v2)
+        if (Math.abs(v1-v2) < Double.MIN_VALUE)
             return v1 + LOG2;
         double vmin = Math.min(v1,v2);
         double vmax = Math.max(v1,v2);
         if ( vmax > vmin + MINUS_LOG_EPSILON ) {
             return vmax;
         } else {
-            return vmax + Math.log(Math.exp(vmin-vmax) + 1.0);
+            return vmax + LogExpCache.lookupAdd(vmax-vmin);
+            /*
+            double retval = vmax + Math.log(Math.exp(vmin-vmax) + 1.0);
+            //System.out.println((vmax-vmin) + " " + (retval-vmax));
+            return retval;
+            */
         }
     }
     static class LogSumExp implements DoubleDoubleFunction {
@@ -107,7 +136,7 @@ class RobustMath {
     
     public static void main(String args[]) {
 //      double vals[] = new double[]{10.172079, 7.452882, 2.429751, 7.452882, 10.818797, 8.573773, 19.215824};
-        double vals[] = new double[]{2.883626, 1.670196, 0.553112, 1.670196, -0.935964, 1.864568, 2.064754};
+        /*double vals[] = new double[]{2.883626, 1.670196, 0.553112, 1.670196, -0.935964, 1.864568, 2.064754};
         TreeSet vec = new TreeSet();
         double trueSum = 0;
         for (int i = 0; i < vals.length; i++) {
@@ -115,6 +144,7 @@ class RobustMath {
             trueSum += Math.exp(vals[i]);
         }
         double sum = logSumExp(vec);
-        System.out.println(Math.exp(sum) + " " + trueSum + " " + sum);
+	*/
+        System.out.println(logSumExp(Double.parseDouble(args[0]), Double.parseDouble(args[1])));
     }
 };

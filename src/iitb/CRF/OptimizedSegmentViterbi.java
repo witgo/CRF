@@ -52,13 +52,14 @@ public class OptimizedSegmentViterbi extends SegmentViterbi {
         incompleteFeaturesR = new DenseObjectMatrix1D(numY);
     }
     class SolnLUB extends Soln {
+        float ubScore;
         Vector incompleteFeatures;
         SolnLUB(int id, int p) {
             super(id, p);
         }
     };
     class EntryLUB extends Entry {
-        Vector<Soln> ubSolns = new Vector<Soln>();
+        Vector ubSolns = new Vector();
         void clear() {
             super.clear();
             ubSolns.clear();
@@ -79,10 +80,10 @@ public class OptimizedSegmentViterbi extends SegmentViterbi {
                 return;
             }
             for (int i = 0; (i < e.ubSolns.size()); i++) {
-                float score = e.ubSolns.get(i).score + thisScoreUB;
+                float score = ((Soln)e.ubSolns.get(i)).score + thisScoreUB;
                 if (score > topKLB) {
                     SolnLUB newSoln = new SolnLUB(get(0).label, get(0).pos);
-                    newSoln.setPrevSoln(e.ubSolns.get(i), score);
+                    newSoln.setPrevSoln((Soln)e.ubSolns.get(i), score);
                     if ((incompleteFeaturesM  != null) || (incompleteFeaturesR != null)) {
                         newSoln.incompleteFeatures = new Vector();
                         if (incompleteFeaturesM != null)

@@ -5,6 +5,9 @@ import iitb.CRF.*;
  *
  * @author Sunita Sarawagi
  *
+ * Suppose if history size is H and number of edges in the model graph
+ * is E, this will generate HE features (for each history position
+ * generate features for each possible edge)
  */ 
 
 public class EdgeLinearHistFeatures extends FeatureTypes {

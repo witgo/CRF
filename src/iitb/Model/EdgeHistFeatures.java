@@ -5,6 +5,8 @@ import iitb.Utils.*;
  *
  * @author Sunita Sarawagi
  *
+ * Suppose if history size is H and number of labels in the model
+ * graph is m, this will generate m^(H+1) features 
  */ 
 
 public class EdgeHistFeatures extends FeatureTypes {

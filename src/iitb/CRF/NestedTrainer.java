@@ -271,11 +271,11 @@ class NestedTrainer extends Trainer {
 			}
 			if ((yprev < 0) && (i-ell >= 0)) {
 			    for (yprev = 0; yprev < Mi_YY.rows(); yprev++) 
-				ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
+				ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[i].get(yp)));
 			} else if (i-ell < 0) {
-			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (Ri_Y.get(yp)+Math.log(val)+beta_Y[i].get(yp)));
+			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (Ri_Y.get(yp)+myLog(val)+beta_Y[i].get(yp)));
 			} else {
-			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
+			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[i].get(yp)));
 			}
 		    }
 		    if (i-ell >= 0) {

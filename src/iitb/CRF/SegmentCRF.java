@@ -59,6 +59,11 @@ public class SegmentCRF extends CRF {
 			Util.printDbg("SegmentCRF: Applying on " + dataSeq);
 		segmentViterbi.bestLabelSequence(dataSeq,lambda);
 	}
+	public void apply(CandSegDataSequence dataSeq, int rank) {
+	    if (segmentViterbi==null)
+	        segmentViterbi = new SegmentViterbi(this,1);
+		segmentViterbi.bestLabelSequence(dataSeq,lambda);
+	}
 	public double score(DataSequence dataSeq) {
 	    if (segmentViterbi==null)
 	        segmentViterbi = new SegmentViterbi(this,1);
@@ -69,4 +74,9 @@ public class SegmentCRF extends CRF {
 	        segmentViterbi = new SegmentViterbi(this,1);
 		segmentViterbi.singleSegmentClassScores(dataSeq,lambda,scores); 
 	}
+	 public Segmentation[] labelSequences(CandSegDataSequence dataSeq, int numLabelSeqs) {
+	     if (segmentViterbi==null)
+		        segmentViterbi = new SegmentViterbi(this,numLabelSeqs);
+	     return segmentViterbi.labelSequences(dataSeq,lambda,numLabelSeqs);
+	 }
 }

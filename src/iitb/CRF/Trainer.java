@@ -429,6 +429,10 @@ class Trainer {
 	return logli;
     }
 
+    static double myLog(double val) {
+	return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
+    }
+	
     static double log(double val) {
 	try {
 	    return logE(val);

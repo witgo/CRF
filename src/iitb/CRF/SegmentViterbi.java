@@ -1,6 +1,8 @@
 package iitb.CRF;
 
 import java.util.Iterator;
+import java.util.TreeSet;
+import java.util.Vector;
 
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
@@ -214,6 +216,7 @@ public class SegmentViterbi extends SparseViterbi {
             ybest = ybest.prevSoln;
         }
     }
+
     public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
         viterbiSearch(dataSeq, lambda,false);
         scores.clear();
@@ -257,5 +260,95 @@ public class SegmentViterbi extends SparseViterbi {
             boolean calcCorrectScore) {
         labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
         return super.viterbiSearch(dataSeq, lambda, calcCorrectScore);
+    }
+    
+    class SegmentationImpl implements Segmentation {
+        class Segment implements Comparable {
+            int start;
+            int end;
+            int label;
+            int id;
+            Segment(int start, int end, int label) {
+                this.start = start;
+                this.end = end;
+                this.label = label;
+            }
+            /* (non-Javadoc)
+             * @see java.lang.Comparable#compareTo(java.lang.Object)
+             */
+            public int compareTo(Object arg0) {
+                return end - ((Segment)arg0).end;
+            }
+        }
+        TreeSet segments = new TreeSet();
+        Segment segmentArr[]=null;
+        Segment dummySegment = new Segment(0,0,0);
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#numSegments()
+         */
+        public int numSegments() {
+            return segments.size();
+        }
+
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#segmentLabel(int)
+         */
+        public int segmentLabel(int segmentNum) {
+            return segmentArr[segmentNum].label;
+        }
+
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#segmentStart(int)
+         */
+        public int segmentStart(int segmentNum) {
+            return segmentArr[segmentNum].start;
+        }
+
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#segmentEnd(int)
+         */
+        public int segmentEnd(int segmentNum) {
+            return segmentArr[segmentNum].end;
+        }
+
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#getSegmentId(int)
+         */
+        public int getSegmentId(int offset) {
+            dummySegment.end = offset;
+            return ((Segment)segments.headSet(dummySegment).last()).id;
+        }
+
+        /* (non-Javadoc)
+         * @see iitb.CRF.Segmentation#setSegment(int, int, int)
+         */
+        public void setSegment(int segmentStart, int segmentEnd, int label) {
+            Segment segment = new Segment(segmentStart, segmentEnd, label);
+            boolean b = segments.add(segment);
+        }
+        public void doneAdd() {
+            segmentArr = new Segment[segments.size()];
+            int p = 0;
+            for (Iterator iter = segments.iterator(); iter.hasNext();) {
+                segmentArr[p++] = (Segment) iter.next();
+            }
+            for (int i = segmentArr.length-1; i >= 0; segmentArr[i].id = i, i--);
+        }
+    };
+    public Segmentation[] labelSequences(CandSegDataSequence dataSeq, double lambda[], int numLabelSeqs) {
+        viterbiSearch(dataSeq, lambda,false);
+        int numSols = Math.min(finalSoln.numSolns(), numLabelSeqs);
+        Segmentation segments[] = new Segmentation[numSols];
+        for (int k = numSols-1; k >= 0; k--) {
+            Soln ybest = finalSoln.get(k);
+            ybest = ybest.prevSoln;
+            segments[k] = new SegmentationImpl();
+            while (ybest != null) {	
+                segments[k].setSegment(ybest.prevPos()+1,ybest.pos,ybest.label);
+                ybest = ybest.prevSoln;
+            }
+            ((SegmentationImpl)segments[k]).doneAdd();
+        }
+        return segments;
     }
 };
