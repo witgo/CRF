@@ -188,11 +188,14 @@ class Trainer {
 		// find features that fire at this position..
 		featureGenerator.startScanFeaturesAt(dataSeq, i);
 
+		if (i > 0) {
 		tmp_Y.assign(alpha_Y);
 		RobustMath.Mult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
 		//		Mi_YY.zMult(tmp_Y, newAlpha_Y,1,0,true);
 		newAlpha_Y.assign(Ri_Y,multFunc); 
-
+		} else {
+		    newAlpha_Y.assign(Ri_Y);     
+		}
 		while (featureGenerator.hasNext()) { 
 		    Feature feature = featureGenerator.next();
 		    int f = feature.index();
@@ -225,9 +228,9 @@ class Trainer {
 		//badVector(alpha_Y);
 	    }
 	    double Zx = alpha_Y.zSum();
-	    if (Zx == 0) {
-		Zx = (Double.MIN_VALUE*100000000);
-	    }
+	    //if (Zx == 0) {
+	    //Zx = (Double.MIN_VALUE*100000000);
+	    //}
 	    thisSeqLogli -= log(Zx);
 	    // correct for the fact that alpha-s were scaled.
 	    for (int i = 0; i < dataSeq.length(); i++) {
@@ -240,7 +243,7 @@ class Trainer {
 		grad[f] -= ExpF[f]/Zx;
 	    
 	    if (params.debugLvl > 1) {
-		System.out.println("Sequence "  + thisSeqLogli + " " + logli );
+		System.out.println("Sequence "  + thisSeqLogli + " " + logli);
 	    }
 
 	}
@@ -267,8 +270,8 @@ class Trainer {
 	return logli;
     }
     static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
-			     DenseDoubleMatrix2D Mi_YY,
-			     DenseDoubleMatrix1D Ri_Y, boolean takeExp) {
+			     DoubleMatrix2D Mi_YY,
+			     DoubleMatrix1D Ri_Y, boolean takeExp) {
 	Mi_YY.assign(0);
 	Ri_Y.assign(0);
 	while (featureGen.hasNext()) { 
@@ -298,8 +301,8 @@ class Trainer {
     }
     static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
 			     DataSequence dataSeq, int i, 
-			     DenseDoubleMatrix2D Mi_YY,
-			     DenseDoubleMatrix1D Ri_Y, boolean takeExp) {
+			     DoubleMatrix2D Mi_YY,
+			     DoubleMatrix1D Ri_Y, boolean takeExp) {
 	featureGen.startScanFeaturesAt(dataSeq, i);
 	computeLogMi(featureGen, lambda, Mi_YY, Ri_Y, takeExp);
     }
@@ -344,7 +347,7 @@ class Trainer {
 		computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false);
 		tmp_Y.assign(beta_Y[i]);
 		tmp_Y.assign(Ri_Y,sumFunc);
-		RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false);
+		RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
 	    }
 
 
@@ -355,9 +358,13 @@ class Trainer {
 		// find features that fire at this position..
 		featureGenerator.startScanFeaturesAt(dataSeq, i);
 
+		if (i > 0) {
 		tmp_Y.assign(alpha_Y);
-		RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true);
+		RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
 		newAlpha_Y.assign(Ri_Y,sumFunc); 
+		} else {
+		    newAlpha_Y.assign(Ri_Y);
+		}
 
 		while (featureGenerator.hasNext()) { 
 		    Feature feature = featureGenerator.next();
@@ -407,7 +414,7 @@ class Trainer {
 	}
 	
 	if (params.debugLvl > 0)
-	    Util.printDbg("Iteration " + icall + " log likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
+	    Util.printDbg("Iteration " + icall + " log-likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
 
 	} catch (Exception e) {
 	    System.out.println("Alpha-i " + alpha_Y.toString());
@@ -448,7 +455,7 @@ class Trainer {
     static double expE(double val) throws Exception {
 	double pr = Math.exp(val);
 	if (Double.isNaN(pr) || Double.isInfinite(pr)) {
-	    throw new Exception("Overflow error when taking exp of " + val);
+	    throw new Exception("Overflow error when taking exp of " + val + "\n Try running the CRF with the following option \"trainer ll\" to perform computations in the log-space.");
 	}
 	return pr;
     }

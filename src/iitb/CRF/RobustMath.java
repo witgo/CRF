@@ -26,12 +26,18 @@ class RobustMath {
 	    v1.set(i,logSumExp(v1.get(i), v2.get(i)));
 	}
     }
+    static void addNoDups(TreeSet vec, Double val) {
+	if (!vec.add(val)) {
+	    vec.remove(val);
+	    addNoDups(vec, new Double(val.doubleValue()+LOG2));
+	}
+    }
     // Controlled underflow adder of very small numbers expressed as
     // logs.  Returns log of their sum.
     static double logSumExp(DoubleMatrix1D logProb) {
 	TreeSet logProbVector = new TreeSet();
 	for ( int lpx = 0; lpx < logProb.size(); lpx++ )
-	    logProbVector.add(new Double(logProb.get(lpx)));
+	    addNoDups(logProbVector,new Double(logProb.get(lpx)));
 	return logSumExp(logProbVector);
     }
     static double logSumExp(TreeSet logProbVector) {
@@ -40,11 +46,11 @@ class RobustMath {
 	    logProbVector.remove(logProbVector.first());
 	    double lp1 = ((Double)logProbVector.first()).doubleValue();
 	    logProbVector.remove(logProbVector.first());
-	    logProbVector.add(new Double(logSumExp(lp0,lp1)));
+	    addNoDups(logProbVector,new Double(logSumExp(lp0,lp1)));
 	}
 	return ((Double)logProbVector.first()).doubleValue();
     }
-    static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA) {
+    static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA, EdgeGenerator edgeGen) {
 	// z = alpha * A * y + beta*z
 	// in log domain this becomes: 
 	
@@ -58,8 +64,8 @@ class RobustMath {
 	} else {
 	    z.assign(LOG0);
 	}
-	for (int i = 0; i < M.rows(); i++) {
-	    for (int j = 0; j < M.columns(); j++) {
+	for (int j = 0; j < M.columns(); j++) {
+	    for (int i = edgeGen.first(j); i < M.rows(); i = edgeGen.next(j,i)) {
 		int r = i;
 		int c = j;
 		if (transposeA) {
