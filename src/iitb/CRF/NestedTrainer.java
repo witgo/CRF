@@ -223,7 +223,7 @@ class NestedTrainer extends Trainer {
 		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false);
 		    tmp_Y.assign(beta_Y[i+ell]);
 		    tmp_Y.assign(Ri_Y,sumFunc);
-		    RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i],1,1,false);
+		    RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i],1,1,false,edgeGen);
 		}
 	    }
 	    double thisSeqLogli = 0;
@@ -263,9 +263,13 @@ class NestedTrainer extends Trainer {
 			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
 			}
 		    }
-		    RobustMath.logMult(Mi_YY, alpha_Y_Array[i-ell-base],tmp_Y,1,0,true);
-		    tmp_Y.assign(Ri_Y,sumFunc);
-		    RobustMath.logSumExp(alpha_Y_Array[i-base],tmp_Y);
+		    if (i-ell-base > 0) {
+			RobustMath.logMult(Mi_YY, alpha_Y_Array[i-ell-base],tmp_Y,1,0,true,edgeGen);
+			tmp_Y.assign(Ri_Y,sumFunc);
+			RobustMath.logSumExp(alpha_Y_Array[i-base],tmp_Y);
+		    } else {
+			RobustMath.logSumExp(alpha_Y_Array[i-base],Ri_Y);
+		    }
 		}
 		if (params.debugLvl > 2) {
 		    System.out.println("Alpha-i " + alpha_Y_Array[i-base].toString());
