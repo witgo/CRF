@@ -145,7 +145,7 @@ public class NestedModel extends Model {
     }
     public int stateMappingGivenLength(int label, int len, int posFromStart) 
     throws Exception {
-    	return inner[label].stateMappingGivenLength(label,len,posFromStart);
+    	return inner[label].stateMappingGivenLength(label,len,posFromStart)+nodeOffsets[label];
 	}
 public class NestedEdgeIterator implements EdgeIterator {
     NestedModel model;
