@@ -256,14 +256,16 @@ class NestedTrainer extends Trainer {
 			    grad[f] += val;
 			    thisSeqLogli += val*lambda[f];
 			}
-			if (yprev < 0) {
+			if ((yprev < 0) && (i-ell >= 0)) {
 			    for (yprev = 0; yprev < Mi_YY.rows(); yprev++) 
 				ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
+			} else if (i-ell < 0) {
+			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (Ri_Y.get(yp)+Math.log(val)+beta_Y[i].get(yp)));
 			} else {
 			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp)));
 			}
 		    }
-		    if (i-ell-base > 0) {
+		    if (i-ell >= 0) {
 			RobustMath.logMult(Mi_YY, alpha_Y_Array[i-ell-base],tmp_Y,1,0,true,edgeGen);
 			tmp_Y.assign(Ri_Y,sumFunc);
 			RobustMath.logSumExp(alpha_Y_Array[i-base],tmp_Y);
