@@ -41,7 +41,11 @@ public class EdgeFeatures extends FeatureTypes {
 	} else {
 	    name = labelNames[model.label(e.start)];
 	}
-	setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end), model.label(e.end),name,f);
+	if (model.isOuterEdge(e,edgeNum)) {
+	    setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end), model.label(e.end),name,f);
+	} else {
+	    setFeatureIdentifier(edgeNum,e.end,name,f);
+	}
 	f.ystart = e.start;
 	f.yend = e.end;
 	f.val = 1;
