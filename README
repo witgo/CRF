@@ -2,3 +2,14 @@ You will need jdk1.4 or above and ant to compile.
 
 Make sure to set the classpath by running "settings.sh" after
 setting CRF_HOME to the directory where you have unpackaged this distribution.
+
+A sample dataset for the segmentation problem is available under samples
+Run it as 
+ 
+"java Segment.Segment train -f samples/us50.conf"
+"java Segment.Segment test -f samples/us50.conf"
+"java Segment.Segment calc -f samples/us50.conf" (report performance statistics)
+
+or all together with
+
+"java Segment.Segment all -f samples/us50.conf"
