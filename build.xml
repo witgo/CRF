@@ -58,13 +58,7 @@
 
   <target name="clean"
         description="clean up" >
-    <delete dir="${build}"/>
+    <delete file="${build}/iitb/*/*.class"/>
     <delete file="${lib}/CRF.jar"/>
-  </target>
-
-  <target name="allclean" depends="clean"
-        description="clean up including doc" >
-    <!-- Delete the ${build} and ${lib} and ${doc} directory trees -->
-    <delete dir="${doc}"/>
   </target>
 </project>
