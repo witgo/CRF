@@ -19,7 +19,7 @@ public class NestedModel extends Model {
 	
 	StringTokenizer start = new StringTokenizer(specs, ",");
 	assert start.hasMoreTokens();
-	outer = Model.getNewModel(numLabels, (String)start.nextToken());
+	outer = Model.getNewBaseModel(numLabels, (String)start.nextToken());
 	for(int i=0 ; i<numLabels ; i++) {
 	    assert start.hasMoreTokens();
 	    String thisStruct = start.nextToken();
@@ -110,6 +110,9 @@ public class NestedModel extends Model {
 	    return;
 	for (int lstart = 0; lstart < data.length();) {
 	    int lend = data.getSegmentEnd(lstart)+1;
+	    if (lend == 0) {
+	       throw new Exception("Invalid segment end value");
+	    }
 	    int label = data.y(lstart);
 	    inner[label].stateMappings(data,lend-lstart, lstart);
 	    for (int k = lstart; k < lend; k++) {

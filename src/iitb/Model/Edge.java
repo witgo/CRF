@@ -1,6 +1,8 @@
 package iitb.Model;
 
-public class Edge implements Comparable {
+import java.io.Serializable;
+
+public class Edge implements Comparable, Serializable {
     int start;
     int end;
     Edge() {;}

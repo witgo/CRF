@@ -12,10 +12,14 @@ import java.io.*;
  */ 
 
 
-public class CRF {
+public class CRF implements Serializable {
+    /**
+     * Comment for <code>serialVersionUID</code>
+     */
+    private static final long serialVersionUID = 14L;
     double lambda[];
     int numY;
-    Trainer trainer;
+    transient Trainer trainer;
     FeatureGenerator featureGenerator;
     EdgeGenerator edgeGen;
     HistoryManager histMgr;
@@ -75,6 +79,9 @@ public class CRF {
 	if (params.trainerType.startsWith("Collins"))
 	    return new CollinsTrainer(params);
 	return new Trainer(params);
+    }
+    protected Viterbi getViterbi(int beamsize) {
+    	return new Viterbi(this,beamsize);
     }
     /**
      * Trains the model given the data

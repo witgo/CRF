@@ -1,4 +1,6 @@
 package iitb.Model;
+import java.io.Serializable;
+
 import iitb.CRF.*;
 /**
  *
@@ -11,7 +13,7 @@ import iitb.CRF.*;
  * @author Sunita Sarawagi
  */
 
-public abstract class FeatureTypes {
+public abstract class FeatureTypes implements Serializable {
     static int offset = 0;
     int thisTypeId;
     public static boolean featureCollectMode = false;
@@ -20,6 +22,7 @@ public abstract class FeatureTypes {
 	model = m;
 	thisTypeId = offset++;
     }
+    public boolean requiresTraining(){return false;}
     public void train(DataSequence data, int pos) {;}
     public  boolean startScanFeaturesAt(DataSequence data, int pos) {
 	return startScanFeaturesAt(data,pos-1,pos);
@@ -39,48 +42,10 @@ public abstract class FeatureTypes {
     int labelIndependentId(FeatureImpl f) {
 	return ((f.strId.id-thisTypeId)-f.strId.stateId*offset)/model.numStates()+thisTypeId;
     }
+    int offsetLabelIndependentId(FeatureImpl f) {
+    	return (labelIndependentId(f)-thisTypeId)/offset;
+    }
     public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
+    public int maxFeatureId() {return Integer.MAX_VALUE;}
 };
 
-
-/*
- * Implements the bag of features model for a given input sequence
- */
-class FeatureTypesMulti extends FeatureTypes {
-    FeatureTypes single;
-    int currPos;
-    int maxPos;
-    DataSequence dataSeq;
-
-    public FeatureTypesMulti(FeatureTypes s) {
-	super(null);
-	single = s;
-    }
-    void advance() {
-	while (true) {
-	    if (single.hasNext())
-		return;
-	    currPos++;
-	    if (currPos > maxPos)
-		return;
-	    single.startScanFeaturesAt(dataSeq,currPos-1,currPos);
-	}
-    }
-    public  boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-	currPos = prevPos+1;
-	maxPos = pos;
-	dataSeq = data;
-	single.startScanFeaturesAt(data,prevPos,prevPos+1);
-	advance();
-	return single.hasNext();
-    }
-    public boolean hasNext() {
-	return (currPos <= maxPos) && single.hasNext();
-    }
-    public void next(FeatureImpl f) {
-	single.next(f);
-	advance();
-    }
-};
-
-  

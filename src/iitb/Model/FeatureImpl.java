@@ -1,11 +1,13 @@
 package iitb.Model;
+import java.io.Serializable;
+
 import iitb.CRF.*;
 /**
  *
  * @author Sunita Sarawagi
  *
  */ 
-public class FeatureImpl implements Feature {
+public class FeatureImpl implements Feature, Serializable {
     public String type;
     public FeatureIdentifier strId = new FeatureIdentifier();
     public int id;

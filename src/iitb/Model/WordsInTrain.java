@@ -13,8 +13,8 @@ import iitb.CRF.*;
  * */
 
 
-public class WordsInTrain {
-    class HEntry {
+public class WordsInTrain implements Serializable {
+    class HEntry implements Serializable {
 	int index;
 	int cnt;
 	int stateArray[];
@@ -33,7 +33,7 @@ public class WordsInTrain {
     private int cntsOverAllWords[];
     private int allTotal;
 
-    TokenGenerator tokenGenerator;
+    transient TokenGenerator tokenGenerator;
     public WordsInTrain() {
 	this(new TokenGenerator());
     }

@@ -7,7 +7,7 @@ import iitb.CRF.*;
  */ 
 
 public class EdgeFeatures extends FeatureTypes {
-    EdgeIterator edgeIter;
+    transient EdgeIterator edgeIter = null;
     int edgeNum;
     Object labelNames[];
     public EdgeFeatures(Model m, Object labels[]) {
@@ -24,6 +24,9 @@ public class EdgeFeatures extends FeatureTypes {
 	    return false;
 	} else {
 	    edgeNum = 0;
+	    if (edgeIter == null){
+	        edgeIter = model.edgeIterator();
+	    }
 	    edgeIter.start();
 	    return true;
 	}

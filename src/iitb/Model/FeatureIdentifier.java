@@ -1,7 +1,8 @@
 package iitb.Model;
+import java.io.Serializable;
 import java.util.StringTokenizer;
 
-public class FeatureIdentifier implements Cloneable {
+public class FeatureIdentifier implements Cloneable, Serializable {
     public int id;
     public Object name;
     public int stateId;

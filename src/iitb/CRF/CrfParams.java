@@ -1,5 +1,6 @@
 package iitb.CRF;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ import java.util.*;
  */ 
 
 
-public class CrfParams {
+public class CrfParams implements Serializable {
     /** initial value for all the lambda arrays */
     public double initValue = 0;
     /** penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
@@ -20,7 +21,7 @@ public class CrfParams {
     /** Maximum number of iterations over the training data during training */
     public int maxIters = 100;
     /** Convergence criteria for finding optimum lambda using BFGS */
-    public double epsForConvergence = 0.0001;
+    public double epsForConvergence = 0.001;
     /** The number of corrections used in the BFGS update. */
     public int mForHessian = 7;   
 

@@ -24,6 +24,10 @@ public class Counters {
 	clear();
 	for (int i = 0; i < maxVals.length; maxVals[i] = maxVal[i],i++);
     }
+    public void init(int maxVal) {
+    	clear();
+    	for (int i = 0; i < maxVals.length; maxVals[i] = maxVal,i++);
+        }
     int nextNonFixed(int i) {return fixedVals.nextClearBit(i);}
     public boolean isFixed(int index) {return fixedVals.get(index);}
     public boolean advance() {

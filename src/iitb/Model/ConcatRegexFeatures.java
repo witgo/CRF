@@ -70,7 +70,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	};
 
 	Pattern p[];
-	protected DataSequence data;
+	transient protected DataSequence data;
 	protected int index, idbase, curId, window;
 	protected int relSegmentStart, relSegmentEnd;
 	protected int maxMemory;
@@ -106,7 +106,6 @@ public class ConcatRegexFeatures extends FeatureTypes {
 			window = relSegmentEnd - relSegmentStart + maxMemory;
 
 		idbase = (int) Math.pow(2, window);
-		//System.out.println("window:" + window);
 		getPatterns(patternFile);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
@@ -135,7 +134,6 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		else
 			window = relSegmentEnd - relSegmentStart + maxMemory;
 		idbase = (int) Math.pow(2, window);
-		System.out.println("window:" + window);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
 		for(int i = 0; i < patternString.length; i++){

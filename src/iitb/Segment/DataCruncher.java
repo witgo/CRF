@@ -70,8 +70,6 @@ class DCTrainRecord implements TrainRecord {
 	 * @see iitb.CRF.SegmentDataSequence#getSegmentEnd(int)
 	 */
 	public int getSegmentEnd(int segmentStart) {
-		if ((segmentStart > 0) && (y(segmentStart) == y(segmentStart-1)))
-			return -1;
 		for (int i = segmentStart+1; i < length(); i++) {
 			if (y(i)!= y(segmentStart))
 				return i-1;

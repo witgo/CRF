@@ -10,7 +10,8 @@ import java.io.*;
  */ 
 
 public class UnknownFeature extends FeatureTypes {
-    int stateId;
+    private static final long serialVersionUID = 6122L;
+	int stateId;
     WordsInTrain dict;
     public UnknownFeature(Model m, WordsInTrain d) {
 	super(m);
@@ -35,6 +36,13 @@ public class UnknownFeature extends FeatureTypes {
 	f.val = 1;
 	stateId++;
     }
+    
+	/* (non-Javadoc)
+	 * @see iitb.Model.FeatureTypes#maxFeatureId()
+	 */
+	public int maxFeatureId() {
+		return model.numStates();
+	}
 };
 
 

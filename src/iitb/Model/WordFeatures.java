@@ -39,12 +39,21 @@ public class WordFeatures extends FeatureTypes {
 	return (stateId != -1);
     }
     public void next(FeatureImpl f) {
-	setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,token,f);
+        if (featureCollectMode)
+            setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,"W_"+token,f);
+        else
+            setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,token,f); 
 	f.yend = stateId;
 	f.ystart = -1;
 	f.val = 1;
 	nextStateId();
     }
+	/* (non-Javadoc)
+	 * @see iitb.Model.FeatureTypes#maxFeatureId()
+	 */
+	public int maxFeatureId() {
+		return dict.dictionaryLength()*model.numStates();
+	}
 };
 
 

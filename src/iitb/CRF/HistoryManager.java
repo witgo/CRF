@@ -1,8 +1,10 @@
 package iitb.CRF;
 
+import java.io.Serializable;
+
 import iitb.Utils.*;
 
-class EdgeGenerator {
+class EdgeGenerator implements Serializable {
     int offset;
     int numOrigY;
     int histsize;
@@ -31,7 +33,7 @@ class EdgeGenerator {
     }
 };
 
-class HistoryManager {
+class HistoryManager implements Serializable {
     int histsize;
     int numOrigY;
     int numY;
@@ -138,7 +140,7 @@ class HistoryManager {
     };
     class DataSequenceHist implements DataSequence {
 	Counters cntr;
-	DataSequence orig;
+	transient DataSequence orig;
 	DataSequenceHist() {cntr = new Counters(histsize,numOrigY);}
 	void init(DataSequence orig) {
 	    this.orig = orig;

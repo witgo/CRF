@@ -78,10 +78,18 @@ class NestedTrainer extends Trainer {
 	    alpha_Y_Array[0].assign(1);
 	    int segmentStart = 0;
 	    int segmentEnd = -1;
+	    boolean invalid = false;
 	    for (int i = 0; i < dataSeq.length(); i++) {
 		if (segmentEnd < i) {
 		    segmentStart = i;
 		    segmentEnd = dataSeq.getSegmentEnd(i);
+		}
+		if (segmentEnd-segmentStart > featureGenNested.maxMemory()) {
+		    if (icall <= 1) {
+			System.out.println("Ignoring record with segment length greater than maxMemory " + numRecord);
+		    }
+		    invalid = true;
+		    break;
 		}
 		alpha_Y_Array[i-base].assign(0);
 		// compute the scale adjustment.
@@ -140,7 +148,8 @@ class NestedTrainer extends Trainer {
 		    System.out.println(" pos "  + i + " " + thisSeqLogli);
 		}
 	    }
-	    
+	    if (invalid)
+		continue;
 	    double Zx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
 	    thisSeqLogli -= log(Zx);
 	    // correct for the fact that alpha-s were scaled.
@@ -226,10 +235,18 @@ class NestedTrainer extends Trainer {
 	    alpha_Y_Array[0].assign(0);
 	    int segmentStart = 0;
 	    int segmentEnd = -1;
+	    boolean invalid = false;
 	    for (int i = 0; i < dataSeq.length(); i++) {
 		if (segmentEnd < i) {
 		    segmentStart = i;
 		    segmentEnd = dataSeq.getSegmentEnd(i);
+		}
+		if (segmentEnd-segmentStart+1 > featureGenNested.maxMemory()) {
+		    if (icall == 0) {
+			System.out.println("Ignoring record with segment length greater than maxMemory " + numRecord);
+		    }
+		    invalid = true;
+		    break;
 		}
 		alpha_Y_Array[i-base].assign(RobustMath.LOG0);
 		for (int ell = 1; (ell <= featureGenNested.maxMemory()) && (i-ell >= base); ell++) {
@@ -279,7 +296,8 @@ class NestedTrainer extends Trainer {
 		    System.out.println(" pos "  + i + " " + thisSeqLogli);
 		}
 	    }
-	    
+	    if (invalid)
+		continue;
 	    double lZx = RobustMath.logSumExp(alpha_Y_Array[dataSeq.length()-1-base]);
 	    thisSeqLogli -= lZx;
 	    logli += thisSeqLogli;

@@ -17,8 +17,4 @@ class NestedCollinsTrainer extends CollinsTrainer {
     void startFeatureGenerator(FeatureGenerator featureGenerator, DataSequence dataSeq, Soln soln) {
 	((FeatureGeneratorNested)featureGenerator).startScanFeaturesAt(dataSeq, soln.prevPos(), soln.pos);
     }
-    Viterbi getViterbi(CRF model) {
-	NestedViterbi viterbiSearcher = new NestedViterbi((NestedCRF)model, beamsize);
-	return viterbiSearcher;
-    }
 };

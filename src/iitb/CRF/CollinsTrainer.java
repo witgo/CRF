@@ -28,7 +28,7 @@ class CollinsTrainer extends Trainer {
     public void train(CRF model, DataIter data, double[] l, Evaluator eval) {
 	init(model,data,l);
 	double grad[] = gradLogli; // reusing parent's structures.
-	Viterbi viterbiSearcher = getViterbi(model); 
+	Viterbi viterbiSearcher = model.getViterbi(beamsize); 
 	for (int i = 0; i < lambda.length; i++)
 	    lambda[i] = grad[i] = 0;
 	Vector viterbiS = new Vector();
@@ -106,9 +106,7 @@ class CollinsTrainer extends Trainer {
 	}
 	return ((viterbi == null) && (corr == null));
     }
-    Viterbi getViterbi(CRF model) {
-	return new Viterbi(model, beamsize);
-    }
+  
     int getSegmentEnd(DataSequence dataSeq, int ss) {
 	return ss;
     }

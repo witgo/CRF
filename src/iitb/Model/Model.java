@@ -1,4 +1,6 @@
 package iitb.Model;
+import java.io.Serializable;
+
 import iitb.CRF.*;
 /**
  *
@@ -15,7 +17,7 @@ interface EdgeIterator {
     Edge next();
 };
 
-public abstract class Model {
+public abstract class Model implements Serializable {
     int numLabels;
     public String name;
     Model(int nlabels) {
@@ -58,14 +60,42 @@ public abstract class Model {
 	    System.out.print(" " + endState(i));
 	System.out.println("");
     }
-    public static Model getNewModel(int numLabels, String modelSpecs) throws Exception {
-	if (modelSpecs.equalsIgnoreCase("naive")) {
-	    return new CompleteModel(numLabels);
-	} else if (modelSpecs.equalsIgnoreCase("noEdge")) {
-	    return new NoEdgeModel(numLabels);
-	} else {
-	    return new NestedModel(numLabels, modelSpecs);
-	}
-
+    public static Model getNewBaseModel(int numLabels, String modelSpecs) throws Exception {
+    	if (modelSpecs.equalsIgnoreCase("naive") || (modelSpecs.equalsIgnoreCase("semi-markov"))) {
+    	    return new CompleteModel(numLabels);
+    	} else if (modelSpecs.equalsIgnoreCase("noEdge")) {
+    	    return new NoEdgeModel(numLabels);
+    	}
+    	throw new Exception("Base model can be one of {naive, noEdge, semi-Markov}");
     }
+    public static Model getNewModel(int numLabels, String modelSpecs) throws Exception {
+    	try {
+    		return getNewBaseModel(numLabels,modelSpecs);
+    	} catch (Exception e) {
+    		return new NestedModel(numLabels, modelSpecs);
+    	}
+    }
+	/**
+	 * @param sequence
+	 */
+	public void mapStatesToLabels(SegmentDataSequence dataSeq) {
+		int dataLen = dataSeq.length();
+		for (int segStart = 0, segEnd=0; segStart < dataLen; segStart = segEnd+1) {
+			for (segEnd=segStart; segEnd < dataLen; segEnd++) {
+				if (label(dataSeq.y(segStart)) != label(dataSeq.y(segEnd))) {
+				    segEnd -= 1;
+				    System.out.println("WARNING: label ending in a state not marked as a End-state");
+				    break;
+				}
+				if (isEndState(dataSeq.y(segEnd))) {
+					break;
+				}				    
+			}
+			if (segEnd == dataLen) {
+				System.out.println("WARNING: End state not found until the last position");
+				segEnd = dataLen-1;
+			}
+			dataSeq.setSegment(segStart,segEnd,label(dataSeq.y(segStart)	));
+		}
+	}
 };
