@@ -256,7 +256,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 if ((cposStart > 0) && (cposEnd < data.length()-1))
                     return;
                 if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
-                		&& ((data.length()>0) || (model.isEndState(featureToReturn.y())))) 
+                		&& ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
                     return;
                 if ((cposEnd == data.length()-1) && (model.isEndState(featureToReturn.y())))
                     return;
