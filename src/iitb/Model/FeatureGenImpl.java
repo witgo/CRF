@@ -29,7 +29,7 @@ import java.io.*;
 public class FeatureGenImpl implements FeatureGeneratorNested {
     Vector features;
     transient Iterator featureIter;
-    FeatureTypes currentFeatureType;
+    protected FeatureTypes currentFeatureType;
     FeatureImpl featureToReturn, feature;
     public Model model;
     int numFeatureTypes=0;
@@ -63,7 +63,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         addFeature(new WordFeatures(this, dict));
         addFeature(new FeatureTypesEachLabel(this,new ConcatRegexFeatures(this,0,0)));
     }
-    FeatureTypes getFeature(int i) {
+    protected FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
     }
     
@@ -247,7 +247,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 break;
             while (currentFeatureType.hasNext()) {
                 featureToReturn.init();
-                currentFeatureType.next(featureToReturn);
+                copyNextFeature(featureToReturn);
+                
                 featureToReturn.id = featureMap.getId(featureToReturn);
                 
                 if (featureToReturn.id < 0){
@@ -259,6 +260,12 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             }
         }
         featureToReturn.id = -1;
+    }
+    /**
+     * @param featureToReturn
+     */
+    protected void copyNextFeature(FeatureImpl featureToReturn) {
+        currentFeatureType.next(featureToReturn);
     }
     /**
 	 * @param featureToReturn
@@ -328,7 +335,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public int label(int stateNum) {
         return model.label(stateNum);
     }
-
+    protected int numFeatureTypes() {
+        return features.size();
+    }
     public void read(String fileName) throws IOException {
         BufferedReader in=new BufferedReader(new FileReader(fileName));
         if (dict != null) dict.read(in, model.numStates());

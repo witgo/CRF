@@ -68,7 +68,6 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             // TODO Auto-generated method stub
             return null;
         }
-
     }
     private static final long serialVersionUID = 1L;
     FeatureGeneratorNested fgen;

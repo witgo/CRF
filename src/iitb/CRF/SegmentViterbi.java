@@ -2,8 +2,6 @@ package iitb.CRF;
 
 import java.util.Iterator;
 
-import iitb.CRF.SparseViterbi.Context;
-import iitb.CRF.SparseViterbi.Entry;
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
 import gnu.trove.TIntProcedure;
@@ -97,7 +95,7 @@ public class SegmentViterbi extends SparseViterbi {
             super(id, p);
             labelsOnPath = new TIntHashSet();
         }
-        protected void setPrevSoln(Soln prevSoln, double score) {
+        protected void setPrevSoln(Soln prevSoln, float score) {
             super.setPrevSoln(prevSoln,score);
             if ((prevSoln != null) && (labelConstraints != null)) {
                 labelsOnPath.clear();
@@ -120,7 +118,7 @@ public class SegmentViterbi extends SparseViterbi {
             for (int i = 0; i < solns.length; i++)
                 solns[i] = new SolnWithLabelsOnPath(id, pos);
         }
-        int findInsert(int insertPos, double score, Soln prev) {
+        int findInsert(int insertPos, float score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
                     if ((prev == null) || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
@@ -140,14 +138,14 @@ public class SegmentViterbi extends SparseViterbi {
             super(numY, beamsize, pos);
         }
         private static final long serialVersionUID = 1L;
-        void add(int y, Entry prevSoln, double thisScore) {
+        void add(int y, Entry prevSoln, float thisScore) {
             if (labelConstraints==null) {
                 super.add(y,prevSoln,thisScore);
             } else {
                 if (getQuick(y) == null) {
                     setQuick(y, new EntryForLabelConstraints((pos==0)?1:beamsize, y, pos)); 
                 }
-                getEntry(y).add(prevSoln,thisScore);
+                super.add(y,prevSoln,thisScore);
             }
         }
     }
@@ -221,8 +219,23 @@ public class SegmentViterbi extends SparseViterbi {
         scores.clear();
         int i = dataSeq.length()-1;
         if (i >= 0) {
-            context[i].getNonZeros(validPrevYs, prevContext);
             double norm	 = RobustMath.LOG0;
+            
+            for (int y = 0; y < context[i].size(); y++) {
+                if (context[i].entryNotNull(y)) {
+                    Soln soln = ((Entry)context[i].getQuick(y)).get(0);
+                    assert (soln.prevSoln == null); // only applicable for single segment.
+                    norm = RobustMath.logSumExp(norm,soln.score);
+                }
+            }
+            for (int y = 0; y < context[i].size(); y++) {
+                if (context[i].entryNotNull(y)) {
+                    Soln soln = ((Entry)context[i].getQuick(y)).get(0);
+                    scores.put(soln.label,(float)Math.exp(soln.score-norm));
+                }
+            }
+            /*context[i].getNonZeros(validPrevYs, prevContext);
+           
             for (int prevPx = 0; prevPx < validPrevYs.size(); prevPx++) {
                 Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
                 assert (soln.prevSoln == null); // only applicable for single segment.
@@ -232,6 +245,7 @@ public class SegmentViterbi extends SparseViterbi {
                 Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
                 scores.put(soln.label,(float)Math.exp(soln.score-norm));
             }
+            */
         }
     }
     Context newContext(int numY, int beamsize, int pos){

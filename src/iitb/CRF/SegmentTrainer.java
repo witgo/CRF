@@ -217,10 +217,9 @@ class SegmentTrainer extends SparseTrainer {
         }
         return 0;
     }
-
-	static void computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
+    static double initLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
 			FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
-		featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
+        featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
 		Iterator constraints = dataSeq.constraints(prevPos,pos);
 		double defaultValue = RobustMath.LOG0;
 		Mi.assign(defaultValue);
@@ -251,7 +250,12 @@ class SegmentTrainer extends SparseTrainer {
 		    defaultValue = 0;
 			Mi.assign(defaultValue);
 			Ri.assign(defaultValue);	
-		}
+		} 
+		return defaultValue;
+    }
+	static void computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
+			FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
+		double defaultValue = initLogMi(dataSeq, prevPos,pos,featureGenNested,lambda,Mi,Ri);
 		SparseTrainer.computeLogMiInitDone(featureGenNested,lambda,Mi,Ri,defaultValue);
 	}
 };

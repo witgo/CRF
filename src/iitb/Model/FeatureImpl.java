@@ -41,5 +41,14 @@ public class FeatureImpl implements Feature, Serializable {
     public String toString() {return strId + " " + val;}
     public FeatureIdentifier identifier() {return strId;}
     public int[] yprevArray() {return historyArray;}
+    /* (non-Javadoc)
+     * @see iitb.CRF.Feature#valueUB()
+     */
+    public float valueUB() {
+        return val;
+    }
+    public float valueLB() {
+        return val;
+    }
 };
 

@@ -3,6 +3,8 @@ package iitb.CRF;
 
 import java.io.Serializable;
 
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.*;
 /**
  *
@@ -15,14 +17,14 @@ import cern.colt.matrix.impl.*;
 
 class Soln implements Serializable {
     private static final long serialVersionUID = 812L;
-    double score=-1*Double.MAX_VALUE;
+    float score=-1*Float.MAX_VALUE;
     Soln prevSoln=null;
     int label = -1;
     int pos;
 	    
     Soln(int id, int p) {label = id;pos = p;}
     void clear() {
-	score=-1*Double.MAX_VALUE;
+	score=-1*Float.MAX_VALUE;
 	prevSoln=null;
     }
     boolean isClear() {
@@ -45,7 +47,7 @@ class Soln implements Serializable {
      * @param prevSoln2
      * @param score2
      */
-    protected void setPrevSoln(Soln prevSoln, double score) {
+    protected void setPrevSoln(Soln prevSoln, float score) {
         this.prevSoln = prevSoln;
         this.score = score;
     }
@@ -63,64 +65,71 @@ class Viterbi implements Serializable {
 
     }
     class Entry {
-	Soln solns[];
-	Entry(int beamsize, int id, int pos) {
-	    solns = new Soln[beamsize];
-	    for (int i = 0; i < solns.length; i++)
-		solns[i] = new Soln(id, pos);
-	}
-	void clear() {
-	    for (int i = 0; i < solns.length; i++)
-		solns[i].clear();
-	}
-	int size() {return solns.length;}
-	Soln get(int i) {return solns[i];}
-	void insert(int i, double score, Soln prev) {
-	    for (int k = size()-1; k > i; k--) {
-		solns[k].copy(solns[k-1]);
-	    }
-	    solns[i].score = score;
-	    solns[i].prevSoln = prev;
-	}
-	void add(Entry e, double thisScore) {
-	    int insertPos = 0;
-	    for (int i = 0; (i < e.size()) && (insertPos < size()); i++) {
-		double score = e.get(i).score + thisScore;
-		insertPos = findInsert(insertPos, score, e.get(i));
-	    }
-	    //	    print();
-	}
-	int findInsert(int insertPos, double score, Soln prev) {
-	    for (; insertPos < size(); insertPos++) {
-		if (score > get(insertPos).score) {
-		    //	    System.out.println("inserted " + insertPos + " score " + score);
-		    insert(insertPos, score, prev);
-		    insertPos++;
-		    break;
-		}
-	    }
-	    return insertPos;
-	}
-	void add(double thisScore) {
-	    findInsert(0, thisScore, null);
-	}
-	int numSolns() {
-	    for (int i = 0; i < solns.length; i++)
-		if (solns[i].isClear())
-		    return i+1;
-	    return size();
-	}
-	void print() {
-	    String str = "";
-	    for (int i = 0; i < size(); i++)
-		str += ("["+i + " " + solns[i].score + " i:" + solns[i].pos + " y:" + solns[i].label+"]");
-	    System.out.println(str);
-	}
+        Soln solns[];
+        boolean valid=true;
+        Entry() {}
+        Entry(int beamsize, int id, int pos) {
+            solns = new Soln[beamsize];
+            for (int i = 0; i < solns.length; i++)
+                solns[i] = new Soln(id, pos);
+        }
+        void clear() {
+            valid = false;
+            for (int i = 0; i < solns.length; i++)
+                solns[i].clear();
+        }
+        int size() {return solns.length;}
+        Soln get(int i) {return solns[i];}
+        void insert(int i, float score, Soln prev) {
+            for (int k = size()-1; k > i; k--) {
+                solns[k].copy(solns[k-1]);
+            }
+            solns[i].setPrevSoln(prev,score);
+        }
+        void add(Entry e, float thisScore) {
+            assert(valid);
+            if (e == null) {
+                add(thisScore);
+                return;
+            }
+            int insertPos = 0;
+            for (int i = 0; (i < e.size()) && (insertPos < size()); i++) {
+                float score = e.get(i).score + thisScore;
+                insertPos = findInsert(insertPos, score, e.get(i));
+            }
+            //	    print();
+        }
+        int findInsert(int insertPos, float score, Soln prev) {
+            for (; insertPos < size(); insertPos++) {
+                if (score >= get(insertPos).score) {
+                    insert(insertPos, score, prev);
+                    insertPos++;
+                    break;
+                }
+            }
+            return insertPos;
+        }
+        void add(float thisScore) {
+            findInsert(0, thisScore, null);
+        }
+        int numSolns() {
+            for (int i = 0; i < solns.length; i++)
+                if (solns[i].isClear())
+                    return i+1;
+            return size();
+        }
+        void print() {
+            String str = "";
+            for (int i = 0; i < size(); i++)
+                str += ("["+i + " " + solns[i].score + " i:" + solns[i].pos + " y:" + solns[i].label+"]");
+            System.out.println(str);
+        }
     };
+
     Entry winningLabel[][];
     Entry finalSoln;
-    DenseDoubleMatrix2D Mi;
-    DenseDoubleMatrix1D Ri;
+    DoubleMatrix2D Mi;
+    DoubleMatrix1D Ri;
 
     void allocateScratch(int numY) {
 	Mi = new DenseDoubleMatrix2D(numY,numY);
@@ -141,10 +150,10 @@ class Viterbi implements Serializable {
 		if (i > 0) {
 		    for (int yp = model.edgeGen.first(yi); yp < numY; yp = model.edgeGen.next(yi,yp)) {
 			double val = Mi.get(yp,yi)+Ri.get(yi);
-			winningLabel[yi][i].add(winningLabel[yp][i-1], val);
+			winningLabel[yi][i].add(winningLabel[yp][i-1], (float)val);
 		    }
 		} else {
-		    winningLabel[yi][i].add(Ri.get(yi));
+		    winningLabel[yi][i].add((float)Ri.get(yi));
 		}
 	    }
 	    if (calcScore)
@@ -154,13 +163,17 @@ class Viterbi implements Serializable {
     }
     
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
-	viterbiSearch(dataSeq, lambda,false);
-	Soln ybest = finalSoln.get(0);
-	ybest = ybest.prevSoln;
-	while (ybest != null) {
-	    dataSeq.set_y(ybest.pos, ybest.label);
-	    ybest = ybest.prevSoln;
-	}
+        double corrScore = viterbiSearch(dataSeq, lambda,false);
+        System.out.println("Correct score " + corrScore);
+        Soln ybest = finalSoln.get(0);
+        ybest = ybest.prevSoln;
+        int pos=-1;
+        while (ybest != null) {
+            pos = ybest.pos;
+            dataSeq.set_y(ybest.pos, ybest.label);
+            ybest = ybest.prevSoln;
+        }
+        assert(pos==0);
     }
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {
 	if (Mi == null) {
