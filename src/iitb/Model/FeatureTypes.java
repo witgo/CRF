@@ -47,7 +47,7 @@ public abstract class FeatureTypes implements Serializable {
     int offsetLabelIndependentId(FeatureImpl f) {
     	return (labelIndependentId(f)-thisTypeId)/offset;
     }
-    static int featureTypeId(FeatureImpl f) {
+    public static int featureTypeId(FeatureImpl f) {
         return f.strId.id % offset;
     }
     public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
