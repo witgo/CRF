@@ -4,17 +4,6 @@ import java.util.regex.*;
 import java.util.*;
 import java.io.*;
 
-
-
-
-
-
-
-
-
-
-
-
 /**
  * ConcatRegexFeatures generates features by matching the token with the character patterns.
  * Character patterns are regular expressions for checking whether the token is capitalized word, 
