@@ -16,7 +16,7 @@ import java.io.*;
 public abstract class FeatureTypes {
     static int offset = 0;
     int thisTypeId;
-    static boolean featureCollectMode = false;
+    public static boolean featureCollectMode = false;
     public Model model;
     public FeatureTypes(Model m) {
 	model = m;
