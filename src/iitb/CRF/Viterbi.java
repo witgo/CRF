@@ -41,6 +41,14 @@ class Soln implements Serializable {
     boolean equals(Soln s) {
 	return (label == s.label) && (pos == s.pos) && (prevPos() == s.prevPos()) && (prevLabel() == s.prevLabel());
     }
+    /**
+     * @param prevSoln2
+     * @param score2
+     */
+    protected void setPrevSoln(Soln prevSoln, double score) {
+        this.prevSoln = prevSoln;
+        this.score = score;
+    }
 };
 
 class Viterbi implements Serializable {

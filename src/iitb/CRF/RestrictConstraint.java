@@ -12,7 +12,7 @@ package iitb.CRF;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public abstract class RestrictConstraint extends Constraint {
+public abstract class RestrictConstraint implements Constraint {
 	public final int type() {return ALLOW_ONLY;}
     public abstract void startScan();
     public abstract boolean hasNext();

@@ -1,5 +1,6 @@
 package iitb.CRF;
 
+import gnu.trove.*;
 import cern.colt.function.*;
 import cern.colt.list.*;
 import cern.colt.matrix.impl.*;
@@ -14,6 +15,8 @@ import cern.colt.matrix.impl.*;
 class SparseViterbi extends Viterbi {
     CRF model;
     int beamsize;
+    
+  
     SparseViterbi(CRF model, int bs) {
         super(model,bs);
         this.model = model;
@@ -21,6 +24,7 @@ class SparseViterbi extends Viterbi {
     }
     class Entry {
         Soln solns[];
+        Entry() {}
         Entry(int beamsize, int id, int pos) {
             solns = new Soln[beamsize];
             for (int i = 0; i < solns.length; i++)
@@ -36,8 +40,7 @@ class SparseViterbi extends Viterbi {
             for (int k = size()-1; k > i; k--) {
                 solns[k].copy(solns[k-1]);
             }
-            solns[i].score = score;
-            solns[i].prevSoln = prev;
+            solns[i].setPrevSoln(prev,score);
         }
         void add(Entry e, double thisScore) {
             if (e == null) {
@@ -54,7 +57,6 @@ class SparseViterbi extends Viterbi {
         int findInsert(int insertPos, double score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
-                    //	    System.out.println("inserted " + insertPos + " score " + score);
                     insert(insertPos, score, prev);
                     insertPos++;
                     break;
@@ -78,6 +80,7 @@ class SparseViterbi extends Viterbi {
             System.out.println(str);
         }
     };
+ 
     class Context extends SparseObjectMatrix1D {
         int pos;
         int beamsize;
@@ -88,11 +91,12 @@ class SparseViterbi extends Viterbi {
         }
         void add(int y, Entry prevSoln, double thisScore) {
             if (getQuick(y) == null) {
-                setQuick(y, new Entry((pos==0)?1:beamsize, y, pos));
+                    setQuick(y, new Entry((pos==0)?1:beamsize, y, pos));
             }
             getEntry(y).add(prevSoln,thisScore);
         }
         void clear() {
+            // TODO -- save allocated Entry class.
             assign((Object)null);
         }
         Entry getEntry(int y) {return (Entry)getQuick(y);}
@@ -169,6 +173,9 @@ class SparseViterbi extends Viterbi {
             ybest = ybest.prevSoln;
         }
     }
+    Context newContext(int numY, int beamsize, int pos){
+        return new Context(numY,beamsize,pos);        
+    }
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {
         if (Mi == null) {
             allocateScratch(model.numY);
@@ -180,7 +187,6 @@ class SparseViterbi extends Viterbi {
                 context[l] = new Context(model.numY,beamsize,l);
             }
         }
-        
         double corrScore = contextUpdate.fillArray(dataSeq, lambda,calcCorrectScore);
         
         finalSoln.clear();

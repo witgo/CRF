@@ -176,7 +176,8 @@ class SegmentTrainer extends SparseTrainer {
                 	System.out.println("WARNING: no features fired in the training set");
                 }
                 if (thisSeqLogli > 0) {
-                    System.out.println("ERROR: something is wrong Pr(y|x) > 1!");
+                    System.out.println("ERROR: something is wrong Pr(y|x) > 1! for sequence " + numRecord);
+                    System.out.println(dataSeq);
                 }
                 if (params.debugLvl > 1 || (thisSeqLogli > 0)) {
                     System.out.println("Sequence likelihood "  + thisSeqLogli + " " + lZx + " " + Math.exp(lZx));
