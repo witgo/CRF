@@ -132,8 +132,11 @@ class SegmentTrainer extends SparseTrainer {
                 // update grad.
                 for (int f = 0; f < grad.length; f++)
                     grad[f] -= Math.exp(ExpF[f]-lZx);
-                if ((thisSeqLogli > 0) || noneFired) {
-                    System.out.println("This is shady: something is wrong Pr(y|x) > 1!");
+                if (noneFired) {
+                	System.out.println("WARNING: no features fired in the training set");
+                }
+                if (thisSeqLogli > 0) {
+                    System.out.println("ERROR: something is wrong Pr(y|x) > 1!");
                 }
                 if (params.debugLvl > 1 || (thisSeqLogli > 0)) {
                     System.out.println("Sequence likelihood "  + thisSeqLogli + " " + lZx + " " + Math.exp(lZx));
