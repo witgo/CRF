@@ -125,7 +125,8 @@ class SparseViterbi extends Viterbi {
         int i, ell;
         Iter iter;
         public double apply(int yp, int yi, double val) {
-            context[i].add(yi, context[i-ell].getEntry(yp),Mi.get(yp,yi)+Ri.get(yi));
+            if (context[i-ell].getEntry(yp) != null)
+                context[i].add(yi, context[i-ell].getEntry(yp),Mi.get(yp,yi)+Ri.get(yi));
             return val;
         }
         public double apply(int yi, double val) {
