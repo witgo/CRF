@@ -1,5 +1,6 @@
 package iitb.Model;
 import iitb.CRF.*;
+
 import java.util.*;
 import java.io.*;
 /**
@@ -253,20 +254,33 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 if (featureToReturn.id < 0){
                     continue;
                 }
-                if (((cposStart > 0) && (cposEnd < data.length()-1)) 
-                        || (featureToReturn.y() >= model.numStates())
-                        || (featureToReturn.yprev() >= model.numStates()))
-                    return;
-                if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
-                		&& ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
-                    return;
-                if ((cposEnd == data.length()-1) && (model.isEndState(featureToReturn.y())))
-                    return;
+                if (featureValid(data, cposStart, cposEnd, featureToReturn, model))
+                	return;
+
             }
         }
         featureToReturn.id = -1;
     }
-    public void startScanFeaturesAt(DataSequence d, int prev, int p) {
+    /**
+	 * @param featureToReturn
+     * @param cposEnd
+     * @param cposStart
+     * @param data
+     * @return
+	 */
+	public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model) {
+        if (((cposStart > 0) && (cposEnd < data.length()-1)) 
+                || (featureToReturn.y() >= model.numStates())
+                || (featureToReturn.yprev() >= model.numStates()))
+            return true;
+        if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
+        		&& ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
+            return true;
+        if ((cposEnd == data.length()-1) && (model.isEndState(featureToReturn.y())))
+            return true;
+		return false;
+	}
+	public void startScanFeaturesAt(DataSequence d, int prev, int p) {
         data = d;
         cposEnd = p;
         cposStart = prev+1;
