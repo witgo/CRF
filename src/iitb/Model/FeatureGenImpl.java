@@ -123,11 +123,7 @@ public class FeatureGenImpl implements FeatureGenerator {
     FeatureMap featureMap;
     static Model getModel(String modelSpecs, int numLabels) throws Exception {
 	// create model..
-	if (modelSpecs.equalsIgnoreCase("naive")) {
-	    return new CompleteModel(numLabels);
-	} else {
-	    return new NestedModel(numLabels, modelSpecs);
-	}
+	return Model.getNewModel(numLabels,modelSpecs);
     }
     public FeatureGenImpl(String modelSpecs, int numLabels) throws Exception {
 	this(modelSpecs,numLabels,true);

@@ -15,9 +15,10 @@ public class NestedModel extends Model {
 	super(num);
 	nodeOffsets = new int[numLabels];
 	inner = new Model[numLabels];
-
-	outer = new CompleteModel(numLabels);
+	
 	StringTokenizer start = new StringTokenizer(specs, ",");
+	assert start.hasMoreTokens();
+	outer = Model.getNewModel(numLabels, (String)start.nextToken());
 	for(int i=0 ; i<numLabels ; i++) {
 	    assert start.hasMoreTokens();
 	    String thisStruct = start.nextToken();

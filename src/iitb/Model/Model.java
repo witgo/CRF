@@ -53,7 +53,15 @@ public abstract class Model {
 	for (int i = 0; i< numEndStates(); i++)
 	    System.out.print(" " + endState(i));
 	System.out.println("");
-
+    }
+    public static Model getNewModel(int numLabels, String modelSpecs) throws Exception {
+	if (modelSpecs.equalsIgnoreCase("naive")) {
+	    return new CompleteModel(numLabels);
+	} else if (modelSpecs.equalsIgnoreCase("noEdge")) {
+	    return new NoEdgeModel(numLabels);
+	} else {
+	    return new NestedModel(numLabels, modelSpecs);
+	}
 
     }
 };
