@@ -14,6 +14,8 @@ import cern.colt.matrix.impl.*;
  */ 
 
 class SegmentTrainer extends SparseTrainer {
+    FeatureGenCache featureGenCache;
+    
     public SegmentTrainer(CrfParams p) {
         super(p);
         logTrainer = true;
@@ -24,21 +26,29 @@ class SegmentTrainer extends SparseTrainer {
     	super.init(model,data,l);
     	allZeroVector = new LogSparseDoubleMatrix1D(numY);
     	allZeroVector.assign(0);
+        if (params.miscOptions.getProperty("cache", "false").equals("true")) 
+            featureGenCache = new FeatureGenCache((FeatureGeneratorNested)featureGenerator);
+        else
+            featureGenCache = null;
     }
     
     
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         try {
-            FeatureGeneratorNested featureGenNested = (FeatureGeneratorNested)featureGenerator;
+            FeatureGeneratorNested featureGenNested = featureGenCache;
+            if (featureGenNested==null)
+                featureGenNested = new FeatureGenCache((FeatureGeneratorNested)featureGenerator);
             double logli = 0;
             for (int f = 0; f < lambda.length; f++) {
                 grad[f] = -1*lambda[f]*params.invSigmaSquare;
                 logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
             }
             diter.startScan();
+            if (featureGenCache != null) featureGenCache.startDataScan();
             int numRecord;
             for (numRecord = 0; diter.hasNext(); numRecord++) {
                 CandSegDataSequence dataSeq = (CandSegDataSequence)diter.next();
+                if (featureGenCache != null) featureGenCache.nextDataIndex();
                 if (params.debugLvl > 1)
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
                 for (int f = 0; f < lambda.length; f++)
