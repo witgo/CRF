@@ -24,7 +24,7 @@ public class CRF implements Serializable {
     EdgeGenerator edgeGen;
     HistoryManager histMgr;
     public CrfParams params;
-    Viterbi viterbi;
+    transient Viterbi viterbi;
     
     /**
      * @param numLabels is the number of distinct class labels or y-labels
@@ -104,6 +104,8 @@ public class CRF implements Serializable {
         return lambda;
     }
     public void apply(DataSequence dataSeq) {
+        if (viterbi==null)
+            viterbi = getViterbi(1);
         if (params.debugLvl > 1) 
             Util.printDbg("CRF: Applying on " + dataSeq);
         viterbi.bestLabelSequence(dataSeq,lambda);

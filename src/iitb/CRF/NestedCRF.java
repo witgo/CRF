@@ -7,7 +7,7 @@ package iitb.CRF;
  */ 
 public class NestedCRF extends CRF {
     FeatureGeneratorNested featureGenNested;
-    NestedViterbi nestedViterbi;
+    transient NestedViterbi nestedViterbi;
     public NestedCRF(int numLabels, FeatureGeneratorNested fgen, String arg) {
 	super(numLabels,fgen,arg);
 	featureGenNested = fgen;
@@ -30,6 +30,8 @@ public class NestedCRF extends CRF {
     	apply((SegmentDataSequence)dataSeq);
     }
     public void apply(SegmentDataSequence dataSeq) {
+        if (nestedViterbi==null)
+            nestedViterbi = new NestedViterbi(this,1);
 	if (params.debugLvl > 2) 
 	    Util.printDbg("NestedCRF: Applying on " + dataSeq);
 	nestedViterbi.bestLabelSequence(dataSeq,lambda);

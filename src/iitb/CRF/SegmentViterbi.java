@@ -41,7 +41,8 @@ public class SegmentViterbi extends SparseViterbi {
         private boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
-            disallowedPairs.conflictingPair(label,prevLabel,true);
+             if (disallowedPairs.conflictingPair(label,prevLabel,true))
+                 return false;
              intersectTest.label = label;
              intersectTest.prevLabel = prevLabel;
              return set.forEach(intersectTest);
@@ -97,6 +98,7 @@ public class SegmentViterbi extends SparseViterbi {
         protected void setPrevSoln(Soln prevSoln, double score) {
             super.setPrevSoln(prevSoln,score);
             if (prevSoln != null) {
+                labelsOnPath.clear();
             	labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
             	if ((labelConstraints != null) && labelConstraints.conflicting(prevSoln.label))
             		labelsOnPath.add(prevSoln.label);

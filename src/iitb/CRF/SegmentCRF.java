@@ -12,7 +12,7 @@ package iitb.CRF;
  */
 public class SegmentCRF extends CRF {
 	FeatureGeneratorNested featureGenNested;
-	SegmentViterbi segmentViterbi;
+	transient SegmentViterbi segmentViterbi;
 	public SegmentCRF(int numLabels, FeatureGeneratorNested fgen, String arg) {
 		super(numLabels,fgen,arg);
 		featureGenNested = fgen;
@@ -35,11 +35,15 @@ public class SegmentCRF extends CRF {
 		apply((CandSegDataSequence)dataSeq);
 	}
 	public void apply(CandSegDataSequence dataSeq) {
+	    if (segmentViterbi==null)
+	        segmentViterbi = new SegmentViterbi(this,1);
 		if (params.debugLvl > 2) 
 			Util.printDbg("SegmentCRF: Applying on " + dataSeq);
 		segmentViterbi.bestLabelSequence(dataSeq,lambda);
 	}
 	public double score(DataSequence dataSeq) {
+	    if (segmentViterbi==null)
+	        segmentViterbi = new SegmentViterbi(this,1);
 		return segmentViterbi.viterbiSearch(dataSeq,lambda,true);
 	}
 }
