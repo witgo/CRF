@@ -1,4 +1,6 @@
 package iitb.Model;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import iitb.CRF.*;
@@ -47,5 +49,9 @@ public abstract class FeatureTypes implements Serializable {
     }
     public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
     public int maxFeatureId() {return Integer.MAX_VALUE;}
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException  {
+        s.defaultReadObject();
+        offset = Math.max(offset,thisTypeId+1);
+    }
 };
 

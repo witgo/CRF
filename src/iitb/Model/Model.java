@@ -80,6 +80,8 @@ public abstract class Model implements Serializable {
 	 */
 	public void mapStatesToLabels(SegmentDataSequence dataSeq) {
 		int dataLen = dataSeq.length();
+		if (dataLen == 0)
+			return;
 		for (int segStart = 0, segEnd=0; segStart < dataLen; segStart = segEnd+1) {
 			for (segEnd=segStart; segEnd < dataLen; segEnd++) {
 				if (label(dataSeq.y(segStart)) != label(dataSeq.y(segEnd))) {
@@ -93,6 +95,7 @@ public abstract class Model implements Serializable {
 			}
 			if (segEnd == dataLen) {
 				System.out.println("WARNING: End state not found until the last position");
+				System.out.println(dataSeq);
 				segEnd = dataLen-1;
 			}
 			dataSeq.setSegment(segStart,segEnd,label(dataSeq.y(segStart)	));
