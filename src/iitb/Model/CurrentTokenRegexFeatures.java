@@ -1,7 +1,7 @@
 package iitb.Model;
 import iitb.CRF.*;
 import java.util.regex.*;
-import java.io.*;
+
 
 /**
  * CurrentTokenRegexFeatures generates features by matching the token with character patterns.

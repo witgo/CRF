@@ -1,11 +1,6 @@
 package iitb.CRF;
 
-import java.lang.*;
 import java.io.*;
-import java.util.*;
-
-import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
 /**
  *
  * CRF (conditional random fields) This class provides support for

@@ -133,7 +133,6 @@ public class Segment {
     void  allocModel() throws Exception {
 	// add any code related to dependency/consistency amongst paramter
 	// values here..
-	/**
 	if (modelGraphType.equals("semi-markov")) {
 	    if (options.getInt("debugLvl") > 1) {
 		Util.printDbg("Creating semi-markov model");
@@ -142,32 +141,50 @@ public class Segment {
 	    featureGen = nfgen;
 	    crfModel = new NestedCRF(featureGen.numStates(),nfgen,options);
 	} else 
-	*/
 	{
 	    featureGen = new FeatureGenImpl(modelGraphType, nlabels);
 	    crfModel=new CRF(featureGen.numStates(),featureGen,options);
         }
     }
-    class TestRecord implements DataSequence {
-	String seq[];
-	int path[];
-	TestRecord(String s[]) {
-	    seq=s;
-	    path=new int[seq.length];
-	}
-	void init(String s[]) {
-	    seq = s;
-	    if ((path == null) || (path.length < seq.length)) {
-		path = new int[seq.length];
-	    }
-	}
-	public void set_y(int i, int l) {path[i] = l;} // not applicable for training data.
-	public int y(int i) {return path[i];}
-	public int length() {return seq.length;}
-	public Object x(int i) {return seq[i];}
-    };
+    class TestRecord implements SegmentDataSequence {
+    	String seq[];
+    	int path[];
+    	TestRecord(String s[]) {
+    	    seq=s;
+    	    path=new int[seq.length];
+    	}
+    	void init(String s[]) {
+    	    seq = s;
+    	    if ((path == null) || (path.length < seq.length)) {
+    		path = new int[seq.length];
+    	    }
+    	}
+    	public void set_y(int i, int l) {path[i] = l;} // not applicable for training data.
+    	public int y(int i) {return path[i];}
+    	public int length() {return seq.length;}
+    	public Object x(int i) {return seq[i];}
+    	/* (non-Javadoc)
+    	 * @see iitb.CRF.SegmentDataSequence#getSegmentEnd(int)
+    	 */
+    	public int getSegmentEnd(int segmentStart) {
+    		if ((segmentStart > 0) && (y(segmentStart) == y(segmentStart-1)))
+    			return -1;
+    		for (int i = segmentStart+1; i < length(); i++) {
+    			if (y(i)!= y(segmentStart))
+    				return i-1;
+    		}
+    		return length()-1;
+    	}
+    	/* (non-Javadoc)
+    	 * @see iitb.CRF.SegmentDataSequence#setSegment(int, int, int)
+    	 */
+    	public void setSegment(int segmentStart, int segmentEnd, int y) {
+    		for (int i = segmentStart; i <= segmentEnd; i++)
+    			set_y(i,y);
+    	}
+        };
 
-
+ 
     public int[] segment(TestRecord testRecord, int[] groupedToks, String collect[]) {
 	for (int i = 0; i < testRecord.length(); i++)
 	    testRecord.seq[i] = AlphaNumericPreprocessor.preprocess(testRecord.seq[i]);

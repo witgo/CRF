@@ -66,6 +66,25 @@ class DCTrainRecord implements TrainRecord {
 	    }
 	return null;
     }
+	/* (non-Javadoc)
+	 * @see iitb.CRF.SegmentDataSequence#getSegmentEnd(int)
+	 */
+	public int getSegmentEnd(int segmentStart) {
+		if ((segmentStart > 0) && (y(segmentStart) == y(segmentStart-1)))
+			return -1;
+		for (int i = segmentStart+1; i < length(); i++) {
+			if (y(i)!= y(segmentStart))
+				return i-1;
+		}
+		return length()-1;
+	}
+	/* (non-Javadoc)
+	 * @see iitb.CRF.SegmentDataSequence#setSegment(int, int, int)
+	 */
+	public void setSegment(int segmentStart, int segmentEnd, int y) {
+		for (int i = segmentStart; i <= segmentEnd; i++)
+			set_y(i,y);
+	}
 };
 
 class DCTrainData implements TrainData {

@@ -2,10 +2,6 @@ package iitb.CRF;
 
 import iitb.Utils.*;
 
-import java.lang.*;
-import java.io.*;
-import java.util.*;
-
 class EdgeGenerator {
     int offset;
     int numOrigY;

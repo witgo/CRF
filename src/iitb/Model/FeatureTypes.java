@@ -1,7 +1,5 @@
 package iitb.Model;
 import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
 /**
  *
  * Inherit from the FeatureTypes class for creating any kind of

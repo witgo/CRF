@@ -1,10 +1,5 @@
 package iitb.CRF;
 
-import java.util.*;
-import riso.numerical.*;
-import cern.colt.function.*;
-import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
 /**
  * Implements the CollinsVotedPerceptron training algorithm
  *

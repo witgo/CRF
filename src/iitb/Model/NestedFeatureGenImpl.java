@@ -1,6 +1,4 @@
 package iitb.Model;
-import java.io.*;
-import java.util.*;
 import iitb.CRF.*;
 
 public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGeneratorNested {
@@ -8,10 +6,19 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
     int maxMemOverall;
 
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options, boolean addFeatureNow) throws Exception {
-	super("naive",numLabels,addFeatureNow);
+	super("naive",numLabels,false);
 	if (options.getProperty("MaxMemory") != null) {
 	    maxMemOverall = Integer.parseInt(options.getProperty("MaxMemory"));
 	} 
+	if (addFeatureNow) {
+		features.add(new EdgeFeatures(model));
+		features.add(new StartFeatures(model));
+		features.add(new EndFeatures(model));
+		dict = new WordsInTrain();
+		features.add(new FeatureTypesMulti(new UnknownFeature(model,dict)));
+		features.add(new FeatureTypesMulti(new WordFeatures(model, dict)));
+		features.add(new SegmentConcatRegexFeatures(model,maxMemOverall));
+		}
     }
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options) throws Exception {
 	this(numLabels,options,true);

@@ -1,9 +1,7 @@
 package iitb.CRF;
 
 import java.util.*;
-import cern.colt.function.*;
 import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
 
 class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;

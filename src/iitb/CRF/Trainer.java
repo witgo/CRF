@@ -1,6 +1,5 @@
 package iitb.CRF;
 
-import java.util.*;
 import riso.numerical.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
