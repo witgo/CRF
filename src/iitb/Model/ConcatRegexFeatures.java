@@ -118,11 +118,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		this.relSegmentEnd = relSegmentEnd;
 		this.maxMemory = maxMemory;
 		
-		if((sign(relSegmentEnd) == sign(relSegmentStart)) && relSegmentStart != 0)
-			window = relSegmentEnd - relSegmentStart + 1;
-		else
-			window = relSegmentEnd - relSegmentStart + maxMemory;
-
+		window = getWindowSize(relSegmentStart, relSegmentEnd);		
 		idbase = (int) Math.pow(2, window);
 		getPatterns(patternFile);
 		assert(patternString != null);
@@ -135,6 +131,18 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	}
 
 	/**
+     * @param relSegmentStart2
+     * @param relSegmentEnd2
+     * @return
+     */
+    private int getWindowSize(int relSegmentStart, int relSegmentEnd) {
+        if((sign(relSegmentEnd) == sign(relSegmentStart)) && relSegmentStart != 0)
+			return relSegmentEnd - relSegmentStart + 1;
+		else
+			return relSegmentEnd - relSegmentStart + maxMemory;
+    }
+
+    /**
 	 * Constructs an object of ConcatRegexFeatures to be used to generate features for current token.
 	 
 	 * @param m		a {@link Model} object
@@ -148,10 +156,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		this.relSegmentStart = relSegmentStart;
 		this.relSegmentEnd = relSegmentEnd;
 		this.maxMemory = maxMemory;
-		if((sign(relSegmentEnd) == sign(relSegmentStart)) && sign(relSegmentStart) != 0)
-			window = relSegmentEnd - relSegmentStart + 1;
-		else
-			window = relSegmentEnd - relSegmentStart + maxMemory;
+		window = getWindowSize(relSegmentStart, relSegmentEnd);
 		idbase = (int) Math.pow(2, window);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
@@ -303,10 +308,8 @@ public class ConcatRegexFeatures extends FeatureTypes {
 				curId += base * (match? 1:0);
 				base = base * 2;
 			}
-
 			if(curId > 0)
-				break;
-				
+				break;				
 			index++;
 		}
 	}
