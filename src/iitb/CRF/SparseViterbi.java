@@ -14,13 +14,10 @@ import cern.colt.matrix.impl.*;
 
 class SparseViterbi extends Viterbi {
     CRF model;
-    int beamsize;
-    
   
     SparseViterbi(CRF model, int bs) {
         super(model,bs);
         this.model = model;
-        beamsize=bs;
     }
     class Entry {
         Soln solns[];

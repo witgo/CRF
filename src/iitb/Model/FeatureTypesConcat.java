@@ -36,6 +36,9 @@ public class FeatureTypesConcat extends FeatureTypes {
 	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 		int bitMap = 0;
 		String name = "";
+		feature.strId.id=0;
+		if (pos-prevPos > maxConcatLength)
+		    return false;
 		for (int i = 0; (i < pos-prevPos) && (i < maxConcatLength); i++) {
 			if (single.startScanFeaturesAt(data,pos-i-1,pos-i) && single.hasNext()) {
 				single.next(feature);
@@ -47,7 +50,7 @@ public class FeatureTypesConcat extends FeatureTypes {
 						System.out.println("Error in max-feature-id value " + feature);
 					}
 					if (single.hasNext()) {
-						System.out.println("FeatureTypesConcat: Taking only the first feature: others to be ignored");
+					    //						System.out.println("FeatureTypesConcat: Taking only the first feature: others to be ignored");
 					}
 				}
 			}

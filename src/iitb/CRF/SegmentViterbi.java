@@ -218,7 +218,7 @@ public class SegmentViterbi extends SparseViterbi {
     Context newContext(int numY, int beamsize, int pos){
         if (labelConstraints == null)
             return new Context(numY,beamsize,pos);        
-        return  new ContextForLabelConstraints(numY,(beamsize==1)?5:beamsize,pos); 
+        return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos); 
     }
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
