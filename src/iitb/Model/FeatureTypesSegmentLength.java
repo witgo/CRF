@@ -16,11 +16,13 @@ public class  FeatureTypesSegmentLength extends FeatureTypes {
 	return segLen > 0;
     }
     public  void next(iitb.Model.FeatureImpl f) {
-	if (featureCollectMode)
-	    setFeatureIdentifier(segLen,0,"Length."+segLen,f);
-	else
-	    setFeatureIdentifier(segLen,f);
-	segLen = 0;
+    	f.val = 1;
+    	f.ystart = -1;
+    	if (featureCollectMode)
+			f.strId.init(segLen, 0, "Length." + segLen);
+		else
+			f.strId.init(segLen);
+		segLen = 0;
     }
 };
 	
