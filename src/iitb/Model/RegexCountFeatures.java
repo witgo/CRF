@@ -14,7 +14,7 @@ import iitb.CRF.DataSequence;
  * @author imran
  *
  */
-public class RegexLengthFeatures extends FeatureTypes {
+public class RegexCountFeatures extends FeatureTypes {
 
     String patternString[][] = {
     		{"isInitCapitalWord",     		"[A-Z][a-z]+"        },
@@ -35,7 +35,7 @@ public class RegexLengthFeatures extends FeatureTypes {
     /**
      * @param m
      */
-    public RegexLengthFeatures(Model m, int maxSegmentLength) {
+    public RegexCountFeatures(Model m, int maxSegmentLength) {
         super(m);
         this.maxSegmentLength = maxSegmentLength;
         p = new Pattern[patternString.length];
@@ -69,10 +69,11 @@ public class RegexLengthFeatures extends FeatureTypes {
 
     public void next(FeatureImpl f) {
 		f.val = 1;
+		patternOccurence[index] = Math.max(maxSegmentLength,patternOccurence[index]);
 		f.strId.id = maxSegmentLength * (index+1) + patternOccurence[index];
 		f.ystart = -1;
 		if(FeatureGenImpl.featureCollectMode){
-			f.strId.name = patternString[index][0] + "_Length_" + patternOccurence[index];
+			f.strId.name = patternString[index][0] + "_Count_" + patternOccurence[index];
 			System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
 		}
     	advance();
