@@ -19,12 +19,11 @@ class Trainer {
 
     DenseDoubleMatrix2D Mi_YY;
     DenseDoubleMatrix1D Ri_Y;
-    DenseDoubleMatrix1D alpha_Y;
+    DenseDoubleMatrix1D alpha_Y, newAlpha_Y;
     DenseDoubleMatrix1D beta_Y[];
     DenseDoubleMatrix1D tmp_Y;
     double ExpF[];
     double scale[];
-    SparseDoubleMatrix2D fMi_YY;
     //    SparseDoubleMatrix1D fRi_Y;
 
     class  MultFunc implements DoubleDoubleFunction {
@@ -84,10 +83,10 @@ class Trainer {
 	Ri_Y = new DenseDoubleMatrix1D(numY);
 
 	alpha_Y = new DenseDoubleMatrix1D(numY);
+	newAlpha_Y = new DenseDoubleMatrix1D(numY);
 	tmp_Y = new DenseDoubleMatrix1D(numY);
 
 	ExpF = new double[lambda.length];
-	fMi_YY = new SparseDoubleMatrix2D(numY,numY);
     }
 
     void doTrain() {
@@ -125,7 +124,7 @@ class Trainer {
 	    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
 	}
 	boolean doScaling = params.doScaling;
-	// TODO -- optimize code for 1d features.
+
 	diter.startScan();
 	for (int numRecord = 0; diter.hasNext(); numRecord++) {
 	    DataSequence dataSeq = (DataSequence)diter.next();
@@ -157,7 +156,6 @@ class Trainer {
 		    }
 		}
 
-
 		// compute the Mi matrix
 		CRF.computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,true);
 		tmp_Y.assign(beta_Y[i]);
@@ -178,11 +176,14 @@ class Trainer {
 		// find features that fire at this position..
 		featureGenerator.startScanFeaturesAt(dataSeq, i);
 
+		tmp_Y.assign(alpha_Y);
+		Mi_YY.zMult(tmp_Y, newAlpha_Y,1,0,true);
+		newAlpha_Y.assign(Ri_Y,multFunc); 
+
 		while (featureGenerator.hasNext()) { 
 		    Feature feature = featureGenerator.next();
 		    int f = feature.index();
 		    
-		    fMi_YY.assign(0);
 		    int yp = feature.y();
 		    int yprev = feature.yprev();
 		    float val = feature.value();
@@ -191,26 +192,16 @@ class Trainer {
 			thisSeqLogli += val*lambda[f];
 		    }
 		    if (yprev < 0) {
-			for (yprev = 0; yprev < Mi_YY.rows(); yprev++) 
-			    fMi_YY.set(yprev,yp, Ri_Y.get(yp)*Mi_YY.get(yprev,yp)*val);
+			ExpF[f] += newAlpha_Y.get(yp)*val*beta_Y[i].get(yp);
 		    } else {
-			fMi_YY.set(yprev,yp, Ri_Y.get(yp)*Mi_YY.get(yprev,yp)*val);
+			ExpF[f] += alpha_Y.get(yprev)*Ri_Y.get(yp)*Mi_YY.get(yprev,yp)*val*beta_Y[i].get(yp);
 		    }
-		    // now compute the i-th term to be added.
-		    fMi_YY.zMult(alpha_Y, tmp_Y, 1,0,true);
-		    //		    tmp_Y.assign(fRi_Y, multFunc);
-		    
-		    double expFi = tmp_Y.zDotProduct(beta_Y[i]);
-		    ExpF[f] += expFi;
 		}
-		tmp_Y.assign(alpha_Y);
-		Mi_YY.zMult(tmp_Y, alpha_Y,1,0,true);
-		alpha_Y.assign(Ri_Y,multFunc); 
 
+		alpha_Y.assign(newAlpha_Y);
 		// now scale the alpha-s to avoid overflow problems.
 		constMultiplier.multiplicator = 1.0/scale[i];
 		alpha_Y.assign(constMultiplier);
-
 		
 		if (params.debugLvl > 1) {
 		    System.out.println("Alpha-i " + alpha_Y.toString());
