@@ -35,11 +35,13 @@ public class EdgeFeatures extends FeatureTypes {
     }	
     public void next(FeatureImpl f) {
 	Edge e = edgeIter.next();
-	Object name;
-	if (labelNames == null) {
-	    name = "E."+model.label(e.start);
-	} else {
-	    name = labelNames[model.label(e.start)];
+	Object name="";
+	if (featureCollectMode) {
+	    if (labelNames == null) {
+		name = "E."+model.label(e.start);
+	    } else {
+		name = labelNames[model.label(e.start)];
+	    }
 	}
 	if (model.isOuterEdge(e,edgeNum)) {
 	    setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end), model.label(e.end),name,f);

@@ -13,6 +13,7 @@ public class NestedModel extends Model {
 
     public NestedModel(int num, String specs) throws Exception {
 	super(num);
+	name = "Nested";
 	nodeOffsets = new int[numLabels];
 	inner = new Model[numLabels];
 	
@@ -120,7 +121,6 @@ public class NestedModel extends Model {
     public void stateMappings(DataSequence data) throws Exception {
 	if (data.length() == 0)
 	    return;
-	
 	for (int lstart = 0; lstart < data.length();) {
 	    int lend = lstart+1;
 	    for (;(lend < data.length()) && (data.y(lend) == data.y(lstart)); lend++);
@@ -131,7 +131,9 @@ public class NestedModel extends Model {
 	    }
 	    lstart=lend;
 	}
-	
+    }
+    boolean isOuterEdge(Edge e, int num) {
+	return (num < outer.numEdges());
     }
 
 public class NestedEdgeIterator implements EdgeIterator {

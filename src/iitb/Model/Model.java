@@ -17,6 +17,7 @@ interface EdgeIterator {
 
 public abstract class Model {
     int numLabels;
+    public String name;
     Model(int nlabels) {
 	numLabels = nlabels;
     }
@@ -37,6 +38,8 @@ public abstract class Model {
     public abstract void stateMappings(DataSequence data) throws Exception;
     public  void stateMappings(SegmentDataSequence data) throws Exception {stateMappings((DataSequence)data);}
     public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
+
+    boolean isOuterEdge(Edge e, int num) {return true;}
     
     public void printGraph() {
 	System.out.println("Numnodes = " + numStates() + " NumEdges " + numEdges());

@@ -10,6 +10,7 @@ import iitb.CRF.*;
 public class CompleteModel extends Model {
     public CompleteModel(int nlabels) {
 	super(nlabels);
+	name = "Complete";
     }
     public int numStates() {return numLabels;}
     public int label(int stateNum) {return stateNum;}

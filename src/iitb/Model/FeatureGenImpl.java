@@ -51,6 +51,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	dict = new WordsInTrain();
 	features.add(new UnknownFeature(model,dict));
 	// features.add(new KnownInOtherState(model, dict));
+	//	features.add(new KernelFeaturesForLongEntity(model,new WordFeatures(model, dict)));
 	features.add(new WordFeatures(model, dict));
 	//	features.add(new WordScoreFeatures(model, dict));
     }
@@ -81,6 +82,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	}
 	public int collectFeatureIdentifiers(DataIter trainData, int maxMem) {
 	    featureCollectMode = true;
+	    FeatureTypes.featureCollectMode = true;
 	    for (trainData.startScan(); trainData.hasNext();) {
 		DataSequence seq = trainData.next();
 		for (int l = 0; l < seq.length(); l++) {
@@ -95,10 +97,12 @@ public class FeatureGenImpl implements FeatureGenerator {
 		}
 	    }
 	    featureCollectMode = false;
+	    FeatureTypes.featureCollectMode = false;
 	    collectNames();
 	    return strToInt.size();
 	}
 	public void write(PrintWriter out) throws IOException {
+	    out.println("******* Features ************");
 	    out.println(strToInt.size());
 	    for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
 		Object key = e.nextElement();
@@ -106,6 +110,7 @@ public class FeatureGenImpl implements FeatureGenerator {
 	    }
 	}
 	public int read(BufferedReader in) throws IOException {
+	    in.readLine();
 	    int len = Integer.parseInt(in.readLine());
 	    String line;
 	    for(int l = 0; (l < len) && ((line=in.readLine())!=null); l++) {
@@ -152,9 +157,21 @@ public class FeatureGenImpl implements FeatureGenerator {
     }
     public int maxMemory() {return 1;}
     public void train(DataIter trainData) throws Exception {
+	train(trainData,true);
+    }
+    public void train(DataIter trainData, boolean cachedLabels) throws Exception {
 	// map the y-values in the training set.
-        stateMappings(trainData);
+        if (cachedLabels) stateMappings(trainData);
 	if (dict != null) dict.train(trainData,model.numStates());
+	for (trainData.startScan(); trainData.hasNext();) {
+	    DataSequence seq = trainData.next();
+	    for (int l = 0; l < seq.length(); l++) {
+		// train each featuretype.
+		for (int f = 0; f < features.size(); f++) {
+		    getFeature(f).train(seq,l);
+		}
+	    }
+	}
 	totalFeatures = featureMap.collectFeatureIdentifiers(trainData,maxMemory());
     };
     public void printStats() {
@@ -247,5 +264,17 @@ public class FeatureGenImpl implements FeatureGenerator {
 	if (dict != null) dict.write(out);
 	featureMap.write(out);
 	out.close();
+    }
+    public void displayModel(double featureWts[]) throws IOException {
+	for (int fIndex = 0; fIndex < featureWts.length; fIndex++) {
+	    Object feature = featureIdentifier(fIndex).name;
+	    int classIndex = featureIdentifier(fIndex).stateId;
+	    int label = model.label(classIndex);
+	    System.out.println("Feature " + label + " " + classIndex + " " + feature + " " + featureWts[fIndex]);
+	}
+	System.out.println("Feature types statistics");
+	for (int f = 0; f < features.size(); f++) {
+	    getFeature(f).print(featureMap, featureWts);
+	}
     }
 };

@@ -15,6 +15,7 @@ public class NoEdgeModel extends CompleteModel {
     public NoEdgeModel(int nlabels) {
 	super(nlabels);
 	emptyIter = new EmptyEdgeIter();
+	name = "NoEdge";
     }
     public int numEdges() {return 0;}
     public EdgeIterator edgeIterator() {

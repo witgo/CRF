@@ -39,7 +39,7 @@ class WordFeatures extends FeatureTypes {
 	return (stateId != -1);
     }
     public void next(FeatureImpl f) {
-	setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,(String)token,f);
+	setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,token,f);
 	f.yend = stateId;
 	f.ystart = -1;
 	f.val = 1;

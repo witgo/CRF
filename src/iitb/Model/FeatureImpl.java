@@ -20,6 +20,8 @@ public class FeatureImpl implements Feature {
 	ystart = -1;
 	id = 0;
     }
+    public FeatureImpl() {;}
+    public FeatureImpl(FeatureImpl f) {copy(f);}
     public void copy(Feature featureToReturn) {
     	id = featureToReturn.index();
 	ystart = featureToReturn.yprev();

@@ -16,11 +16,13 @@ import java.io.*;
 public abstract class FeatureTypes {
     static int offset = 0;
     int thisTypeId;
+    static boolean featureCollectMode = false;
     public Model model;
     public FeatureTypes(Model m) {
 	model = m;
 	thisTypeId = offset++;
     }
+    public void train(DataSequence data, int pos) {;}
     public  boolean startScanFeaturesAt(DataSequence data, int pos) {
 	return startScanFeaturesAt(data,pos-1,pos);
     }
@@ -33,6 +35,10 @@ public abstract class FeatureTypes {
     public void setFeatureIdentifier(int fId, int stateId, Object name, FeatureImpl f) {
 	f.strId.init(fId*offset + thisTypeId,stateId,name);
     }
+    int labelIndependentId(FeatureImpl f) {
+	return ((f.strId.id-thisTypeId)-f.strId.stateId*offset)/model.numStates()+thisTypeId;
+    }
+    public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
 };
 
 

@@ -41,5 +41,8 @@ public class  FeatureTypesEachLabel extends FeatureTypes {
 	single.setFeatureIdentifier(featureImpl.strId.id*numStates+stateId, stateId, featureImpl.strId.name, f);
 	advance();
     }
+    int labelIndependentId(FeatureImpl f) {
+	return ((f.strId.id-single.thisTypeId)-f.strId.stateId*offset)/model.numStates()+single.thisTypeId;
+    }
 };
 	

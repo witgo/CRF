@@ -10,7 +10,6 @@ import java.io.*;
 
 
 public class GenericModel extends Model {
-    String name;
     int _numStates;
     Edge _edges[];  // edges have to be sorted by their starting node id.
     int edgeStart[]; // the index in the edges array where edges out of node i start.
