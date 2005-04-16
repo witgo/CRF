@@ -6,7 +6,7 @@ import cern.colt.function.*;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-class RobustMath {
+public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
     static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
@@ -35,7 +35,7 @@ class RobustMath {
             return vals[index];
         }
     };
-    static double logSumExp(double v1, double v2) {
+    public static double logSumExp(double v1, double v2) {
         if (Math.abs(v1-v2) < Double.MIN_VALUE)
             return v1 + LOG2;
         double vmin = Math.min(v1,v2);
@@ -56,7 +56,7 @@ class RobustMath {
             return logSumExp(v1,v2);
         }
     };
-    static LogSumExp logSumExpFunc = new LogSumExp();
+    public static LogSumExp logSumExpFunc = new LogSumExp();
     static void addNoDups(TreeSet vec, double v) {
         Double val = new Double(v);
         if (!vec.add(val)) {

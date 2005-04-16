@@ -13,18 +13,18 @@ import cern.colt.matrix.impl.*;
  *
  */ 
 
-class SegmentTrainer extends SparseTrainer {
+public class SegmentTrainer extends SparseTrainer {
     FeatureGenCache featureGenCache;
-    DoubleMatrix1D alpha_Y_Array[];
-    DoubleMatrix1D alpha_Y_ArrayM[];
-    boolean initAlphaMDone[];
-    LogSparseDoubleMatrix1D allZeroVector;
-    boolean reuseM, initMDone=false;
+    protected DoubleMatrix1D alpha_Y_Array[];
+    protected DoubleMatrix1D alpha_Y_ArrayM[];
+    protected boolean initAlphaMDone[];
+    protected LogSparseDoubleMatrix1D allZeroVector;
+    protected boolean reuseM, initMDone=false;
     public SegmentTrainer(CrfParams p) {
         super(p);
         logTrainer = true;
     }
-    void init(CRF model, DataIter data, double[] l) {
+    protected void init(CRF model, DataIter data, double[] l) {
         super.init(model,data,l);
         allZeroVector = new LogSparseDoubleMatrix1D(numY);
         allZeroVector.assign(0);
@@ -59,25 +59,12 @@ class SegmentTrainer extends SparseTrainer {
                 
                 int base = -1;
                 if ((alpha_Y_Array == null) || (alpha_Y_Array.length < dataSeq.length()-base)) {
-                    alpha_Y_Array = new DoubleMatrix1D[2*dataSeq.length()];
-                    for (int i = 0; i < alpha_Y_Array.length; i++)
-                        alpha_Y_Array[i] = new LogSparseDoubleMatrix1D(numY);
+                    allocateAlphaBeta(2*dataSeq.length()+1);
                 }
-                if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
-                    beta_Y = new DoubleMatrix1D[2*dataSeq.length()];
-                    for (int i = 0; i < beta_Y.length; i++)
-                        beta_Y[i] = new LogSparseDoubleMatrix1D(numY);
-                }
-                if (reuseM) {
-                    if ((alpha_Y_ArrayM == null) || (alpha_Y_ArrayM.length < dataSeq.length()-base)) {
-                        alpha_Y_ArrayM = new DoubleMatrix1D[2*dataSeq.length()];
-                        for (int i = 0; i < alpha_Y_ArrayM.length; i++)
-                            alpha_Y_ArrayM[i] = new LogSparseDoubleMatrix1D(numY);
-                        initAlphaMDone = new boolean[2*dataSeq.length()];
-                    }
-                    for (int i = dataSeq.length()-1; i >= 0; i--)
+                if (reuseM)
+                    for (int i = dataSeq.length(); i >= 0; i--)
                         initAlphaMDone[i] = false;
-                }
+                
                 int dataSize = dataSeq.length();
                 DoubleMatrix1D oldBeta =  beta_Y[dataSeq.length()-1];
                 beta_Y[dataSeq.length()-1] = allZeroVector;
@@ -244,6 +231,24 @@ class SegmentTrainer extends SparseTrainer {
             System.exit(0);
         }
         return 0;
+    }
+    /**
+     * @param i
+     */
+    protected void allocateAlphaBeta(int newSize) {
+        alpha_Y_Array = new DoubleMatrix1D[newSize];
+        for (int i = 0; i < alpha_Y_Array.length; i++)
+            alpha_Y_Array[i] = new LogSparseDoubleMatrix1D(numY);
+        beta_Y = new DoubleMatrix1D[newSize];
+        for (int i = 0; i < beta_Y.length; i++)
+            beta_Y[i] = new LogSparseDoubleMatrix1D(numY);
+        if (reuseM) {
+            alpha_Y_ArrayM = new DoubleMatrix1D[newSize];
+            for (int i = 0; i < alpha_Y_ArrayM.length; i++)
+                alpha_Y_ArrayM[i] = new LogSparseDoubleMatrix1D(numY);
+            initAlphaMDone = new boolean[newSize];
+           
+        }
     }
     static double initLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {

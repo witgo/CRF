@@ -1,8 +1,5 @@
 package iitb.CRF;
 
-import java.io.Serializable;
-import java.util.*;
-import riso.numerical.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
@@ -12,27 +9,8 @@ import cern.colt.matrix.impl.*;
  *
  */ 
 
-class SparseTrainer extends Trainer {
-    int numF,numY;
-    double gradLogli[];
-    double diag[];
-    double lambda[];
-    
-    DoubleMatrix2D Mi_YY;
-    DoubleMatrix1D Ri_Y;
-    DoubleMatrix1D alpha_Y, newAlpha_Y;
-    DoubleMatrix1D beta_Y[];
-    DoubleMatrix1D tmp_Y;
-    double ExpF[];
-    double scale[], rLogScale[];
-    //    SparseDoubleMatrix1D fRi_Y;
-    
-    static class  MultFunc implements DoubleDoubleFunction {
-        public double apply(double a, double b) {return a*b;}
-    };
-    static class  SumFunc implements DoubleDoubleFunction {
-        public double apply(double a, double b) {return a+b;}
-    };
+public class SparseTrainer extends Trainer {
+    boolean logTrainer;
     static class  ExpFunc implements DoubleFunction {
         public double apply(double a) {return Math.exp(a);}
     };
@@ -47,33 +25,12 @@ class SparseTrainer extends Trainer {
         }
     };
     
-    
-    static MultFunc multFunc = new MultFunc(); 
-    static SumFunc sumFunc = new SumFunc(); 
     static ExpFunc expFunc = new ExpFunc(); 
     static IntDoubleFunction expFunc1D = new ExpFunc1D();
     static IntIntDoubleFunction expFunc2D = new ExpFunc2D();
     
-    class MultSingle implements DoubleFunction {
-        public double multiplicator = 1.0;
-        public double apply(double a) {return a*multiplicator;}
-    };
-    MultSingle constMultiplier = new MultSingle();
+
     
-    DataIter diter;
-    FeatureGenerator featureGenerator;
-    CrfParams params;
-    EdgeGenerator edgeGen;
-    int icall;
-    Evaluator evaluator = null;
-    boolean logTrainer;
-    
-    double norm(double ar[]) {
-        double v = 0;
-        for (int f = 0; f < ar.length; f++)
-            v += ar[f]*ar[f];
-        return Math.sqrt(v);
-    }
     public SparseTrainer(CrfParams p) {
         super(p);
         params = p;
@@ -87,25 +44,7 @@ class SparseTrainer extends Trainer {
         }
         doTrain();
     }
-    
-    double getInitValue() { 
-        // returns a negative value to avoid overflow in the initial stages.
-        //      if (params.initValue == 0)
-        //	return -1*Math.log(numY);
-        return params.initValue;
-    }
-    void init(CRF model, DataIter data, double[] l) {
-        edgeGen = model.edgeGen;
-        lambda = l;
-        numY = model.numY;
-        diter = data;
-        featureGenerator = model.featureGenerator;
-        numF = featureGenerator.numFeatures();
-        
-        gradLogli = new double[numF];
-        diag = new double [ numF ]; // needed by the optimizer
-        ExpF = new double[lambda.length];
-        
+    void initMatrices() {        
         if (!logTrainer) {
             Mi_YY = new SparseDoubleMatrix2D(numY,numY);
             Ri_Y = new SparseDoubleMatrix1D(numY);
@@ -121,38 +60,8 @@ class SparseTrainer extends Trainer {
             
         }
     }
+
     
-    void doTrain() {
-        double f, xtol = 1.0e-16; // machine precision
-        int iprint[] = new int [2], iflag[] = new int[1];
-        icall=0;
-        
-        iprint [0] = params.debugLvl-2;
-        iprint [1] = params.debugLvl-1;
-        iflag[0]=0;
-        
-        for (int j = 0 ; j < lambda.length ; j ++) {
-            // lambda[j] = 1.0/lambda.length;
-            lambda[j] = getInitValue();
-        }
-        do {
-            f = computeFunctionGradient(lambda,gradLogli); 
-            f = -1*f; // since the routine below minimizes and we want to maximize logli
-            for (int j = 0 ; j < lambda.length ; j ++) {
-                gradLogli[j] *= -1;
-            } 
-            
-            if ((evaluator != null) && (evaluator.evaluate() == false))
-                break;
-            try	{
-                LBFGS.lbfgs (numF, params.mForHessian, lambda, f, gradLogli, false, diag, iprint, params.epsForConvergence, xtol, iflag);
-            } catch (LBFGS.ExceptionWithIflag e)  {
-                System.err.println( "CRF: lbfgs failed.\n"+e );
-                return;
-            }
-            icall += 1;
-        } while (( iflag[0] != 0) && (icall <= params.maxIters));
-    }
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         if (params.trainerType.equals("ll"))
             return computeFunctionGradientLL(lambda,  grad);

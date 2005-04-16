@@ -4,35 +4,44 @@ import riso.numerical.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
+import iitb.CRF.HistoryManager.*;
 /**
  *
  * @author Sunita Sarawagi
  *
  */ 
 
-class Trainer {
-    int numF,numY;
+public class Trainer {
+    protected int numF,numY;
     double gradLogli[];
     double diag[];
     double lambda[];
 
-    DenseDoubleMatrix2D Mi_YY;
+    /*    DenseDoubleMatrix2D Mi_YY;
     DenseDoubleMatrix1D Ri_Y;
     DenseDoubleMatrix1D alpha_Y, newAlpha_Y;
     DenseDoubleMatrix1D beta_Y[];
     DenseDoubleMatrix1D tmp_Y;
-    double ExpF[];
+    */
+    protected double ExpF[];
     double scale[], rLogScale[];
     //    SparseDoubleMatrix1D fRi_Y;
 
-    class  MultFunc implements DoubleDoubleFunction {
+    protected DoubleMatrix2D Mi_YY;
+    protected DoubleMatrix1D Ri_Y;
+    protected DoubleMatrix1D alpha_Y, newAlpha_Y;
+    protected DoubleMatrix1D beta_Y[];
+    protected DoubleMatrix1D tmp_Y;
+
+
+    static class  MultFunc implements DoubleDoubleFunction {
 	public double apply(double a, double b) {return a*b;}
     };
-    class  SumFunc implements DoubleDoubleFunction {
+    static class  SumFunc implements DoubleDoubleFunction {
 	public double apply(double a, double b) {return a+b;}
     };
-    MultFunc multFunc = new MultFunc(); 
-    SumFunc sumFunc = new SumFunc(); 
+    static MultFunc multFunc = new MultFunc(); 
+    protected static SumFunc sumFunc = new SumFunc(); 
     
     class MultSingle implements DoubleFunction {
 	public double multiplicator = 1.0;
@@ -40,9 +49,9 @@ class Trainer {
     };
     MultSingle constMultiplier = new MultSingle();
 
-    DataIter diter;
+    protected DataIter diter;
     FeatureGenerator featureGenerator;
-    CrfParams params;
+    protected CrfParams params;
     EdgeGenerator edgeGen;
     int icall;
     Evaluator evaluator = null;
@@ -71,7 +80,7 @@ class Trainer {
       //	return -1*Math.log(numY);
       return params.initValue;
     }
-    void init(CRF model, DataIter data, double[] l) {
+    protected void init(CRF model, DataIter data, double[] l) {
 	edgeGen = model.edgeGen;
 	lambda = l;
 	numY = model.numY;
@@ -81,7 +90,10 @@ class Trainer {
 
 	gradLogli = new double[numF];
 	diag = new double [ numF ]; // needed by the optimizer
-
+	ExpF = new double[lambda.length];
+	initMatrices();
+    }
+    void initMatrices() {
 	Mi_YY = new DenseDoubleMatrix2D(numY,numY);
 	Ri_Y = new DenseDoubleMatrix1D(numY);
 
@@ -89,7 +101,6 @@ class Trainer {
 	newAlpha_Y = new DenseDoubleMatrix1D(numY);
 	tmp_Y = new DenseDoubleMatrix1D(numY);
 
-	ExpF = new double[lambda.length];
     }
 
     void doTrain() {
@@ -429,7 +440,7 @@ class Trainer {
 	return logli;
     }
 
-    static double myLog(double val) {
+    protected static double myLog(double val) {
 	return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
     }
 	

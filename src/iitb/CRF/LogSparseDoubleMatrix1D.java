@@ -10,7 +10,7 @@ import cern.colt.matrix.impl.*;
 // this needs to be done to support an efficient sparse implementation
 // of matrices in the log-space
 
-class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
+public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
     static double map(double val) {
 	if (val == RobustMath.LOG0)
 	    return 0;
@@ -26,7 +26,7 @@ class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
 	    return 0;
 	return val;
     }
-    LogSparseDoubleMatrix1D(int numY) {super(numY);}
+    public LogSparseDoubleMatrix1D(int numY) {super(numY);}
     public DoubleMatrix1D assign(double val) {
 	return super.assign(map(val));
     }

@@ -13,19 +13,20 @@ import iitb.CRF.DataSequence;
  *
  * Define features for windows of ranges
  */
-public class WindowFeatures extends FeatureTypes {
+
+public class WindowFeatures extends FeatureTypes  {
     private static final long serialVersionUID = 6123;
-    FeatureTypes single;
-	int currentWindow;
+    protected FeatureTypes single;
+	protected int currentWindow;
 	int prevPos;
-	int pos;
-	transient DataSequence dataSeq;
+	protected int pos;
+	protected transient DataSequence dataSeq;
 	
 	public static class Window implements Serializable {
-	    int start;
-	    boolean startRelativeToLeft;
-	    int end;
-	    boolean endRelativeToLeft;
+	    public int start;
+	    public boolean startRelativeToLeft;
+	    public int end;
+	    public boolean endRelativeToLeft;
 	    String winName=null;
 	       public Window(int start, boolean startRelativeToLeft, int end,
                 boolean endRelativeToLeft) {
@@ -43,32 +44,30 @@ public class WindowFeatures extends FeatureTypes {
             this.winName = winName;
         }
         
-        int leftBoundary(int segStart, int segEnd, int maxLen) {
+        int leftBoundary(int segStart, int segEnd) {
             if (startRelativeToLeft)
-                return boundary(segStart,start, maxLen);
-             return boundary(segEnd,start,maxLen);
+                return boundary(segStart,start);
+             return boundary(segEnd,start);
         }
 
-        int rightBoundary(int segStart, int segEnd, int maxLen) {
+        int rightBoundary(int segStart, int segEnd) {
             if (endRelativeToLeft)
-                return boundary(segStart,end, maxLen);
-             return boundary(segEnd,end,maxLen);
+                return boundary(segStart,end);
+             return boundary(segEnd,end);
         }
         /**
          * @param segStart
          * @param start2
-         * @param maxLen
          * @return
          */
-        private int boundary(int boundary, int offset, int maxLen) {
-           // return Math.max(0,Math.min(boundary+offset,maxLen));
+        private int boundary(int boundary, int offset) {
             return boundary+offset;
         }
         public String toString() {
         	return winName;
         }
 	}
-	Window windows[];
+	protected Window windows[];
     private int dataLen;
 	/**
 	 * 
@@ -79,13 +78,13 @@ public class WindowFeatures extends FeatureTypes {
 		this.windows = windows;
 	}
 
-	boolean advance(boolean firstCall) {
+	protected boolean advance(boolean firstCall) {
 	    while (firstCall || !single.hasNext()) {
 	        currentWindow--;
 	        if (currentWindow < 0)
 	            return false;
-	        int rightB = windows[currentWindow].rightBoundary(prevPos+1,pos,dataLen-1);
-	        int leftB = windows[currentWindow].leftBoundary(prevPos+1,pos,rightB);
+	        int rightB = windows[currentWindow].rightBoundary(prevPos+1,pos);
+	        int leftB = windows[currentWindow].leftBoundary(prevPos+1,pos);
 	 
 	        if ((leftB < dataLen) && (rightB >= 0) && (leftB <= rightB)) {
 	            single.startScanFeaturesAt(dataSeq,Math.max(leftB,0)-1, Math.min(rightB,dataLen-1));

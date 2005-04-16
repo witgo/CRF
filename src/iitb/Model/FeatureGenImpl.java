@@ -286,27 +286,27 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             return true;
 		return false;
 	}
+	protected void startScanFeaturesAt(DataSequence d) {
+	    data = d;
+	    currentFeatureType = null;
+        featureIter = features.iterator();
+        advance();
+	}
 	public void startScanFeaturesAt(DataSequence d, int prev, int p) {
-        data = d;
         cposEnd = p;
         cposStart = prev+1;
         for (int i = 0; i < features.size(); i++) {
-            getFeature(i).startScanFeaturesAt(data,prev,cposEnd);
+            getFeature(i).startScanFeaturesAt(d,prev,cposEnd);
         }
-        currentFeatureType = null;
-        featureIter = features.iterator();
-        advance();
+        startScanFeaturesAt(d);
     }
     public void startScanFeaturesAt(DataSequence d, int p) {
-        data = d;
         cposEnd = p;
         cposStart = p;
         for (int i = 0; i < features.size(); i++) {
-            getFeature(i).startScanFeaturesAt(data,cposEnd);
+            getFeature(i).startScanFeaturesAt(d,cposEnd);
         }
-        currentFeatureType = null;
-        featureIter = features.iterator();
-        advance();
+        startScanFeaturesAt(d);
     }
     public boolean hasNext() {
         return (featureToReturn.id >= 0);
