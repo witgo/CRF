@@ -109,7 +109,7 @@ public class WindowFeatures extends FeatureTypes  {
 	 * @see iitb.Model.FeatureTypes#hasNext()
 	 */
 	public boolean hasNext() {
-		return single.hasNext();
+		return single.hasNext() && (currentWindow >= 0);
 	}
 
 	/* (non-Javadoc)
