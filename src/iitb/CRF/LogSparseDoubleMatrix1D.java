@@ -11,6 +11,7 @@ import cern.colt.matrix.impl.*;
 // of matrices in the log-space
 
 public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
+   
     static double map(double val) {
 	if (val == RobustMath.LOG0)
 	    return 0;
@@ -62,6 +63,13 @@ public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
 	    set(row,func.apply(get(row), v2.get(row)));
 	}
 	return this;
+    }
+    public boolean equals(Object arg) {
+        DoubleMatrix1D mat = (DoubleMatrix1D)arg;
+        for (int row = size()-1; row >= 0; row--)
+            if (Math.abs(mat.get(row)-get(row)) > Double.MIN_VALUE)
+                return false;
+        return true;
     }
 };
 
