@@ -67,7 +67,7 @@ public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
     public boolean equals(Object arg) {
         DoubleMatrix1D mat = (DoubleMatrix1D)arg;
         for (int row = size()-1; row >= 0; row--)
-            if (Math.abs(mat.get(row)-get(row)) > Double.MIN_VALUE)
+            if (Math.abs(mat.get(row)-get(row))/Math.abs(mat.get(row)) > 0.0001)
                 return false;
         return true;
     }
