@@ -41,7 +41,7 @@ public class OptimizedSegmentViterbi extends SegmentViterbi {
     public OptimizedSegmentViterbi(SegmentCRF nestedModel, int bs) {
         super(nestedModel, bs);
     }
-    void allocateScratch(int numY) {
+    protected void allocateScratch(int numY) {
         super.allocateScratch(numY);
         MiUB = new LogSparseDoubleMatrix2D(numY,numY);
         RiUB = new LogSparseDoubleMatrix1D(numY);
@@ -129,10 +129,10 @@ public class OptimizedSegmentViterbi extends SegmentViterbi {
             ((EntryLUB)getEntry(y)).add((EntryLUB)prevEntry,thisScoreLB, thisScoreUB, featuresM, featuresR);
         }
     };
-    Context newContext(int numY, int beamsize, int pos){
+    protected Context newContext(int numY, int beamsize, int pos){
         return  new ContextLUB(numY,(beamsize==1)?20:beamsize,pos); 
     }
-    void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
+    protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         double defaultValue = SegmentTrainer.initLogMi((CandSegDataSequence)dataSeq,i-ell,i,
                 segmentModel.featureGenNested,lambda,Mi,Ri);
         MiUB.assign(Mi);

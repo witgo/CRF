@@ -15,7 +15,7 @@ public class RobustMath {
         static int CUT_OFF = 6;
         static int NUM_FINE = 10000;
         static int NUM_COARSE = 1000;
-        static boolean useCache = false;
+        static boolean useCache = true;
         static double vals[] = new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+1];
         static {
             for(int i = vals.length-1; i >= 0; vals[i--]=-1);
@@ -64,7 +64,7 @@ public class RobustMath {
             addNoDups(vec, val.doubleValue()+LOG2);
         }
     }
-    static double logSumExp(TreeSet logProbVector) {
+    public static double logSumExp(TreeSet logProbVector) {
         while ( logProbVector.size() > 1 ) {
             double lp0 = ((Double)logProbVector.first()).doubleValue();
             logProbVector.remove(logProbVector.first());

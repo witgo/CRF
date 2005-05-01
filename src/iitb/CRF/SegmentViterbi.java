@@ -140,7 +140,7 @@ public class SegmentViterbi extends SparseViterbi {
             super(numY, beamsize, pos);
         }
         private static final long serialVersionUID = 1L;
-        void add(int y, Entry prevSoln, float thisScore) {
+        public void add(int y, Entry prevSoln, float thisScore) {
             if (labelConstraints==null) {
                 super.add(y,prevSoln,thisScore);
             } else {
@@ -155,24 +155,24 @@ public class SegmentViterbi extends SparseViterbi {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
     }
-    void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
+    protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         SegmentTrainer.computeLogMi((CandSegDataSequence)dataSeq,i-ell,i,segmentModel.featureGenNested,lambda,Mi,Ri);
     }
     class SegmentIter extends Iter {
         int nc;
         CandidateSegments candidateSegs;
-        void start(int i, DataSequence dataSeq) {
+        protected void start(int i, DataSequence dataSeq) {
             candidateSegs = (CandidateSegments)dataSeq;
             nc = candidateSegs.numCandSegmentsEndingAt(i);
         }
-        int nextEll(int i) {
+        protected int nextEll(int i) {
             nc--;
             if (nc >= 0)
                 return i -  candidateSegs.candSegmentStart(i,nc) + 1;
             return -1;
         }
     }	
-    Iter getIter(){return new SegmentIter();}
+    protected Iter getIter(){return new SegmentIter();}
     /**
      * @return
      */
@@ -207,6 +207,10 @@ public class SegmentViterbi extends SparseViterbi {
     	}
     	return val;
     }
+    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+        ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
+    }
+    /*
     public void bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
         viterbiSearch(dataSeq, lambda,false);
         Soln ybest = finalSoln.get(0);
@@ -216,7 +220,7 @@ public class SegmentViterbi extends SparseViterbi {
             ybest = ybest.prevSoln;
         }
     }
-
+    */
     public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
         viterbiSearch(dataSeq, lambda,false);
         scores.clear();
@@ -251,7 +255,7 @@ public class SegmentViterbi extends SparseViterbi {
             */
         }
     }
-    Context newContext(int numY, int beamsize, int pos){
+    protected Context newContext(int numY, int beamsize, int pos){
         if (labelConstraints == null)
             return new Context(numY,beamsize,pos);        
         return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos); 

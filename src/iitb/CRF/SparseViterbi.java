@@ -12,11 +12,11 @@ import cern.colt.matrix.impl.*;
  *
  */ 
 
-class SparseViterbi extends Viterbi {
-    SparseViterbi(CRF model, int bs) {
+public class SparseViterbi extends Viterbi {
+    protected SparseViterbi(CRF model, int bs) {
         super(model,bs);
     }
-    class Context extends DenseObjectMatrix1D {
+    protected class Context extends DenseObjectMatrix1D {
         int pos;
         int beamsize;
        
@@ -25,20 +25,20 @@ class SparseViterbi extends Viterbi {
             this.pos = pos;
             this.beamsize = beamsize;
         }
-        void add(int y, Entry prevEntry, float thisScore) {
+        public void add(int y, Entry prevEntry, float thisScore) {
             if (getQuick(y) == null) {
                     setQuick(y, new Entry((pos==0)?1:beamsize, y, pos));
             }
             getEntry(y).valid = true;
             getEntry(y).add(prevEntry,thisScore);
         }
-        void clear() {
+        public void clear() {
 //            assign((Object)null);
             for (int i = 0; i < size(); i++)
                 if (getQuick(i) != null)
                     getEntry(i).clear();
         }
-        Entry getEntry(int y) {return (Entry)getQuick(y);}
+        public Entry getEntry(int y) {return (Entry)getQuick(y);}
         /**
          * @param y
          * @return
@@ -46,33 +46,40 @@ class SparseViterbi extends Viterbi {
         public boolean entryNotNull(int y) {
             return ((getQuick(y) != null) && getEntry(y).valid);
         }
+        void assign(LogSparseDoubleMatrix1D Ri) {
+            for (int y = 0; y < Ri.size(); y++) {
+        	  if (Ri.getQuick(y) != 0) 
+        	      add(y,null,(float)Ri.get(y));
+            }
+        }	
     };
     
-    Context context[];
+    protected Context context[];
     //    SparseDoubleMatrix2D Mi;
-    LogSparseDoubleMatrix1D Ri;
+    protected LogSparseDoubleMatrix1D Ri;
     ObjectArrayList prevContext = new ObjectArrayList();
     IntArrayList validYs = new IntArrayList();
     IntArrayList validPrevYs  = new IntArrayList();
     DoubleArrayList values = new DoubleArrayList();
     
-    void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
+    protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         model.featureGenerator.startScanFeaturesAt(dataSeq, i);
         SparseTrainer.computeLogMi(model.featureGenerator,lambda,Mi,Ri);
     }
-    class Iter {
-        int ell;
-        void start(int i, DataSequence dataSeq) {ell = 1;}
-        int nextEll(int i) {return ell--;}
+    protected class Iter {
+        protected int ell;
+        protected void start(int i, DataSequence dataSeq) {ell = 1;}
+        protected int nextEll(int i) {return ell--;}
     }
-    Iter getIter(){return new Iter();}
+    protected Iter getIter(){return new Iter();}
+    protected void finishContext(int i2) {;}
     /**
      * @return
      */
     protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
     	return	(Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
     }
-    class ContextUpdate implements IntIntDoubleFunction, IntDoubleFunction {
+    protected class ContextUpdate implements IntIntDoubleFunction, IntDoubleFunction {
         int i, ell;
         Iter iter;
         public double apply(int yp, int yi, double val) {
@@ -106,13 +113,15 @@ class SparseViterbi extends Viterbi {
                     if (calcScore) {
                     	corrScore += getCorrectScore(dataSeq, i, ell);
                     }
-                }	
+                }
+                finishContext(i);
             }
             return corrScore;
         }
+        
     };    
 	ContextUpdate contextUpdate;
-    void allocateScratch(int numY) {
+    protected void allocateScratch(int numY) {
         Mi = new LogSparseDoubleMatrix2D(numY,numY);
         Ri = new LogSparseDoubleMatrix1D(numY);
         context = new Context[0];
@@ -120,7 +129,7 @@ class SparseViterbi extends Viterbi {
         contextUpdate = new ContextUpdate();
         contextUpdate.iter = getIter();
     }
-    Context newContext(int numY, int beamsize, int pos){
+    protected Context newContext(int numY, int beamsize, int pos){
         return new Context(numY,beamsize,pos);        
     }
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {

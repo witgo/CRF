@@ -14,12 +14,12 @@ import cern.colt.matrix.impl.*;
  */ 
 
 public class SegmentTrainer extends SparseTrainer {
-    FeatureGenCache featureGenCache;
+    
     protected DoubleMatrix1D alpha_Y_Array[];
     protected DoubleMatrix1D alpha_Y_ArrayM[];
     protected boolean initAlphaMDone[];
     protected LogSparseDoubleMatrix1D allZeroVector;
-    protected boolean reuseM, initMDone=false;
+    
     public SegmentTrainer(CrfParams p) {
         super(p);
         logTrainer = true;
@@ -28,18 +28,11 @@ public class SegmentTrainer extends SparseTrainer {
         super.init(model,data,l);
         allZeroVector = new LogSparseDoubleMatrix1D(numY);
         allZeroVector.assign(0);
-        if (params.miscOptions.getProperty("cache", "false").equals("true")) 
-            featureGenCache = new FeatureGenCache((FeatureGeneratorNested)featureGenerator);
-        else
-            featureGenCache = null;
-        reuseM = Boolean.parseBoolean(params.miscOptions.getProperty("reuseM","false"));
     }
     
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         try {
-            FeatureGeneratorNested featureGenNested = featureGenCache;
-            if (featureGenNested==null)
-                featureGenNested = (FeatureGeneratorNested)featureGenerator;
+            FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
             double logli = 0;
             for (int f = 0; f < lambda.length; f++) {
                 grad[f] = -1*lambda[f]*params.invSigmaSquare;
@@ -150,6 +143,9 @@ public class SegmentTrainer extends SparseTrainer {
                                  System.out.println("This Alpha-i " + alpha_Y_Array[i-base].toString());
                                  }
                                  */
+                                if (params.debugLvl > 2) {
+                                    System.out.println(f + " " + feature + " " + dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd));
+                                }
                             }
                             if (yprev < 0) {
                                 ExpF[f] = RobustMath.logSumExp(ExpF[f], (newAlpha_Y.get(yp)+myLog(val)+beta_Y[segEnd].get(yp)));
@@ -157,9 +153,7 @@ public class SegmentTrainer extends SparseTrainer {
                                 ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[segEnd].get(yp)));
                             }
                             
-                            if (params.debugLvl > 3) {
-                                System.out.println(f + " " + feature + " " + dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd));
-                            }
+                           
                         }
                         if ((segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
                             trainingSegmentFound = true;
@@ -214,7 +208,7 @@ public class SegmentTrainer extends SparseTrainer {
                     System.out.print(lambda[f] + " ");
                 System.out.println(" :x");
                 for (int f = 0; f < lambda.length; f++)
-                    System.out.print(grad[f] + " ");
+                    System.out.println(f + " " + featureGenNested.featureName(f) + " " + grad[f] + " ");
                 System.out.println(" :g");
             }
             

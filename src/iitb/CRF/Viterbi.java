@@ -15,48 +15,11 @@ import cern.colt.matrix.impl.*;
  */ 
 
 
-class Soln implements Serializable {
-    private static final long serialVersionUID = 812L;
-    float score=-1*Float.MAX_VALUE;
-    Soln prevSoln=null;
-    int label = -1;
-    int pos;
-	    
-    Soln(int id, int p) {label = id;pos = p;}
-    void clear() {
-	score=-1*Float.MAX_VALUE;
-	prevSoln=null;
-    }
-    boolean isClear() {
-	return (score == -1*Double.MAX_VALUE);
-    }
-    void copy(Soln soln) {
-	score = soln.score;
-	prevSoln = soln.prevSoln;
-    }
-    int prevPos() {
-	return (prevSoln == null)?-1:prevSoln.pos;
-    }
-    int prevLabel() {
-	return (prevSoln == null)?-1:prevSoln.label;
-    }
-    boolean equals(Soln s) {
-	return (label == s.label) && (pos == s.pos) && (prevPos() == s.prevPos()) && (prevLabel() == s.prevLabel());
-    }
-    /**
-     * @param prevSoln2
-     * @param score2
-     */
-    protected void setPrevSoln(Soln prevSoln, float score) {
-        this.prevSoln = prevSoln;
-        this.score = score;
-    }
-};
 
-class Viterbi implements Serializable {
+public class Viterbi implements Serializable {
     private static final long serialVersionUID = 8122L;
-    CRF model;
-    int beamsize;
+    protected CRF model;
+    protected int beamsize;
     Viterbi(CRF model, int bs) {
 	this.model = model;
 	beamsize = bs;
@@ -128,7 +91,7 @@ class Viterbi implements Serializable {
 
     Entry winningLabel[][];
     Entry finalSoln;
-    DoubleMatrix2D Mi;
+    protected DoubleMatrix2D Mi;
     DoubleMatrix1D Ri;
 
     void allocateScratch(int numY) {
@@ -163,18 +126,23 @@ class Viterbi implements Serializable {
 	return corrScore;
     }
     
+    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+        dataSeq.set_y(pos, label);
+    }
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
         double corrScore = viterbiSearch(dataSeq, lambda,false);
-        System.out.println("Correct score " + corrScore);
+        assignLabels(dataSeq);
+    }
+    void assignLabels(DataSequence dataSeq) {
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
         int pos=-1;
         while (ybest != null) {
             pos = ybest.pos;
-            dataSeq.set_y(ybest.pos, ybest.label);
+            setSegment(dataSeq,ybest.prevPos(),ybest.pos, ybest.label);
             ybest = ybest.prevSoln;
         }
-        assert(pos==0);
+        assert(pos>=0);
     }
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {
 	if (Mi == null) {

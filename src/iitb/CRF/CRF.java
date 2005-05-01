@@ -18,7 +18,7 @@ public class CRF implements Serializable {
      */
     private static final long serialVersionUID = 14L;
     double lambda[];
-    int numY;
+    protected int numY;
     transient Trainer trainer;
     FeatureGenerator featureGenerator;
     EdgeGenerator edgeGen;
@@ -49,7 +49,7 @@ public class CRF implements Serializable {
         numY = histMgr.numY;
         params = new CrfParams(configOptions);
         edgeGen = histMgr.getEdgeGenerator();
-        viterbi = new Viterbi(this,1);
+        viterbi = getViterbi(1);
     }
     
     /**

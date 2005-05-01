@@ -4,12 +4,17 @@ package iitb.Model;
  * generate a feature for each label. 
  */
 public class  FeatureTypesSegmentLength extends FeatureTypes {
-    int segLen;
+    protected int segLen;
+    protected int maxLen = Integer.MAX_VALUE;
     public FeatureTypesSegmentLength(FeatureGenImpl m) {
         super(m);
     }
+    public FeatureTypesSegmentLength(FeatureGenImpl m, int maxSegLen) {
+        super(m);
+        maxLen = maxSegLen;
+    }
     public  boolean startScanFeaturesAt(iitb.CRF.DataSequence data, int prevPos, int pos) {
-        segLen = pos-prevPos;
+        segLen = Math.min(pos-prevPos,maxLen);
         return true;
     }
     public boolean hasNext() {
@@ -19,7 +24,7 @@ public class  FeatureTypesSegmentLength extends FeatureTypes {
         f.val = 1;
         f.ystart = -1;
         if (featureCollectMode())
-            f.strId.init(segLen, 0, "Length." + segLen);
+            f.strId.init(segLen, 0, "Length" + ((segLen==maxLen)?">=":"=") + segLen);
         else
             f.strId.init(segLen);
         segLen = 0;

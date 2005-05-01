@@ -68,7 +68,7 @@ class NestedTrainer extends Trainer {
 		    featureGenNested.startScanFeaturesAt(dataSeq, i, i+ell);
 		    //if (! featureGenNested.hasNext())
 		    //	break;
-		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true);
+		    initMDone = computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true,reuseM,initMDone);
 		    tmp_Y.assign(beta_Y[i+ell]);
 		    tmp_Y.assign(Ri_Y,multFunc);
 		    Mi_YY.zMult(tmp_Y, beta_Y[i],1,1,false);
@@ -101,7 +101,7 @@ class NestedTrainer extends Trainer {
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
 		    //		    if (!featureGenNested.hasNext())
 		    //	break;
-		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true);
+		    initMDone = computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,true,reuseM,initMDone);
 		    // find features that fire at this position..
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
 		    boolean isSegment = ((i-ell+1==segmentStart) && (i == segmentEnd));
@@ -225,7 +225,7 @@ class NestedTrainer extends Trainer {
 		    featureGenNested.startScanFeaturesAt(dataSeq, i, i+ell);
 		    //if (! featureGenNested.hasNext())
 		    //	break;
-		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false);
+		    initMDone = computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false,reuseM,initMDone);
 		    tmp_Y.assign(beta_Y[i+ell]);
 		    tmp_Y.assign(Ri_Y,sumFunc);
 		    RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i],1,1,false,edgeGen);
@@ -254,7 +254,7 @@ class NestedTrainer extends Trainer {
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
 		    // if (!featureGenNested.hasNext())
 		    //	break;
-		    computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false);
+		    initMDone = computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false,reuseM,initMDone);
 		    // find features that fire at this position..
 		    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
 		    boolean isSegment = ((i-ell+1==segmentStart) && (i == segmentEnd));

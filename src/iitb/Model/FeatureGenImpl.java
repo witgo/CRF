@@ -30,7 +30,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     Vector features;
     transient Iterator featureIter;
     protected FeatureTypes currentFeatureType;
-    FeatureImpl featureToReturn, feature;
+    protected FeatureImpl featureToReturn, feature;
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;

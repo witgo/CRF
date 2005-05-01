@@ -14,7 +14,7 @@ class NestedCollinsTrainer extends CollinsTrainer {
     int getSegmentEnd(DataSequence dataSeq, int ss) {
 	return ((SegmentDataSequence)dataSeq).getSegmentEnd(ss);
     }
-    void startFeatureGenerator(FeatureGenerator featureGenerator, DataSequence dataSeq, Soln soln) {
-	((FeatureGeneratorNested)featureGenerator).startScanFeaturesAt(dataSeq, soln.prevPos(), soln.pos);
+    void startFeatureGenerator(FeatureGenerator _featureGenerator, DataSequence dataSeq, Soln soln) {
+	((FeatureGeneratorNested)_featureGenerator).startScanFeaturesAt(dataSeq, soln.prevPos(), soln.pos);
     }
 };

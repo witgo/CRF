@@ -110,8 +110,8 @@ class CollinsTrainer extends Trainer {
     int getSegmentEnd(DataSequence dataSeq, int ss) {
 	return ss;
     }
-    void startFeatureGenerator(FeatureGenerator featureGenerator, DataSequence dataSeq, Soln soln) {
-	featureGenerator.startScanFeaturesAt(dataSeq, soln.pos);
+    void startFeatureGenerator(FeatureGenerator _featureGenerator, DataSequence dataSeq, Soln soln) {
+	_featureGenerator.startScanFeaturesAt(dataSeq, soln.pos);
     }
     void updateWeights(Soln soln, double wt, double grad[], DataSequence dataSeq) {
 	startFeatureGenerator(featureGenerator,dataSeq,soln);

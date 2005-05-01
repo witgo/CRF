@@ -32,6 +32,8 @@ public class CrfParams implements Serializable {
     public boolean doScaling = true;
 
     public boolean doRobustScale = false;
+    
+    public boolean reuseM = false;
 
     java.util.Properties miscOptions;
     /**
@@ -96,6 +98,6 @@ public class CrfParams implements Serializable {
 	if (opts.getProperty("trainer") != null) {
 	    trainerType = opts.getProperty("trainer");
 	}
-	
+	reuseM = Boolean.parseBoolean(opts.getProperty("reuseM","false"));
     }
 };
