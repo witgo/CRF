@@ -148,9 +148,9 @@ public class SegmentTrainer extends SparseTrainer {
                                 }
                             }
                             if (yprev < 0) {
-                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (newAlpha_Y.get(yp)+myLog(val)+beta_Y[segEnd].get(yp)));
+                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (newAlpha_Y.get(yp)+RobustMath.log(val)+beta_Y[segEnd].get(yp)));
                             } else {
-                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[segEnd].get(yp)));
+                                ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[segEnd].get(yp)));
                             }
                             
                            
@@ -189,7 +189,7 @@ public class SegmentTrainer extends SparseTrainer {
                 logli += thisSeqLogli;
                 // update grad.
                 for (int f = 0; f < grad.length; f++)
-                    grad[f] -= Math.exp(ExpF[f]-lZx);
+                    grad[f] -= RobustMath.exp(ExpF[f]-lZx);
                 if (noneFired) {
                     System.out.println("WARNING: no features fired in the training set");
                 }

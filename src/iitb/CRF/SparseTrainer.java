@@ -74,8 +74,10 @@ public class SparseTrainer extends Trainer {
             boolean doScaling = params.doScaling;
             
             diter.startScan();
+            if (featureGenCache != null) featureGenCache.startDataScan();
             for (int numRecord = 0; diter.hasNext(); numRecord++) {
                 DataSequence dataSeq = (DataSequence)diter.next();
+                if (featureGenCache != null) featureGenCache.nextDataIndex();
                 if (params.debugLvl > 1) {
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
                 }
@@ -273,8 +275,10 @@ public class SparseTrainer extends Trainer {
                 logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
             }
             diter.startScan();
+            if (featureGenCache != null) featureGenCache.startDataScan();
             for (int numRecord = 0; diter.hasNext(); numRecord++) {
                 DataSequence dataSeq = (DataSequence)diter.next();
+                if (featureGenCache != null) featureGenCache.nextDataIndex();
                 if (params.debugLvl > 1) {
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
                 }
@@ -335,9 +339,9 @@ public class SparseTrainer extends Trainer {
                             thisSeqLogli += val*lambda[f];
                         }
                         if (yprev < 0) {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + Math.log(val) + beta_Y[i].get(yp));
+                            ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
                         } else {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp));
+                            ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
                         }
                     }
                     alpha_Y.assign(newAlpha_Y);
@@ -354,7 +358,7 @@ public class SparseTrainer extends Trainer {
                 logli += thisSeqLogli;
                 // update grad.
                 for (int f = 0; f < grad.length; f++)
-                    grad[f] -= Math.exp(ExpF[f]-lZx);
+                    grad[f] -= RobustMath.exp(ExpF[f]-lZx);
                 
                 if (params.debugLvl > 1) {
                     System.out.println("Sequence "  + thisSeqLogli + " " + logli );
@@ -418,69 +422,4 @@ public class SparseTrainer extends Trainer {
         }
         return pr;
     }
-    
-    /*
-     static boolean badVector(DoubleMatrix1D vec) throws Exception {
-     for (int i = 0; i < vec.size(); i++)
-     if (Double.isNaN(vec.get(i)) || Double.isInfinite(vec.get(i)))
-     throw new Exception("Bad vector"); 
-     return false;
-     }
-     static final float MINUS_LOG_EPSILON = 100;
-     // Controlled underflow adder of very small numbers expressed as
-      // logs.  Returns log of their sum.
-       static float logSumProb(DoubleMatrix1D logProb) {
-       Vector logProbVector = new Vector();
-       for ( int lpx = 0; lpx < logProb.size(); lpx++ )
-       logProbVector.add(new Double(logProb.get(lpx)));
-       return logSumProb(logProbVector);
-       }
-       static float logSumProb(Vector logProbVector) {
-       while ( logProbVector.size() > 1 ) {
-       Collections.sort(logProbVector);
-       double lp0 = ((Double)logProbVector.remove(0)).doubleValue();
-       double lp1 = ((Double)logProbVector.remove(0)).doubleValue();
-       // lp0 is smaller (more negative)
-        if ( lp1 > lp0 + MINUS_LOG_EPSILON ) {
-        logProbVector.add(new Double(lp1));
-        }
-        else {
-        double sum = lp1 + Math.log(Math.exp(lp0-lp1) + 1.0);
-        logProbVector.add(new Double(sum));
-        }
-        }
-        return ((Double)logProbVector.remove(0)).floatValue();
-        }
-        double scaledExp(double lpr, double logSumProb) {
-        if (( logSumProb > lpr + MINUS_LOG_EPSILON ) && params.doRobustScale)
-        return 0;
-        else {
-        return exp(lpr - logSumProb);
-        }
-        }
-        double robustExp(DenseDoubleMatrix2D Mi_YY,DenseDoubleMatrix1D Ri_Y) {	
-        float logSumProbM = 0;
-        if (params.doRobustScale) {
-        Vector vec = new Vector();
-        for(int r = 0; r < Mi_YY.rows(); r++) {
-        for(int c = 0; c < Mi_YY.columns(); c++) {
-        vec.add(new Double(Mi_YY.get(r,c))); // + Ri_Y.get(c)));
-        }
-        }
-        logSumProbM = logSumProb(vec);
-        }
-        for(int r = 0; r < Mi_YY.rows(); r++) {
-        for(int c = 0; c < Mi_YY.columns(); c++) {
-        Mi_YY.set(r,c,scaledExp(Mi_YY.get(r,c), logSumProbM));
-        }
-        }
-        float logSumProbR = logSumProbM;
-        if (params.doRobustScale)
-        logSumProbR = logSumProb(Ri_Y);
-        for ( int lx = 0; lx < Ri_Y.size(); lx++ ) {
-        Ri_Y.set(lx,scaledExp(Ri_Y.get(lx), logSumProbR));
-        }
-        return logSumProbM+logSumProbR;
-        }
-        */
 }

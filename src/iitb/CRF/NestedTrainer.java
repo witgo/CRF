@@ -27,8 +27,10 @@ class NestedTrainer extends Trainer {
 	}
 	boolean doScaling = false; // scaling as implemented below does not work.
 	diter.startScan();
+	if (featureGenCache != null) featureGenCache.startDataScan();
 	for (int numRecord = 0; diter.hasNext(); numRecord++) {
 	    SegmentDataSequence dataSeq = (SegmentDataSequence)diter.next();
+	    if (featureGenCache != null) featureGenCache.nextDataIndex();
 	    if (params.debugLvl > 1)
 		Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
 	    for (int f = 0; f < lambda.length; f++)
@@ -197,8 +199,10 @@ class NestedTrainer extends Trainer {
 	    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
 	}
 	diter.startScan();
+	if (featureGenCache != null) featureGenCache.startDataScan();
 	for (int numRecord = 0; diter.hasNext(); numRecord++) {
 	    SegmentDataSequence dataSeq = (SegmentDataSequence)diter.next();
+	    if (featureGenCache != null) featureGenCache.nextDataIndex();
 	    if (params.debugLvl > 1)
 		Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
 	    for (int f = 0; f < lambda.length; f++)
@@ -271,11 +275,11 @@ class NestedTrainer extends Trainer {
 			}
 			if ((yprev < 0) && (i-ell >= 0)) {
 			    for (yprev = 0; yprev < Mi_YY.rows(); yprev++) 
-				ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[i].get(yp)));
+				ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp) + RobustMath.log(val)+beta_Y[i].get(yp)));
 			} else if (i-ell < 0) {
-			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (Ri_Y.get(yp)+myLog(val)+beta_Y[i].get(yp)));
+			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (Ri_Y.get(yp)+RobustMath.log(val)+beta_Y[i].get(yp)));
 			} else {
-			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+myLog(val)+beta_Y[i].get(yp)));
+			    ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[i-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp)));
 			}
 		    }
 		    if (i-ell >= 0) {
@@ -303,7 +307,7 @@ class NestedTrainer extends Trainer {
 	    logli += thisSeqLogli;
 	    // update grad.
 	    for (int f = 0; f < grad.length; f++)
-		grad[f] -= Math.exp(ExpF[f]-lZx);
+		grad[f] -= RobustMath.exp(ExpF[f]-lZx);
 	    
 	    if (params.debugLvl > 1) {
 		System.out.println("Sequence "  + thisSeqLogli + " " + logli + " " + Math.exp(lZx));

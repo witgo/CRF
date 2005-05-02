@@ -111,7 +111,7 @@ public class RobustMath {
                     r = j;
                     c = i;
                 }
-                z.set(r, logSumExp(z.get(r), M.get(i,j)+y.get(c)+lalpha));
+                z.setQuick(r, logSumExp(z.getQuick(r), M.getQuick(i,j)+y.get(c)+lalpha));
             }
         }
         return z;
@@ -127,7 +127,7 @@ public class RobustMath {
                     r = j;
                     c = i;
                 }
-                z.set(r, z.get(r) + M.get(i,j)*y.get(c)*alpha);
+                z.set(r, z.getQuick(r) + M.getQuick(i,j)*y.getQuick(c)*alpha);
             }
         }
         return z;
@@ -146,5 +146,21 @@ public class RobustMath {
         double sum = logSumExp(vec);
 	*/
         System.out.println(logSumExp(Double.parseDouble(args[0]), Double.parseDouble(args[1])));
+    }
+    /**
+     * @param d
+     * @return
+     */
+    public static double exp(double d) {
+        if (Double.isInfinite(d) || ((d < 0) && (Math.abs(d) > MINUS_LOG_EPSILON)))
+            return 0;
+        return Math.exp(d);
+    }
+    /**
+     * @param val
+     * @return
+     */
+    public static double log(float val) {
+        return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
     }
 };

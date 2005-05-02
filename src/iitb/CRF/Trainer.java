@@ -350,8 +350,10 @@ public class Trainer {
                 logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
             }
             diter.startScan();
+            if (featureGenCache != null) featureGenCache.startDataScan();
             for (int numRecord = 0; diter.hasNext(); numRecord++) {
                 DataSequence dataSeq = (DataSequence)diter.next();
+                if (featureGenCache != null) featureGenCache.nextDataIndex();
                 if (params.debugLvl > 1) {
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
                 }
@@ -413,9 +415,9 @@ public class Trainer {
                             thisSeqLogli += val*lambda[f];
                         }
                         if (yprev < 0) {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + Math.log(val) + beta_Y[i].get(yp));
+                            ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
                         } else {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+Math.log(val)+beta_Y[i].get(yp));
+                            ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
                         }
                     }
                     alpha_Y.assign(newAlpha_Y);
@@ -431,9 +433,10 @@ public class Trainer {
                 thisSeqLogli -= lZx;
                 logli += thisSeqLogli;
                 // update grad.
-                for (int f = 0; f < grad.length; f++)
-                    grad[f] -= Math.exp(ExpF[f]-lZx);
-                
+                for (int f = 0; f < grad.length; f++) {
+                    grad[f] -= RobustMath.exp(ExpF[f]-lZx);
+                    
+                }
                 if (params.debugLvl > 1) {
                     System.out.println("Sequence "  + thisSeqLogli + " logli " + logli + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
                 }
@@ -462,9 +465,6 @@ public class Trainer {
         return logli;
     }
     
-    protected static double myLog(double val) {
-        return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
-    }
     
     static double log(double val) {
         try {
@@ -492,7 +492,7 @@ public class Trainer {
         return pr;
     } 
     static double expE(double val) throws Exception {
-        double pr = Math.exp(val);
+        double pr = RobustMath.exp(val);
         if (Double.isNaN(pr) || Double.isInfinite(pr)) {
             throw new Exception("Overflow error when taking exp of " + val + "\n Try running the CRF with the following option \"trainer ll\" to perform computations in the log-space.");
         }
