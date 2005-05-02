@@ -98,6 +98,9 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     public FeatureGenCache(FeatureGenerator fgen) {
         this.sfgen = fgen;
         numFeatures = 0;
+        fgen = null;
+        if (sfgen instanceof FeatureGeneratorNested)
+        	fgen = (FeatureGeneratorNested)sfgen;
     }
 
     /* (non-Javadoc)
@@ -143,7 +146,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             assert(thisKey < maxKey+1);
         if (scanNum <= 2) {
             if (nested) 
-                ((FeatureGeneratorNested) sfgen).startScanFeaturesAt(data,prevPos,pos);
+                fgen.startScanFeaturesAt(data,prevPos,pos);
             else 
                 sfgen.startScanFeaturesAt(data,pos);
         } else {
