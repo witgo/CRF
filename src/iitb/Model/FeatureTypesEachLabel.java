@@ -14,6 +14,8 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	int stateId;
 
 	FeatureImpl featureImpl;
+	
+	boolean optimize = false;
 
 	public FeatureTypesEachLabel(FeatureGenImpl fgen, FeatureTypes single) {
 		super(fgen);
@@ -38,6 +40,13 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 			int pos) {
 		stateId = numStates;
 		single.startScanFeaturesAt(data, prevPos, pos);
+		return advance();
+	}
+
+	public boolean startScanFeaturesAt(iitb.CRF.DataSequence data,
+			int pos) {
+		stateId = numStates;
+		single.startScanFeaturesAt(data, pos);
 		return advance();
 	}
 

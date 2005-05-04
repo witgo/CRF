@@ -34,6 +34,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;
+    public boolean addOnlyTrainFeatures=true;
     
     transient DataSequence data;
     int cposEnd;
@@ -66,7 +67,10 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     protected FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
     }
-    
+    protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+        return ((seq.y(cposEnd) == f.y()) 
+                && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev())));
+    }
     boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
         Hashtable strToInt = new Hashtable();
@@ -76,11 +80,11 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
-            if ((id < 0) && featureCollectMode)
+            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || holdsInData(data,f)))
                 return add(f);
             return id;
         }
-        public int getId(Object key) {
+        private int getId(Object key) {
             if (strToInt.get(key) != null) {
                 return ((Integer)strToInt.get(key)).intValue();
             }
@@ -101,17 +105,23 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             }
             totalFeatures = strToInt.size();
         }
-        
-        public int collectFeatureIdentifiers(DataIter trainData, int maxMem) {
+        public int collectFeatureIdentifiers(DataIter trainData, int maxMem) throws Exception {
             for (trainData.startScan(); trainData.hasNext();) {
                 DataSequence seq = trainData.next();
                 for (int l = 0; l < seq.length(); l++) {
                     for (int m = 1; (m <= maxMem) && (l-m >= -1); m++) {
                         for (startScanFeaturesAt(seq,l-m,l); hasNext(); ) {
-                            FeatureImpl feature = nextNoId();
+                            next();
+                            /*
+                            FeatureImpl feature = next();
                             if (getId(feature) < 0) {
+                                if (onlyTrainFeatures) {
+                                    if ((seq.y(l) != feature.y()) || ((l-m > 0) && (feature.yprev() >= 0) && (seq.y(l-m) != feature.yprev())))
+                                        continue;
+                                }
                                 add(feature);
                             }
+                            */
                         }
                     }
                 }

@@ -2,9 +2,28 @@ package iitb.Model;
 import iitb.CRF.*;
 
 public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGeneratorNested {
+    protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+        return (cposEnd == ((SegmentDataSequence)seq).getSegmentEnd(cposStart)) 
+        	&& ((cposStart == 0) || (cposStart-1 == ((SegmentDataSequence)seq).getSegmentEnd(cposStart-1)))
+            &&    super.holdsInData(seq, f);
+    }
     int maxMem[];
     int maxMemOverall=1;
-
+    public boolean train(DataIter trainData, boolean cachedLabels, boolean collectIds) throws Exception {
+        boolean retval = super.train(trainData,cachedLabels,!addOnlyTrainFeatures && collectIds);
+        if (addOnlyTrainFeatures && collectIds) {
+            for (trainData.startScan(); trainData.hasNext();) {
+                SegmentDataSequence seq = (SegmentDataSequence)trainData.next();
+                int segEnd;
+                for (int l = 0; l < seq.length(); l = segEnd+1) {
+                    segEnd = seq.getSegmentEnd(l);
+                    for (startScanFeaturesAt(seq,l-1,segEnd); hasNext(); next());
+                }
+            }
+            freezeFeatures();
+        }
+        return retval;
+    }
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options, boolean addFeatureNow) throws Exception {
 	super("naive",numLabels,false);
 	if (options.getProperty("MaxMemory") != null) {
