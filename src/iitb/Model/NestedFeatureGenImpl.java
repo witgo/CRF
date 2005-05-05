@@ -2,11 +2,12 @@ package iitb.Model;
 import iitb.CRF.*;
 
 public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGeneratorNested {
-    protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+   /* protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
         return (cposEnd == ((SegmentDataSequence)seq).getSegmentEnd(cposStart)) 
         	&& ((cposStart == 0) || (cposStart-1 == ((SegmentDataSequence)seq).getSegmentEnd(cposStart-1)))
             &&    super.holdsInData(seq, f);
     }
+    */
     int maxMem[];
     int maxMemOverall=1;
     public boolean train(DataIter trainData, boolean cachedLabels, boolean collectIds) throws Exception {
