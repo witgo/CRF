@@ -29,8 +29,21 @@ public class SparseTrainer extends Trainer {
     static IntDoubleFunction expFunc1D = new ExpFunc1D();
     static IntIntDoubleFunction expFunc2D = new ExpFunc2D();
     
-
+    /**
+     * @param numY
+     * @return
+     */
+    protected DoubleMatrix1D newLogDoubleMatrix1D(int numY) {
+        if (Boolean.parseBoolean(params.miscOptions.getProperty("sparse", "false")))
+            return new LogSparseDoubleMatrix1D(numY);
+        return new LogDenseDoubleMatrix1D(numY);
+    }
     
+    protected DoubleMatrix2D newLogDoubleMatrix2D(int numR, int numC) {
+        if (Boolean.parseBoolean(params.miscOptions.getProperty("sparse", "false")))
+            return new LogSparseDoubleMatrix2D(numR, numC);
+        return new LogDenseDoubleMatrix2D(numR, numC);
+    }
     public SparseTrainer(CrfParams p) {
         super(p);
         params = p;
@@ -52,11 +65,11 @@ public class SparseTrainer extends Trainer {
             newAlpha_Y = new SparseDoubleMatrix1D(numY);
             tmp_Y = new SparseDoubleMatrix1D(numY);
         } else {
-            Mi_YY = new LogSparseDoubleMatrix2D(numY,numY);
-            Ri_Y = new LogSparseDoubleMatrix1D(numY);
-            alpha_Y = new LogSparseDoubleMatrix1D(numY);
-            newAlpha_Y = new LogSparseDoubleMatrix1D(numY);
-            tmp_Y = new LogSparseDoubleMatrix1D(numY);
+            Mi_YY = newLogDoubleMatrix2D(numY,numY);
+            Ri_Y = newLogDoubleMatrix1D(numY);
+            alpha_Y = newLogDoubleMatrix1D(numY);
+            newAlpha_Y = newLogDoubleMatrix1D(numY);
+            tmp_Y = newLogDoubleMatrix1D(numY);
             
         }
     }
@@ -289,7 +302,7 @@ public class SparseTrainer extends Trainer {
                 if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
                     beta_Y = new DoubleMatrix1D[2*dataSeq.length()];
                     for (int i = 0; i < beta_Y.length; i++)
-                        beta_Y[i] = new LogSparseDoubleMatrix1D(numY);
+                        beta_Y[i] = newLogDoubleMatrix1D(numY);
                 }
                 // compute beta values in a backward scan.
                 // also scale beta-values to 1 to avoid numerical problems.

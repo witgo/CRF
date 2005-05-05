@@ -18,7 +18,7 @@ public class SegmentTrainer extends SparseTrainer {
     protected DoubleMatrix1D alpha_Y_Array[];
     protected DoubleMatrix1D alpha_Y_ArrayM[];
     protected boolean initAlphaMDone[];
-    protected LogSparseDoubleMatrix1D allZeroVector;
+    protected DoubleMatrix1D allZeroVector;
     
     public SegmentTrainer(CrfParams p) {
         super(p);
@@ -26,10 +26,10 @@ public class SegmentTrainer extends SparseTrainer {
     }
     protected void init(CRF model, DataIter data, double[] l) {
         super.init(model,data,l);
-        allZeroVector = new LogSparseDoubleMatrix1D(numY);
+        allZeroVector = newLogDoubleMatrix1D(numY);
         allZeroVector.assign(0);
     }
-    
+	
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         try {
             FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
@@ -232,14 +232,14 @@ public class SegmentTrainer extends SparseTrainer {
     protected void allocateAlphaBeta(int newSize) {
         alpha_Y_Array = new DoubleMatrix1D[newSize];
         for (int i = 0; i < alpha_Y_Array.length; i++)
-            alpha_Y_Array[i] = new LogSparseDoubleMatrix1D(numY);
+            alpha_Y_Array[i] = newLogDoubleMatrix1D(numY);
         beta_Y = new DoubleMatrix1D[newSize];
         for (int i = 0; i < beta_Y.length; i++)
-            beta_Y[i] = new LogSparseDoubleMatrix1D(numY);
+            beta_Y[i] = newLogDoubleMatrix1D(numY);
         if (reuseM) {
             alpha_Y_ArrayM = new DoubleMatrix1D[newSize];
             for (int i = 0; i < alpha_Y_ArrayM.length; i++)
-                alpha_Y_ArrayM[i] = new LogSparseDoubleMatrix1D(numY);
+                alpha_Y_ArrayM[i] = newLogDoubleMatrix1D(numY);
             initAlphaMDone = new boolean[newSize];
            
         }

@@ -81,7 +81,8 @@ public class RobustMath {
     static double logSumExp(DoubleMatrix1D logProb) {
         TreeSet logProbVector = new TreeSet();
         for ( int lpx = 0; lpx < logProb.size(); lpx++ )
-            addNoDups(logProbVector,logProb.get(lpx));
+            if (logProb.getQuick(lpx) != RobustMath.LOG0)
+                addNoDups(logProbVector,logProb.getQuick(lpx));
         return logSumExp(logProbVector);
     }
     static void logSumExp(DoubleMatrix1D v1, DoubleMatrix1D v2) {
@@ -89,6 +90,47 @@ public class RobustMath {
             v1.set(i,logSumExp(v1.get(i), v2.get(i)));
         }
     }
+    static class LogMult implements IntIntDoubleFunction {
+        DoubleMatrix2D M;
+        DoubleMatrix1D z;
+        double lalpha;
+        boolean transposeA;
+        DoubleMatrix1D y;
+        public double apply(int i, int j, double val) {
+            int r = i;
+            int c = j;
+            if (transposeA) {
+                r = j;
+                c = i;
+            }
+            z.set(r, RobustMath.logSumExp(z.get(r), M.get(i,j)+y.get(c)+lalpha));
+            return val;
+        }
+    };
+    static LogMult logMult = new LogMult();
+    public static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA) {
+        // z = alpha * A * y + beta*z
+        double lalpha = 0;
+        if (alpha != 1)
+            lalpha = Math.log(alpha);
+        if (beta != 0) {
+            if (beta != 1) {
+                double lbeta = Math.log(beta);
+                for (int i = 0; i < z.size(); z.set(i,z.get(i)+lbeta),i++);
+            }
+        } else {
+            z.assign(RobustMath.LOG0);
+        }
+        // in log domain this becomes: 
+        logMult.M = M;
+        logMult.z = z;
+        logMult.lalpha = lalpha;
+        logMult.transposeA = transposeA;
+        logMult.y = y;
+        M.forEachNonZero(logMult);
+        return z;
+    }
+
     static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA, EdgeGenerator edgeGen) {
         // z = alpha * A * y + beta*z
         // in log domain this becomes: 

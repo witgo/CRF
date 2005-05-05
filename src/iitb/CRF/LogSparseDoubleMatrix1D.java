@@ -7,62 +7,62 @@ import java.util.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
-// this needs to be done to support an efficient sparse implementation
-// of matrices in the log-space
+//this needs to be done to support an efficient sparse implementation
+//of matrices in the log-space
 
 public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
-   
+    
     static double map(double val) {
-	if (val == RobustMath.LOG0)
-	    return 0;
-	if (val == 0) 
-	    return Double.MIN_VALUE;
-	return val;
+        if (val == RobustMath.LOG0)
+            return 0;
+        if (val == 0) 
+            return Double.MIN_VALUE;
+        return val;
     }
     static double reverseMap(double val) {
-	if (val == 0) {
-	    return RobustMath.LOG0;
-	}
-	if (val == Double.MIN_VALUE)
-	    return 0;
-	return val;
+        if (val == 0) {
+            return RobustMath.LOG0;
+        }
+        if (val == Double.MIN_VALUE)
+            return 0;
+        return val;
     }
     public LogSparseDoubleMatrix1D(int numY) {super(numY);}
     public DoubleMatrix1D assign(double val) {
-	return super.assign(map(val));
+        return super.assign(map(val));
     }
     public void  set(int row, double val) {
-	super.set(row,map(val));
+        super.set(row,map(val));
     }
     public double  get(int row) {
-	return reverseMap(super.get(row));
+        return reverseMap(super.get(row));
     }
     public double zSum() {
-	TreeSet logProbVector = new TreeSet();
-	// TODO
-	for (int row = 0; row < size(); row++) {
-	    if (getQuick(row) != 0)
-		RobustMath.addNoDups(logProbVector,get(row));
-	}
-	return RobustMath.logSumExp(logProbVector);
-
+        TreeSet logProbVector = new TreeSet();
+        // TODO
+        for (int row = 0; row < size(); row++) {
+            if (getQuick(row) != 0)
+                RobustMath.addNoDups(logProbVector,get(row));
+        }
+        return RobustMath.logSumExp(logProbVector);
+        
     }
     // WARNING: this is only correct for functions that leave the infinity unchanged.
     public SparseDoubleMatrix1D forEachNonZero(IntDoubleFunction func) {
-	for (int y = 0; y < size(); y++) {
-	    if (getQuick(y) != 0) 
-		setQuick(y,func.apply(y,get(y)));
-	}
-	return this;
+        for (int y = 0; y < size(); y++) {
+            if (getQuick(y) != 0) 
+                setQuick(y,func.apply(y,get(y)));
+        }
+        return this;
     }
     // WARNING: this is only correct for functions that leave the infinity unchanged.
     public DoubleMatrix1D assign(DoubleMatrix1D v2, DoubleDoubleFunction func) {
-	// TODO..
-	for (int row = 0; row < size(); row++) {
-	    if ((v2.getQuick(row) != 0) || (getQuick(row) != 0))
-	    set(row,func.apply(get(row), v2.get(row)));
-	}
-	return this;
+        // TODO..
+        for (int row = 0; row < size(); row++) {
+            if ((v2.getQuick(row) != 0) || (getQuick(row) != 0))
+                set(row,func.apply(get(row), v2.get(row)));
+        }
+        return this;
     }
     public boolean equals(Object arg) {
         DoubleMatrix1D mat = (DoubleMatrix1D)arg;
@@ -79,184 +79,148 @@ class LogSparseDoubleMatrix2D extends SparseDoubleMatrix2D {
     LogSparseDoubleMatrix2D(int numR, int numC) {super(numR,numC);
     }
     public DoubleMatrix2D assign(double val) {
-	return super.assign(map(val));
+        return super.assign(map(val));
     }
     public void  set(int row, int column, double val) {
-	super.set(row,column,map(val));
+        super.set(row,column,map(val));
     }
     public double  get(int row, int column) {
-	return reverseMap(super.get(row,column));
+        return reverseMap(super.get(row,column));
     }
-    static class LogMult implements IntIntDoubleFunction {
-	DoubleMatrix2D M;
-	DoubleMatrix1D z;
-	double lalpha;
-	boolean transposeA;
-	DoubleMatrix1D y;
-	public double apply(int i, int j, double val) {
-	    int r = i;
-	    int c = j;
-	    if (transposeA) {
-		r = j;
-		c = i;
-	    }
-	    z.set(r, RobustMath.logSumExp(z.get(r), M.get(i,j)+y.get(c)+lalpha));
-	    return val;
-	}
-    };
-    static LogMult logMult = new LogMult();
+    
     public DoubleMatrix1D zMult(DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA) {
-	// z = alpha * A * y + beta*z
-	double lalpha = 0;
-	if (alpha != 1)
-	    lalpha = Math.log(alpha);
-	if (beta != 0) {
-	    if (beta != 1) {
-		double lbeta = Math.log(beta);
-		for (int i = 0; i < z.size(); z.set(i,z.get(i)+lbeta),i++);
-	    }
-	} else {
-	    z.assign(RobustMath.LOG0);
-	}
-	// in log domain this becomes: 
-	logMult.M = this;
-	logMult.z = z;
-	logMult.lalpha = lalpha;
-	logMult.transposeA = transposeA;
-	logMult.y = y;
-	forEachNonZero(logMult);
-	return z;
+        return RobustMath.logMult(this,y,z,alpha,beta,transposeA);
     }
 };
 
 
 class LogSparseDoubleMatrix1DOld extends SparseDoubleMatrix1D {
-	private static final long serialVersionUID = 1L;
-	TIntDoubleHashMap elementsZ;
-	static double map(double val) {
-		if (val == RobustMath.LOG0)
-			return 0;
-		if (val == 0) 
-			return Double.MIN_VALUE;
-		return val;
-	}
-	static double reverseMap(double val) {
-		if (val == 0) {
-			return RobustMath.LOG0;
-		}
-		if (val == Double.MIN_VALUE)
-			return 0;
-		return val;
-	}
-	LogSparseDoubleMatrix1DOld(int numY) {
-		super(numY);
-		elementsZ = new TIntDoubleHashMap();
-	}
-	public DoubleMatrix1D assign(double val) {
-		//super.assign(map(val));
-		double newVal = map(val);
-		if (newVal != 0) {
-			for (int i = size()-1; i >= 0; i--)
-				setQuick(i,newVal);
-		}
-		return this;
-	}
-	public void  set(int row, double val) {
-		setQuick(row,map(val));
-	}
-	public double  get(int row) {
-		return reverseMap(getQuick(row));
-	}
-	public double zSum() {
-		TreeSet logProbVector = new TreeSet();
-		// TODO
-		for (int row = 0; row < size(); row++) {
-			if (getQuick(row) != 0)
-				RobustMath.addNoDups(logProbVector,get(row));
-		}
-		return RobustMath.logSumExp(logProbVector);
-		
-	}
-/*	static class IntDoubleFunctionWrapper implements IntDoubleFunction {
-		IntDoubleFunction func;
-		public double apply(int row, double val) {
-			return func.apply(row, reverseMap(val));
-		}		
-	}
-	IntDoubleFunctionWrapper funcWrapper = new IntDoubleFunctionWrapper();
-	public SparseDoubleMatrix1D forEachNonZero(IntDoubleFunction func) {
-		funcWrapper.func = func;
-		return this;
-		//return super.forEachNonZero(funcWrapper);
-	}
-	*/
-	// WARNING: this is only correct for functions that leave the infinity unchanged.
-     public DoubleMatrix1D forEachNonZero(IntDoubleFunction func) {
-		for (int y = 0; y < size(); y++) {
-			if (getQuick(y) != 0) 
-				setQuick(y,func.apply(y,get(y)));
-		}
-		return this;
-	}
+    private static final long serialVersionUID = 1L;
+    TIntDoubleHashMap elementsZ;
+    static double map(double val) {
+        if (val == RobustMath.LOG0)
+            return 0;
+        if (val == 0) 
+            return Double.MIN_VALUE;
+        return val;
+    }
+    static double reverseMap(double val) {
+        if (val == 0) {
+            return RobustMath.LOG0;
+        }
+        if (val == Double.MIN_VALUE)
+            return 0;
+        return val;
+    }
+    LogSparseDoubleMatrix1DOld(int numY) {
+        super(numY);
+        elementsZ = new TIntDoubleHashMap();
+    }
+    public DoubleMatrix1D assign(double val) {
+        //super.assign(map(val));
+        double newVal = map(val);
+        if (newVal != 0) {
+            for (int i = size()-1; i >= 0; i--)
+                setQuick(i,newVal);
+        }
+        return this;
+    }
+    public void  set(int row, double val) {
+        setQuick(row,map(val));
+    }
+    public double  get(int row) {
+        return reverseMap(getQuick(row));
+    }
+    public double zSum() {
+        TreeSet logProbVector = new TreeSet();
+        // TODO
+        for (int row = 0; row < size(); row++) {
+            if (getQuick(row) != 0)
+                RobustMath.addNoDups(logProbVector,get(row));
+        }
+        return RobustMath.logSumExp(logProbVector);
+        
+    }
+    /*	static class IntDoubleFunctionWrapper implements IntDoubleFunction {
+     IntDoubleFunction func;
+     public double apply(int row, double val) {
+     return func.apply(row, reverseMap(val));
+     }		
+     }
+     IntDoubleFunctionWrapper funcWrapper = new IntDoubleFunctionWrapper();
+     public SparseDoubleMatrix1D forEachNonZero(IntDoubleFunction func) {
+     funcWrapper.func = func;
+     return this;
+     //return super.forEachNonZero(funcWrapper);
+      }
+      */
+    // WARNING: this is only correct for functions that leave the infinity unchanged.
+    public DoubleMatrix1D forEachNonZero(IntDoubleFunction func) {
+        for (int y = 0; y < size(); y++) {
+            if (getQuick(y) != 0) 
+                setQuick(y,func.apply(y,get(y)));
+        }
+        return this;
+    }
     static class DoubleDoubleFunctionWrapper implements DoubleDoubleFunction {
-		DoubleDoubleFunction func;
-		public double apply(double val1, double val2) {
-			return map(func.apply(reverseMap(val1), reverseMap(val2)));
-		}		
-	}
-	DoubleDoubleFunctionWrapper funcWrapper = new DoubleDoubleFunctionWrapper();
-	
-	// WARNING: this is only correct for functions that leave the infinity unchanged.
-	public DoubleMatrix1D assign(DoubleMatrix1D v2, DoubleDoubleFunction func) {
-		for (TIntDoubleIterator iter = ((LogSparseDoubleMatrix1DOld)v2).elementsZ.iterator(); iter.hasNext();) {
-			iter.advance();
-			int row = iter.key()-1;
-			set(row,func.apply(get(row), v2.get(row)));
-		}
-		for (TIntDoubleIterator iter = elementsZ.iterator(); iter.hasNext();) {
-			iter.advance();
-			int row = iter.key()-1;
-			if (v2.getQuick(row)==0)
-				set(row,func.apply(get(row), v2.get(row)));
-		}
-	
-		
-		return this;
-	}
-
-	
-	/* (non-Javadoc)
-	 * @see cern.colt.matrix.DoubleMatrix1D#getQuick(int)
-	 */
-	public double getQuick(int arg0) {
-		return elementsZ.get(arg0+1);
-	}
-	/* (non-Javadoc)
-	 * @see cern.colt.matrix.DoubleMatrix1D#like(int)
-	 */
-	public DoubleMatrix1D like(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	/* (non-Javadoc)
-	 * @see cern.colt.matrix.DoubleMatrix1D#like2D(int, int)
-	 */
-	public DoubleMatrix2D like2D(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	/* (non-Javadoc)
-	 * @see cern.colt.matrix.DoubleMatrix1D#setQuick(int, double)
-	 */
-	public void setQuick(int arg0, double arg1) {
-		if (arg1 != 0)
-			elementsZ.put(arg0+1,arg1);
-	}
-	/* (non-Javadoc)
-	 * @see cern.colt.matrix.DoubleMatrix1D#viewSelectionLike(int[])
-	 */
-	protected DoubleMatrix1D viewSelectionLike(int[] arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        DoubleDoubleFunction func;
+        public double apply(double val1, double val2) {
+            return map(func.apply(reverseMap(val1), reverseMap(val2)));
+        }		
+    }
+    DoubleDoubleFunctionWrapper funcWrapper = new DoubleDoubleFunctionWrapper();
+    
+    // WARNING: this is only correct for functions that leave the infinity unchanged.
+    public DoubleMatrix1D assign(DoubleMatrix1D v2, DoubleDoubleFunction func) {
+        for (TIntDoubleIterator iter = ((LogSparseDoubleMatrix1DOld)v2).elementsZ.iterator(); iter.hasNext();) {
+            iter.advance();
+            int row = iter.key()-1;
+            set(row,func.apply(get(row), v2.get(row)));
+        }
+        for (TIntDoubleIterator iter = elementsZ.iterator(); iter.hasNext();) {
+            iter.advance();
+            int row = iter.key()-1;
+            if (v2.getQuick(row)==0)
+                set(row,func.apply(get(row), v2.get(row)));
+        }
+        
+        
+        return this;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see cern.colt.matrix.DoubleMatrix1D#getQuick(int)
+     */
+    public double getQuick(int arg0) {
+        return elementsZ.get(arg0+1);
+    }
+    /* (non-Javadoc)
+     * @see cern.colt.matrix.DoubleMatrix1D#like(int)
+     */
+    public DoubleMatrix1D like(int arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see cern.colt.matrix.DoubleMatrix1D#like2D(int, int)
+     */
+    public DoubleMatrix2D like2D(int arg0, int arg1) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    /* (non-Javadoc)
+     * @see cern.colt.matrix.DoubleMatrix1D#setQuick(int, double)
+     */
+    public void setQuick(int arg0, double arg1) {
+        if (arg1 != 0)
+            elementsZ.put(arg0+1,arg1);
+    }
+    /* (non-Javadoc)
+     * @see cern.colt.matrix.DoubleMatrix1D#viewSelectionLike(int[])
+     */
+    protected DoubleMatrix1D viewSelectionLike(int[] arg0) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 };
