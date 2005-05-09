@@ -144,7 +144,7 @@ public class SegmentTrainer extends SparseTrainer {
                                  }
                                  */
                                 if (params.debugLvl > 2) {
-                                    System.out.println(f + " " + feature + " " + dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd));
+                                    System.out.println("Feature fired " + f + " " + feature);
                                 }
                             }
                             if (yprev < 0) {
@@ -198,7 +198,7 @@ public class SegmentTrainer extends SparseTrainer {
                     System.out.println(dataSeq);
                 }
                 if (params.debugLvl > 1 || (thisSeqLogli > 0)) {
-                    System.out.println("Sequence likelihood "  + thisSeqLogli + " " + lZx + " " + Math.exp(lZx));
+                    System.out.println("Sequence likelihood "  + thisSeqLogli + " lZx " + lZx + " Zx " + Math.exp(lZx));
                     System.out.println("Last Alpha-i " + alpha_Y_Array[dataSeq.length()-1-base].toString());
                 }
                 beta_Y[dataSeq.length()-1] = oldBeta;
@@ -236,13 +236,11 @@ public class SegmentTrainer extends SparseTrainer {
         beta_Y = new DoubleMatrix1D[newSize];
         for (int i = 0; i < beta_Y.length; i++)
             beta_Y[i] = newLogDoubleMatrix1D(numY);
-        if (reuseM) {
-            alpha_Y_ArrayM = new DoubleMatrix1D[newSize];
-            for (int i = 0; i < alpha_Y_ArrayM.length; i++)
-                alpha_Y_ArrayM[i] = newLogDoubleMatrix1D(numY);
-            initAlphaMDone = new boolean[newSize];
+        alpha_Y_ArrayM = new DoubleMatrix1D[newSize];
+        for (int i = 0; i < alpha_Y_ArrayM.length; i++)
+            alpha_Y_ArrayM[i] = newLogDoubleMatrix1D(numY);
+        initAlphaMDone = new boolean[newSize];
            
-        }
     }
     static double initLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {

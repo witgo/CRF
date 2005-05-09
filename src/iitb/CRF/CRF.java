@@ -113,4 +113,9 @@ public class CRF implements Serializable {
             histMgr.set_y(dataSeq, i, dataSeq.y(i));
         }
     }
+    public double score(DataSequence dataSeq) {
+	    if (viterbi==null)
+	       viterbi = getViterbi(1);
+		return viterbi.viterbiSearch(dataSeq,lambda,true);
+	}
 };

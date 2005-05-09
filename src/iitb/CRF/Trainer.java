@@ -410,10 +410,16 @@ public class Trainer {
                         int yp = feature.y();
                         int yprev = feature.yprev();
                         float val = feature.value();
-                        if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                        
+                       if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
                             grad[f] += val;
                             thisSeqLogli += val*lambda[f];
+                            if (params.debugLvl > 2) {
+                                System.out.println("Feature fired " + f + " " + feature);
+                            } 
                         }
+                       
+                        
                         if (yprev < 0) {
                             ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
                         } else {

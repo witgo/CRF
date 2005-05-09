@@ -70,7 +70,4 @@ public class FeatureTypesWrapper extends FeatureTypes {
 			FeatureImpl f) {
 		ftype.setFeatureIdentifier(fId, stateId, name, f);
 	}
-	public boolean startScanFeaturesAt(DataSequence data, int pos) {
-		return ftype.startScanFeaturesAt(data, pos);
-	}
 }

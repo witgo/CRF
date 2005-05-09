@@ -74,9 +74,9 @@ public class SegmentCRF extends CRF {
 	        segmentViterbi = new SegmentViterbi(this,1);
 		segmentViterbi.singleSegmentClassScores(dataSeq,lambda,scores); 
 	}
-	 public Segmentation[] labelSequences(CandSegDataSequence dataSeq, int numLabelSeqs) {
+	 public Segmentation[] segmentSequences(CandSegDataSequence dataSeq, int numLabelSeqs) {
 	     if (segmentViterbi==null)
 		        segmentViterbi = new SegmentViterbi(this,numLabelSeqs);
-	     return segmentViterbi.labelSequences(dataSeq,lambda,numLabelSeqs);
+	     return segmentViterbi.segmentSequences(dataSeq,lambda,numLabelSeqs);
 	 }
 }
