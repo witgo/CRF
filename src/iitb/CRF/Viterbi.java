@@ -78,7 +78,7 @@ public class Viterbi implements Serializable {
         int numSolns() {
             for (int i = 0; i < solns.length; i++)
                 if (solns[i].isClear())
-                    return i+1;
+                    return i;
             return size();
         }
         void print() {
