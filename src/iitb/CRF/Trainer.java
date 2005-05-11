@@ -318,10 +318,10 @@ public class Trainer {
         }
         if (takeExp) {
             for(int r = Ri_Y.size()-1; r >= 0; r--) {
-                Ri_Y.setQuick(r,exp(Ri_Y.getQuick(r)));
+                Ri_Y.setQuick(r,expE(Ri_Y.getQuick(r)));
                 if (Mi_YY != null)
                     for(int c = Mi_YY.columns()-1; c >= 0; c--) {
-                        Mi_YY.setQuick(r,c,exp(Mi_YY.getQuick(r,c)));
+                        Mi_YY.setQuick(r,c,expE(Mi_YY.getQuick(r,c)));
                     }
             }
         }
@@ -481,15 +481,7 @@ public class Trainer {
         }
         return -1*Double.MAX_VALUE;
     }
-    static double exp(double val) {
-        try {
-            return expE(val);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        return Double.MAX_VALUE;
-    }
+    
     static double logE(double val) throws Exception {
         double pr = Math.log(val);
         if (Double.isNaN(pr) || Double.isInfinite(pr)) {
@@ -497,10 +489,30 @@ public class Trainer {
         }
         return pr;
     } 
-    static double expE(double val) throws Exception {
+    static double expE(double val)  {
         double pr = RobustMath.exp(val);
         if (Double.isNaN(pr) || Double.isInfinite(pr)) {
-            throw new Exception("Overflow error when taking exp of " + val + "\n Try running the CRF with the following option \"trainer ll\" to perform computations in the log-space.");
+            try {
+                throw new Exception("Overflow error when taking exp of " + val + "\n Try running the CRF with the following option \"trainer ll\" to perform computations in the log-space.");
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+                return Double.MAX_VALUE;
+            }
+        }
+        return pr;
+    }
+    static double expLE(double val) {
+        double pr = RobustMath.exp(val);
+        if (Double.isNaN(pr) || Double.isInfinite(pr)) {
+            try {
+                throw new Exception("Overflow error when taking exp of " + val 
+                        + " you might need to redesign feature values so as to not reach such high values");
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+                return Double.MAX_VALUE;
+            }
         }
         return pr;
     }

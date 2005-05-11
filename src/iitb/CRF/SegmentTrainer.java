@@ -189,7 +189,7 @@ public class SegmentTrainer extends SparseTrainer {
                 logli += thisSeqLogli;
                 // update grad.
                 for (int f = 0; f < grad.length; f++)
-                    grad[f] -= RobustMath.exp(ExpF[f]-lZx);
+                    grad[f] -= expLE(ExpF[f]-lZx);
                 if (noneFired) {
                     System.out.println("WARNING: no features fired in the training set");
                 }
@@ -296,4 +296,5 @@ public class SegmentTrainer extends SparseTrainer {
         double defaultValue = initLogMi(dataSeq, prevPos,pos,featureGenNested,lambda,Mi,Ri);
         SparseTrainer.computeLogMiInitDone(featureGenNested,lambda,Mi,Ri,defaultValue);
     }
+  
 };

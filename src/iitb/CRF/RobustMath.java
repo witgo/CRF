@@ -196,6 +196,9 @@ public class RobustMath {
     public static double exp(double d) {
         if (Double.isInfinite(d) || ((d < 0) && (Math.abs(d) > MINUS_LOG_EPSILON)))
             return 0;
+        //if ((d > 0) && (d < Double.MIN_VALUE))
+        //    return 1;
+        //System.out.println(d + " " + Math.exp(d));
         return Math.exp(d);
     }
     /**

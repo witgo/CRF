@@ -402,37 +402,5 @@ public class SparseTrainer extends Trainer {
         }
         return logli;
     }
-    
-    static double log(double val) {
-        try {
-            return logE(val);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        return -1*Double.MAX_VALUE;
-    }
-    static double exp(double val) {
-        try {
-            return expE(val);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-        return Double.MAX_VALUE;
-    }
-    static double logE(double val) throws Exception {
-        double pr = Math.log(val);
-        if (Double.isNaN(pr) || Double.isInfinite(pr)) {
-            throw new Exception("Overflow error when taking log of " + val);
-        }
-        return pr;
-    } 
-    static double expE(double val) throws Exception {
-        double pr = Math.exp(val);
-        if (Double.isNaN(pr) || Double.isInfinite(pr)) {
-            throw new Exception("Overflow error when taking exp of " + val + "\n Try running the CRF with the following option \"trainer ll\" to perform computations in the log-space.");
-        }
-        return pr;
-    }
+ 
 }
