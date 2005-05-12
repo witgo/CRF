@@ -34,7 +34,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;
-    public boolean addOnlyTrainFeatures=true;
+    public boolean addOnlyTrainFeatures=false;
     
     transient DataSequence data;
     int cposEnd;
@@ -58,7 +58,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         addFeature(new EndFeatures(this));
         
         dict = new WordsInTrain();
-        addFeature(new UnknownFeature(this,dict));
+       addFeature(new UnknownFeature(this,dict));
         // addFeature(new KnownInOtherState(model, dict));
         //	addFeature(new KernelFeaturesForLongEntity(model,new WordFeatures(model, dict)));
         addFeature(new WordFeatures(this, dict));
@@ -108,23 +108,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         public int collectFeatureIdentifiers(DataIter trainData, int maxMem) throws Exception {
             for (trainData.startScan(); trainData.hasNext();) {
                 DataSequence seq = trainData.next();
-                for (int l = 0; l < seq.length(); l++) {
-                    for (int m = 1; (m <= maxMem) && (l-m >= -1); m++) {
-                        for (startScanFeaturesAt(seq,l-m,l); hasNext(); ) {
-                            next();
-                            /*
-                            FeatureImpl feature = next();
-                            if (getId(feature) < 0) {
-                                if (onlyTrainFeatures) {
-                                    if ((seq.y(l) != feature.y()) || ((l-m > 0) && (feature.yprev() >= 0) && (seq.y(l-m) != feature.yprev())))
-                                        continue;
-                                }
-                                add(feature);
-                            }
-                            */
-                        }
-                    }
-                }
+                addTrainRecord(seq);               
             }
             freezeFeatures();
             return strToInt.size();
@@ -174,8 +158,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     }
     
     public boolean stateMappings(DataIter trainData) throws Exception {
-    	if (model.numStates() == model.numberOfLabels())
-    		return false;
+        if (model.numStates() == model.numberOfLabels())
+            return false;
         for (trainData.startScan(); trainData.hasNext();) {
             DataSequence seq = trainData.next();
             if (seq instanceof SegmentDataSequence) {
@@ -190,11 +174,11 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         if (model.numStates() == model.numberOfLabels())
             return false;
         if (data instanceof SegmentDataSequence) {
-        	model.mapStatesToLabels((SegmentDataSequence)data);
+            model.mapStatesToLabels((SegmentDataSequence)data);
         } else {
-        	for (int i = 0; i < data.length(); i++) {
-        		data.set_y(i, label(data.y(i)));
-        	}
+            for (int i = 0; i < data.length(); i++) {
+                data.set_y(i, label(data.y(i)));
+            }
         }
         return true;
     }
@@ -229,11 +213,22 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                         getFeature(f).train(seq,l);
                     }
                 }
+                
             }
         }
         if (collectIds) totalFeatures = featureMap.collectFeatureIdentifiers(trainData,maxMemory());
         return labelsMapped;
     };
+    /**
+     * @param seq
+     */
+    public void addTrainRecord(DataSequence seq) {
+        for (int l = 0; l < seq.length(); l++) {
+            for (startScanFeaturesAt(seq,l); hasNext(); ) {
+                next();
+            }
+        }
+    }
     public void printStats() {
         System.out.println("Num states " + model.numStates());
         System.out.println("Num edges " + model.numEdges());
@@ -265,8 +260,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                     continue;
                 }
                 if (featureValid(data, cposStart, cposEnd, featureToReturn, model))
-                	return;
-
+                    return;
+                
             }
         }
         featureToReturn.id = -1;
@@ -278,31 +273,31 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         currentFeatureType.next(featureToReturn);
     }
     /**
-	 * @param featureToReturn
+     * @param featureToReturn
      * @param cposEnd
      * @param cposStart
      * @param data
      * @return
-	 */
-	public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model) {
+     */
+    public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model) {
         if (((cposStart > 0) && (cposEnd < data.length()-1)) 
                 || (featureToReturn.y() >= model.numStates())
                 || (featureToReturn.yprev() >= model.numStates()))
             return true;
         if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
-        		&& ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
+                && ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
             return true;
         if ((cposEnd == data.length()-1) && (model.isEndState(featureToReturn.y())))
             return true;
-		return false;
-	}
-	protected void startScanFeaturesAt(DataSequence d) {
-	    data = d;
-	    currentFeatureType = null;
+        return false;
+    }
+    protected void startScanFeaturesAt(DataSequence d) {
+        data = d;
+        currentFeatureType = null;
         featureIter = features.iterator();
         advance();
-	}
-	public void startScanFeaturesAt(DataSequence d, int prev, int p) {
+    }
+    public void startScanFeaturesAt(DataSequence d, int prev, int p) {
         cposEnd = p;
         cposStart = prev+1;
         for (int i = 0; i < features.size(); i++) {
@@ -325,7 +320,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Feature next() {
         feature.copy(featureToReturn);
         advance();
-//        System.out.println(feature);
+//      System.out.println(feature);
         return feature;
     }
     public void freezeFeatures() {

@@ -131,6 +131,9 @@ public class Trainer {
                 LBFGS.lbfgs (numF, params.mForHessian, lambda, f, gradLogli, false, diag, iprint, params.epsForConvergence, xtol, iflag);
             } catch (LBFGS.ExceptionWithIflag e)  {
                 System.err.println( "CRF: lbfgs failed.\n"+e );
+                if (e.iflag == -1) {
+                    System.err.println("Possible reasons could be: \n \t 1. Bug in the feature generation or data handling code\n\t 2. Not enough features to make observed feature value==expected value\n");
+                }
                 return;
             }
             icall += 1;
