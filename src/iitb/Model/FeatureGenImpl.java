@@ -42,6 +42,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     WordsInTrain dict;
     
     public void addFeature(FeatureTypes fType) {
+        addFeature(fType,false);
+    }
+    public void addFeature(FeatureTypes fType, boolean retainThis) {
         features.add(fType);
     }
     public void setDict(WordsInTrain d) {
@@ -67,7 +70,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     protected FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
     }
-    protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+    protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
         return ((seq.y(cposEnd) == f.y()) 
                 && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev())));
     }
@@ -80,7 +83,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
-            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || holdsInData(data,f)))
+            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || retainFeature(data,f)))
                 return add(f);
             return id;
         }

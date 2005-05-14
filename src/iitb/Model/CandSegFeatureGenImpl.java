@@ -4,6 +4,7 @@
  */
 package iitb.Model;
 
+import gnu.trove.TIntHashSet;
 import iitb.CRF.CandSegDataSequence;
 import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
@@ -31,8 +32,10 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
      * @param addFeatureNow
      * @throws Exception
      */
-   
-    protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+    TIntHashSet retainedFeatureTypes; // all features of this type are retained.
+    protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
+        if ((retainedFeatureTypes != null) && (retainedFeatureTypes.contains(currentFeatureType.getTypeId()+1)))
+            return true;
         return ((CandSegDataSequence)seq).holdsInTrainingData(f,cposStart-1,cposEnd);
     }
     public void addTrainRecord(DataSequence data) {
