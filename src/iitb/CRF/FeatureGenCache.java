@@ -98,16 +98,15 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     public FeatureGenCache(FeatureGenerator fgen) {
         this.sfgen = fgen;
         numFeatures = 0;
-        fgen = null;
         if (sfgen instanceof FeatureGeneratorNested)
-        	fgen = (FeatureGeneratorNested)sfgen;
+        	this.fgen = ((FeatureGeneratorNested)sfgen);
     }
 
     /* (non-Javadoc)
      * @see iitb.CRF.FeatureGeneratorNested#maxMemory()
      */
     public int maxMemory() {
-        return (fgen==null)?1:fgen.maxMemory();
+    	return (sfgen instanceof FeatureGeneratorNested)?((FeatureGeneratorNested)sfgen).maxMemory():1;
     }
 
   
