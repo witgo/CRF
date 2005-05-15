@@ -1,4 +1,5 @@
 package iitb.Model;
+import gnu.trove.TIntHashSet;
 import iitb.CRF.*;
 
 import java.util.*;
@@ -34,7 +35,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;
-    public boolean addOnlyTrainFeatures=false;
+    public boolean addOnlyTrainFeatures=true;
+    TIntHashSet retainedFeatureTypes=new TIntHashSet(); // all features of this type are retained.
     
     transient DataSequence data;
     int cposEnd;
@@ -46,6 +48,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     }
     public void addFeature(FeatureTypes fType, boolean retainThis) {
         features.add(fType);
+        if (retainThis) retainedFeatureTypes.add(fType.getTypeId()+1);
     }
     public void setDict(WordsInTrain d) {
         dict = d;
@@ -70,6 +73,11 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     protected FeatureTypes getFeature(int i) {
         return (FeatureTypes)features.elementAt(i);
     }
+    protected boolean keepFeature(DataSequence seq, FeatureImpl f) {
+    	  if ((retainedFeatureTypes != null) && (retainedFeatureTypes.contains(currentFeatureType.getTypeId()+1)))
+            return true;
+    	  return retainFeature(seq,f);
+    }
     protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
         return ((seq.y(cposEnd) == f.y()) 
                 && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev())));
@@ -83,7 +91,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
-            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || retainFeature(data,f)))
+            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || keepFeature(data,f)))
                 return add(f);
             return id;
         }

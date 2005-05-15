@@ -32,10 +32,9 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
      * @param addFeatureNow
      * @throws Exception
      */
-    TIntHashSet retainedFeatureTypes; // all features of this type are retained.
+   
     protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
-        if ((retainedFeatureTypes != null) && (retainedFeatureTypes.contains(currentFeatureType.getTypeId()+1)))
-            return true;
+      
         return ((CandSegDataSequence)seq).holdsInTrainingData(f,cposStart-1,cposEnd);
     }
     public void addTrainRecord(DataSequence data) {
