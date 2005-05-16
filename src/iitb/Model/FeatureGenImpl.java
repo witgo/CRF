@@ -35,6 +35,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;
+    public boolean generateOnlyXFeatures=false;
     public boolean addOnlyTrainFeatures=true;
     TIntHashSet retainedFeatureTypes=new TIntHashSet(); // all features of this type are retained.
     
