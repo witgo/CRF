@@ -13,3 +13,17 @@ Run it as
 or all together with
 
 "java iitb.Segment.Segment all -f samples/us50.conf"
+
+Files
+-----
+
+build/	-- Dir containing all class files  
+build.xml -- XML file to build the code using ANT
+doc/ -- Documentation for the code (It includes Java API, introduction and FAQs - all in the HTML form).
+lib/ -- All required libraries are kept here.
+LICENSE.txt -- Licencse agreeement.
+README -- This file.
+samples/ -- Sample configuration and data files.
+settings.sh -- Script to set up the package.
+src/ -- Source code.
+third-party-license.txt -- Third party license.
