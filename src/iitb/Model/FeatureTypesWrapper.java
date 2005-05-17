@@ -70,4 +70,7 @@ public class FeatureTypesWrapper extends FeatureTypes {
 			FeatureImpl f) {
 		ftype.setFeatureIdentifier(fId, stateId, name, f);
 	}
+	 public boolean fixedTransitionFeatures() {
+	        return ftype.fixedTransitionFeatures();
+	 }
 }

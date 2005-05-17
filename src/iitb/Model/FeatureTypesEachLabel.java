@@ -74,5 +74,8 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
+	 public boolean fixedTransitionFeatures() {
+	        return single.fixedTransitionFeatures();
+	 }
 };
 	

@@ -35,6 +35,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Model model;
     int numFeatureTypes=0;
     int totalFeatures;
+    boolean _fixedTransitions=true;
     public boolean generateOnlyXFeatures=false;
     public boolean addOnlyTrainFeatures=true;
     TIntHashSet retainedFeatureTypes=new TIntHashSet(); // all features of this type are retained.
@@ -50,6 +51,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public void addFeature(FeatureTypes fType, boolean retainThis) {
         features.add(fType);
         if (retainThis) retainedFeatureTypes.add(fType.getTypeId()+1);
+        if (!fType.fixedTransitionFeatures())
+            _fixedTransitions = false;
     }
     public void setDict(WordsInTrain d) {
         dict = d;
@@ -382,5 +385,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
          getFeature(f).print(featureMap, featureWts);
          }
          */
+    }
+    
+    public boolean fixedTransitionFeatures() {
+        return _fixedTransitions;
     }
 };

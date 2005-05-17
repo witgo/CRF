@@ -68,5 +68,9 @@ public abstract class FeatureTypes implements Serializable {
     */
     public int getTypeId() {return thisTypeId;}
     public boolean featureCollectMode() {return fgen.featureCollectMode;}
+    // returns false if transition features change with x or position
+    public boolean fixedTransitionFeatures() {
+        return true;
+    }
 };
 
