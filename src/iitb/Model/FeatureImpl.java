@@ -14,7 +14,7 @@ public class FeatureImpl implements Feature, Serializable {
     public int ystart, yend;
     public float val = 1;
     public int historyArray[] = null;
-    void init() {
+    public void init() {
 	val = 1;
 	historyArray = null;
 	ystart = -1;
@@ -41,14 +41,6 @@ public class FeatureImpl implements Feature, Serializable {
     public String toString() {return strId + " " + val;}
     public FeatureIdentifier identifier() {return strId;}
     public int[] yprevArray() {return historyArray;}
-    /* (non-Javadoc)
-     * @see iitb.CRF.Feature#valueUB()
-     */
-    public float valueUB() {
-        return val;
-    }
-    public float valueLB() {
-        return val;
-    }
+
 };
 

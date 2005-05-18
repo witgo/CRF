@@ -73,25 +73,6 @@ public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
     }
 };
 
-class LogSparseDoubleMatrix2D extends SparseDoubleMatrix2D {
-    static double map(double val) { return LogSparseDoubleMatrix1D.map(val);}
-    static double reverseMap(double val) { return LogSparseDoubleMatrix1D.reverseMap(val);}
-    LogSparseDoubleMatrix2D(int numR, int numC) {super(numR,numC);
-    }
-    public DoubleMatrix2D assign(double val) {
-        return super.assign(map(val));
-    }
-    public void  set(int row, int column, double val) {
-        super.set(row,column,map(val));
-    }
-    public double  get(int row, int column) {
-        return reverseMap(super.get(row,column));
-    }
-    
-    public DoubleMatrix1D zMult(DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA) {
-        return RobustMath.logMult(this,y,z,alpha,beta,transposeA);
-    }
-};
 
 
 class LogSparseDoubleMatrix1DOld extends SparseDoubleMatrix1D {

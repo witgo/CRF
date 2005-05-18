@@ -7,7 +7,7 @@ import iitb.CRF.DataSequence;
  * generate a feature for each label. 
  */
 public class FeatureTypesEachLabel extends FeatureTypes {
-	FeatureTypes single;
+	protected FeatureTypes single;
 
 	int numStates;
 
@@ -24,13 +24,15 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 		featureImpl = new FeatureImpl();
 		thisTypeId = single.thisTypeId;
 	}
-
+	protected void nextFeature() {
+	    single.next(featureImpl);
+	}
 	boolean advance() {
 		stateId++;
 		if (stateId < numStates)
 			return true;
 		if (single.hasNext()) {
-			single.next(featureImpl);
+		    nextFeature();
 			stateId = 0;
 		} 
 		return stateId < numStates;
@@ -53,9 +55,9 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	public boolean hasNext() {
 		return (stateId < numStates);
 	}
-
+	protected FeatureImpl getFeature() {return featureImpl;}
 	public void next(iitb.Model.FeatureImpl f) {
-		f.copy(featureImpl);
+		f.copy(getFeature());
 		f.yend = stateId;
 		single.setFeatureIdentifier(featureImpl.strId.id * numStates + stateId,
 				stateId, featureImpl.strId.name, f);

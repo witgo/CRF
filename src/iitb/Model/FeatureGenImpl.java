@@ -306,7 +306,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             return true;
         return false;
     }
-    protected void startScanFeaturesAt(DataSequence d) {
+    protected void initScanFeaturesAt(DataSequence d) {
         data = d;
         currentFeatureType = null;
         featureIter = features.iterator();
@@ -318,7 +318,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         for (int i = 0; i < features.size(); i++) {
             getFeature(i).startScanFeaturesAt(d,prev,cposEnd);
         }
-        startScanFeaturesAt(d);
+        initScanFeaturesAt(d);
     }
     public void startScanFeaturesAt(DataSequence d, int p) {
         cposEnd = p;
@@ -326,7 +326,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         for (int i = 0; i < features.size(); i++) {
             getFeature(i).startScanFeaturesAt(d,cposEnd);
         }
-        startScanFeaturesAt(d);
+        initScanFeaturesAt(d);
     }
     public boolean hasNext() {
         return (featureToReturn.id >= 0);

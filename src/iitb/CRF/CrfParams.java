@@ -35,7 +35,7 @@ public class CrfParams implements Serializable {
     
     public boolean reuseM = false;
 
-    java.util.Properties miscOptions;
+    public java.util.Properties miscOptions;
     /**
      * constructor with default values as follows.
      * initValue = 0;

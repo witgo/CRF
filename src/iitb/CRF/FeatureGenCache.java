@@ -98,6 +98,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     public FeatureGenCache(FeatureGenerator fgen) {
         this.sfgen = fgen;
         numFeatures = 0;
+        this.fgen = null;
         if (sfgen instanceof FeatureGeneratorNested)
         	this.fgen = ((FeatureGeneratorNested)sfgen);
     }

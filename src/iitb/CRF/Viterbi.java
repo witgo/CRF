@@ -27,29 +27,29 @@ public class Viterbi implements Serializable {
 	    beamsize = Integer.parseInt(model.params.miscOptions.getProperty("beamSize"));
 
     }
-    class Entry {
-        Soln solns[];
+    protected class Entry {
+        public Soln solns[]; // TODO.
         boolean valid=true;
-        Entry() {}
-        Entry(int beamsize, int id, int pos) {
+        protected Entry() {}
+        protected Entry(int beamsize, int id, int pos) {
             solns = new Soln[beamsize];
             for (int i = 0; i < solns.length; i++)
                 solns[i] = new Soln(id, pos);
         }
-        void clear() {
+        protected void clear() {
             valid = false;
             for (int i = 0; i < solns.length; i++)
                 solns[i].clear();
         }
-        int size() {return solns.length;}
-        Soln get(int i) {return solns[i];}
-        void insert(int i, float score, Soln prev) {
+        protected int size() {return solns.length;}
+        protected Soln get(int i) {return solns[i];}
+        protected void insert(int i, float score, Soln prev) {
             for (int k = size()-1; k > i; k--) {
                 solns[k].copy(solns[k-1]);
             }
             solns[i].setPrevSoln(prev,score);
         }
-        void add(Entry e, float thisScore) {
+        protected void add(Entry e, float thisScore) {
             assert(valid);
             if (e == null) {
                 add(thisScore);
@@ -62,7 +62,7 @@ public class Viterbi implements Serializable {
             }
             //	    print();
         }
-        int findInsert(int insertPos, float score, Soln prev) {
+        protected int findInsert(int insertPos, float score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
                     insert(insertPos, score, prev);
@@ -72,15 +72,16 @@ public class Viterbi implements Serializable {
             }
             return insertPos;
         }
-        void add(float thisScore) {
+        protected void add(float thisScore) {
             findInsert(0, thisScore, null);
         }
-        int numSolns() {
+        protected int numSolns() {
             for (int i = 0; i < solns.length; i++)
                 if (solns[i].isClear())
                     return i;
             return size();
         }
+        public void setValid() {valid=true;}
         void print() {
             String str = "";
             for (int i = 0; i < size(); i++)
@@ -90,9 +91,9 @@ public class Viterbi implements Serializable {
     };
 
     Entry winningLabel[][];
-    Entry finalSoln;
+    protected Entry finalSoln;
     protected DoubleMatrix2D Mi;
-    DoubleMatrix1D Ri;
+    protected DoubleMatrix1D Ri;
 
     void allocateScratch(int numY) {
 	Mi = new DenseDoubleMatrix2D(numY,numY);

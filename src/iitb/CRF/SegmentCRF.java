@@ -45,8 +45,8 @@ public class SegmentCRF extends CRF {
 		return new SegmentTrainer(params);
 	}
 	protected Viterbi getViterbi(int beamsize) {
-	    if (params.miscOptions.getProperty("featuresWithBounds") != null)
-	        return new OptimizedSegmentViterbi(this,beamsize);
+	   // if (params.miscOptions.getProperty("featuresWithBounds") != null)
+	   //     return new OptimizedSegmentViterbi(this,beamsize);
 		return new SegmentViterbi(this,beamsize);
 	}
 	public void apply(DataSequence dataSeq) {

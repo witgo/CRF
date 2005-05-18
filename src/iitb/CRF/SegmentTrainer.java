@@ -242,7 +242,8 @@ public class SegmentTrainer extends SparseTrainer {
         initAlphaMDone = new boolean[newSize];
            
     }
-    static double initLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
+    // TODO..
+    public static double initLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
         featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
         Iterator constraints = dataSeq.constraints(prevPos,pos);

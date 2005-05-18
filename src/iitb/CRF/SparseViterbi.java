@@ -17,10 +17,10 @@ public class SparseViterbi extends Viterbi {
         super(model,bs);
     }
     protected class Context extends DenseObjectMatrix1D {
-        int pos;
-        int beamsize;
+        protected int pos;
+        protected int beamsize;
        
-        Context(int numY, int beamsize, int pos){
+        protected Context(int numY, int beamsize, int pos){
             super(numY);
             this.pos = pos;
             this.beamsize = beamsize;
@@ -80,8 +80,8 @@ public class SparseViterbi extends Viterbi {
     	return	(Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
     }
     protected class ContextUpdate implements IntIntDoubleFunction, IntDoubleFunction {
-        int i, ell;
-        Iter iter;
+        protected int i, ell;
+        protected Iter iter;
         public double apply(int yp, int yi, double val) {
             if (context[i-ell].entryNotNull(yp))
                 context[i].add(yi, context[i-ell].getEntry(yp),(float)(Mi.get(yp,yi)+Ri.get(yi)));
@@ -120,13 +120,16 @@ public class SparseViterbi extends Viterbi {
         }
         
     };    
-	ContextUpdate contextUpdate;
+    protected ContextUpdate contextUpdate;
+    protected ContextUpdate newContextUpdate() {
+        return new ContextUpdate();
+    }
     protected void allocateScratch(int numY) {
         Mi = new LogSparseDoubleMatrix2D(numY,numY);
         Ri = new LogSparseDoubleMatrix1D(numY);
         context = new Context[0];
         finalSoln = new Entry(beamsize,0,0);
-        contextUpdate = new ContextUpdate();
+        contextUpdate = newContextUpdate();
         contextUpdate.iter = getIter();
     }
     protected Context newContext(int numY, int beamsize, int pos){

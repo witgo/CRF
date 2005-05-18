@@ -5,19 +5,20 @@
 package iitb.CRF;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * @author sunita
  *
  */
-class Soln implements Serializable {
+public class Soln implements Serializable, Comparable {
     private static final long serialVersionUID = 812L;
-    float score=-1*Float.MAX_VALUE;
-    Soln prevSoln=null;
-    int label = -1;
-    int pos;
+    public float score=-1*Float.MAX_VALUE;
+    public Soln prevSoln=null;
+    public int label = -1;
+    public int pos;
     
-    Soln(int id, int p) {label = id;pos = p;}
+    public Soln(int id, int p) {label = id;pos = p;}
     void clear() {
         score=-1*Float.MAX_VALUE;
         prevSoln=null;
@@ -25,19 +26,20 @@ class Soln implements Serializable {
     boolean isClear() {
         return (score == -1*Double.MAX_VALUE);
     }
-    void copy(Soln soln) {
+    protected void copy(Soln soln) {
         score = soln.score;
         prevSoln = soln.prevSoln;
     }
-    int prevPos() {
+    public int prevPos() {
         return (prevSoln == null)?-1:prevSoln.pos;
     }
-    int prevLabel() {
+    protected int prevLabel() {
         return (prevSoln == null)?-1:prevSoln.label;
     }
-    boolean equals(Soln s) {
+    public boolean equals(Soln s) {
         return (label == s.label) && (pos == s.pos) && (prevPos() == s.prevPos()) && (prevLabel() == s.prevLabel());
     }
+    
     /**
      * @param prevSoln2
      * @param score2
@@ -46,4 +48,7 @@ class Soln implements Serializable {
         this.prevSoln = prevSoln;
         this.score = score;
     }
+    public int compareTo(Object s) {
+		return ((((Soln)this).score-((Soln)s).score)>0)?1:-1; 
+	}
 };

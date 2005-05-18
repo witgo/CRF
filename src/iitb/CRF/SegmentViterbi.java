@@ -15,7 +15,7 @@ import gnu.trove.TIntProcedure;
  */ 
 
 public class SegmentViterbi extends SparseViterbi {
-    SegmentCRF segmentModel;
+    protected SegmentCRF segmentModel;
     static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
         ConstraintDisallowedPairs disallowedPairs;
@@ -82,7 +82,7 @@ public class SegmentViterbi extends SparseViterbi {
             super.clear();
             labelsOnPath.clear();
         }
-        void copy(Soln soln) {
+        protected void copy(Soln soln) {
             super.copy(soln);
             labelsOnPath.clear();
             labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
@@ -120,7 +120,7 @@ public class SegmentViterbi extends SparseViterbi {
             for (int i = 0; i < solns.length; i++)
                 solns[i] = new SolnWithLabelsOnPath(id, pos);
         }
-        int findInsert(int insertPos, float score, Soln prev) {
+        protected int findInsert(int insertPos, float score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
                     if ((prev == null) || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
@@ -151,7 +151,7 @@ public class SegmentViterbi extends SparseViterbi {
             }
         }
     }
-    SegmentViterbi(SegmentCRF nestedModel, int bs) {
+    protected SegmentViterbi(SegmentCRF nestedModel, int bs) {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
     }
