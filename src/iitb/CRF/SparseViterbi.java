@@ -116,6 +116,14 @@ public class SparseViterbi extends Viterbi {
                 }
                 finishContext(i);
             }
+            i = dataSeq.length();
+            context[i].clear();
+            if (i >= 1) {
+                for (int yp = 0; yp < context[i-1].size(); yp++) {
+                    if (context[i-1].entryNotNull(yp))
+                        context[i].add(0, context[i-1].getEntry(yp),0);
+                }
+            }
             return corrScore;
         }
         
@@ -139,9 +147,9 @@ public class SparseViterbi extends Viterbi {
         if (Mi == null) {
             allocateScratch(model.numY);
         }
-        if (context.length < dataSeq.length()) {
+        if (context.length < dataSeq.length()+1) {
             Context oldContext[] = context;
-            context = new Context[dataSeq.length()];
+            context = new Context[dataSeq.length()+1];
             for (int l = 0; l < oldContext.length; l++) {
                 context[l] = oldContext[l];
             }
@@ -150,21 +158,17 @@ public class SparseViterbi extends Viterbi {
             }
         }
         double corrScore = contextUpdate.fillArray(dataSeq, lambda,calcCorrectScore);
-        
-        finalSoln.clear();
+       /* finalSoln.clear();
         finalSoln.valid = true;
         int i = dataSeq.length()-1;
         if (i >= 0) {
-/*            context[i].getNonZeros(validPrevYs, prevContext);
-            for (int prevPx = 0; prevPx < validPrevYs.size(); prevPx++) {
-                finalSoln.add((Entry)prevContext.getQuick(prevPx),0);
-            }
-            */
             for (int y = 0; y < context[i].size(); y++) {
                 if (context[i].entryNotNull(y))
                     finalSoln.add((Entry)context[i].getQuick(y),0);
             }
         }
+        */
+        finalSoln = (Entry)context[dataSeq.length()].getQuick(0);
         if (model.params.debugLvl > 1) {
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }

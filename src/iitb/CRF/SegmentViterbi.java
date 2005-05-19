@@ -210,17 +210,7 @@ public class SegmentViterbi extends SparseViterbi {
     protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
     }
-    /*
-    public void bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
-        viterbiSearch(dataSeq, lambda,false);
-        Soln ybest = finalSoln.get(0);
-        ybest = ybest.prevSoln;
-        while (ybest != null) {
-            dataSeq.setSegment(ybest.prevPos()+1,ybest.pos,ybest.label);
-            ybest = ybest.prevSoln;
-        }
-    }
-    */
+ 
     public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
         viterbiSearch(dataSeq, lambda,false);
         scores.clear();
