@@ -109,8 +109,10 @@ public class CRF implements Serializable {
         if (params.debugLvl > 1) 
             Util.printDbg("CRF: Applying on " + dataSeq);
         viterbi.bestLabelSequence(dataSeq,lambda);
-        for(int i = dataSeq.length()-1; i >= 0; i--) {
-            histMgr.set_y(dataSeq, i, dataSeq.y(i));
+        if (histMgr != null) {
+            for(int i = dataSeq.length()-1; i >= 0; i--) {
+                histMgr.set_y(dataSeq, i, dataSeq.y(i));
+            }
         }
     }
     public double score(DataSequence dataSeq) {

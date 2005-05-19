@@ -54,7 +54,7 @@ class HistoryManager implements Serializable {
 	return  new DataIterHistory(trainData);
     };
     void set_y(DataSequence data, int i, int label) {
-	data.set_y(i,label%numOrigY);
+	if (histsize > 1) data.set_y(i,label%numOrigY);
     }
     EdgeGenerator getEdgeGenerator() {
 	return new EdgeGenerator(histsize,numOrigY);
