@@ -28,6 +28,8 @@ public class WindowFeatures extends FeatureTypes  {
 	    public int end;
 	    public boolean endRelativeToLeft;
 	    String winName=null;
+	    public int maxLength=Integer.MAX_VALUE;
+	    public int minLength=1;
 	       public Window(int start, boolean startRelativeToLeft, int end,
                 boolean endRelativeToLeft) {
 			this(start,startRelativeToLeft,end,endRelativeToLeft,null);
@@ -42,6 +44,12 @@ public class WindowFeatures extends FeatureTypes  {
             this.end = end;
             this.endRelativeToLeft = endRelativeToLeft;
             this.winName = winName;
+        }
+        public Window(int start, boolean startRelativeToLeft, int end,
+                boolean endRelativeToLeft, String winName, int minWinLength, int maxWinLength) {
+            this(start,startRelativeToLeft,end,endRelativeToLeft,winName);
+            this.maxLength = maxWinLength;
+            this.minLength = minWinLength;
         }
         
         int leftBoundary(int segStart, int segEnd) {
@@ -83,6 +91,8 @@ public class WindowFeatures extends FeatureTypes  {
 	        currentWindow--;
 	        if (currentWindow < 0)
 	            return false;
+	        if ((windows[currentWindow].maxLength < pos-prevPos) || (windows[currentWindow].minLength > pos-prevPos))
+	            continue;
 	        int rightB = windows[currentWindow].rightBoundary(prevPos+1,pos);
 	        int leftB = windows[currentWindow].leftBoundary(prevPos+1,pos);
 	 

@@ -52,6 +52,13 @@ public class CRF implements Serializable {
         viterbi = getViterbi(1);
     }
     
+    /*
+     * useful for resetting Viterbi options after loading a saved model.
+     */
+    public void reinitOptions(java.util.Properties configOptions) {
+	params = new CrfParams(configOptions);
+	viterbi = null;
+    }
     /**
      * write the trained parameters of the CRF to the file
      */

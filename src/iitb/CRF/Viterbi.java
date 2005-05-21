@@ -34,7 +34,10 @@ public class Viterbi implements Serializable {
         protected Entry(int beamsize, int id, int pos) {
             solns = new Soln[beamsize];
             for (int i = 0; i < solns.length; i++)
-                solns[i] = new Soln(id, pos);
+                solns[i] = newSoln(id, pos);
+        }
+        protected Soln newSoln(int label, int pos) {
+            return new Soln(label,pos);
         }
         protected void clear() {
             valid = false;

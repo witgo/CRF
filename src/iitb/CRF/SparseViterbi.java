@@ -25,9 +25,12 @@ public class SparseViterbi extends Viterbi {
             this.pos = pos;
             this.beamsize = beamsize;
         }
+        protected Entry newEntry(int beamsize, int label, int pos) {
+            return new Entry(beamsize,label,pos);
+        }
         public void add(int y, Entry prevEntry, float thisScore) {
             if (getQuick(y) == null) {
-                    setQuick(y, new Entry((pos==0)?1:beamsize, y, pos));
+                    setQuick(y, newEntry((pos==0)?1:beamsize, y, pos));
             }
             getEntry(y).valid = true;
             getEntry(y).add(prevEntry,thisScore);
