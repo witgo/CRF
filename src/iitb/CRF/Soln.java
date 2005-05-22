@@ -45,8 +45,11 @@ public class Soln implements Serializable, Comparable {
      * @param score2
      */
     protected void setPrevSoln(Soln prevSoln, float score) {
-        this.prevSoln = prevSoln;
+        this.prevSoln = (prevSoln==null)?null:prevSoln.getSoln();
         this.score = score;
+    }
+    protected Soln getSoln() {
+        return this;
     }
     public int compareTo(Object s) {
 		return ((((Soln)this).score-((Soln)s).score)>0)?1:-1; 

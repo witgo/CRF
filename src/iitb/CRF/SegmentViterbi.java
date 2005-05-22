@@ -310,6 +310,8 @@ public class SegmentViterbi extends SparseViterbi {
          */
         public int getSegmentId(int offset) {
             dummySegment.end = offset;
+            if (segments.headSet(dummySegment) == null)
+                return 0;
             return ((Segment)segments.headSet(dummySegment).last()).id;
         }
 
