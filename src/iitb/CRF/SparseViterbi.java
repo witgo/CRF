@@ -119,6 +119,7 @@ public class SparseViterbi extends Viterbi {
                 }
                 finishContext(i);
             }
+            /*
             i = dataSeq.length();
             context[i].clear();
             if (i >= 1) {
@@ -127,6 +128,7 @@ public class SparseViterbi extends Viterbi {
                         context[i].add(0, context[i-1].getEntry(yp),0);
                 }
             }
+            */
             return corrScore;
         }
         
@@ -161,7 +163,7 @@ public class SparseViterbi extends Viterbi {
             }
         }
         double corrScore = contextUpdate.fillArray(dataSeq, lambda,calcCorrectScore);
-       /* finalSoln.clear();
+        finalSoln.clear();
         finalSoln.valid = true;
         int i = dataSeq.length()-1;
         if (i >= 0) {
@@ -170,8 +172,8 @@ public class SparseViterbi extends Viterbi {
                     finalSoln.add((Entry)context[i].getQuick(y),0);
             }
         }
-        */
-        finalSoln = (Entry)context[dataSeq.length()].getQuick(0);
+        
+       // finalSoln = (Entry)context[dataSeq.length()].getQuick(0);
         if (model.params.debugLvl > 1) {
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }
