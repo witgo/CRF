@@ -28,6 +28,13 @@ public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
         return val;
     }
     public LogSparseDoubleMatrix1D(int numY) {super(numY);}
+    public LogSparseDoubleMatrix1D(DoubleMatrix1D doubleMatrix) {super(doubleMatrix.size());
+    	double val;
+	    for (int y = 0; y < size(); y++) {
+		    if ((val = doubleMatrix.getQuick(y)) != 0) 
+		        super.setQuick(y, map(val));
+		}
+    }
     public DoubleMatrix1D assign(double val) {
         return super.assign(map(val));
     }
