@@ -26,7 +26,11 @@ public class CrfParams implements Serializable {
     public int mForHessian = 7;   
 
     public String trainerType = "";
-
+    
+    public String inferenceType = "Viterbi";
+    
+    public int beamSize = 1;
+    
     public int debugLvl = 1; // controls amount of status information output
 
     public boolean doScaling = true;
@@ -98,6 +102,15 @@ public class CrfParams implements Serializable {
 	if (opts.getProperty("trainer") != null) {
 	    trainerType = opts.getProperty("trainer");
 	}
-	reuseM = Boolean.valueOf(opts.getProperty("reuseM","false")).booleanValue();
+	if (opts.getProperty("inferenceType") != null) {
+	    inferenceType = opts.getProperty("inferenceType");
+	    //System.out.println("InferenceType:" + inferenceType);
+	}
+	if (opts.getProperty("beamSize") != null) {
+	    try{
+		    beamSize = Integer.parseInt(opts.getProperty("beamSize"));
+	    }catch(NumberFormatException nfe){}
+	}
+    reuseM = Boolean.valueOf(opts.getProperty("reuseM","false")).booleanValue();
     }
 };
