@@ -35,7 +35,7 @@ public class FeatureIdentifier implements Cloneable, Serializable {
 	return (id == ((FeatureIdentifier)o).id);
     }
     public String toString() {
-	return name.toString() + ":id="  + id+ ":y=" + stateId;
+	return name.toString() + ":"  + id+ ":" + stateId;
     }
     public Object clone() {
 	return new FeatureIdentifier(id,stateId,name);
