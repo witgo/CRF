@@ -5,7 +5,7 @@ package iitb.Segment;
  *
  */ 
 
-class LabelMap {
+public class LabelMap {
     int map(int l) {return l-1;}
     int revMap(int l) {return l+1;}
 };

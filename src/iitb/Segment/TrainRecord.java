@@ -8,7 +8,7 @@ import iitb.CRF.*;
 
 
 
-interface TrainRecord extends SegmentDataSequence {
+public interface TrainRecord extends SegmentDataSequence {
     int numSegments(); // number of segments in the record
     int[] labels(); // labels of each segment
     String[] tokens(int segmentNum); // array of tokens in this segment  
