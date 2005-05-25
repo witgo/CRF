@@ -98,6 +98,6 @@ public class CrfParams implements Serializable {
 	if (opts.getProperty("trainer") != null) {
 	    trainerType = opts.getProperty("trainer");
 	}
-	reuseM = Boolean.parseBoolean(opts.getProperty("reuseM","false"));
+	reuseM = Boolean.valueOf(opts.getProperty("reuseM","false")).booleanValue();
     }
 };

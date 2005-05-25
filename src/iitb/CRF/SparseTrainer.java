@@ -34,13 +34,13 @@ public class SparseTrainer extends Trainer {
      * @return
      */
     protected DoubleMatrix1D newLogDoubleMatrix1D(int numY) {
-        if (Boolean.parseBoolean(params.miscOptions.getProperty("sparse", "false")))
+        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
             return new LogSparseDoubleMatrix1D(numY);
         return new LogDenseDoubleMatrix1D(numY);
     }
     
     protected DoubleMatrix2D newLogDoubleMatrix2D(int numR, int numC) {
-        if (Boolean.parseBoolean(params.miscOptions.getProperty("sparse", "false")))
+        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
             return new LogSparseDoubleMatrix2D(numR, numC);
         return new LogDenseDoubleMatrix2D(numR, numC);
     }
