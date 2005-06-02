@@ -55,12 +55,14 @@ public class FeatureTypesEachLabel extends FeatureTypes {
 	public boolean hasNext() {
 		return (stateId < numStates);
 	}
-	protected FeatureImpl getFeature() {return featureImpl;}
 	public void next(iitb.Model.FeatureImpl f) {
-		f.copy(getFeature());
+	    f.copy(featureImpl);
+	    nextCopyDone(f);
+	}
+	protected void nextCopyDone(iitb.Model.FeatureImpl f) {
 		f.yend = stateId;
-		single.setFeatureIdentifier(featureImpl.strId.id * numStates + stateId,
-				stateId, featureImpl.strId.name, f);
+		single.setFeatureIdentifier(f.strId.id * numStates + stateId,
+				stateId, f.strId.name, f);
 		advance();
 	}
 	
