@@ -10,23 +10,25 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
      */
     int maxMem[];
     int maxMemOverall=1;
-    public void addTrainRecord(DataSequence data) {
+    public int addTrainRecord(DataSequence data) {
+        int numF = 0;
         if (addOnlyTrainFeatures) {
             SegmentDataSequence seq = (SegmentDataSequence)data;
             int segEnd;
             for (int l = 0; l < seq.length(); l = segEnd+1) {
                 segEnd = seq.getSegmentEnd(l);
-                for (startScanFeaturesAt(seq,l-1,segEnd); hasNext(); next());
+                for (startScanFeaturesAt(seq,l-1,segEnd); hasNext(); next(),numF++);
             }
         } else {
             for (int l = 0; l < data.length(); l++) {
                 for (int m = 1; (m <= maxMemOverall) && (l-m >= -1); m++) {
                     for (startScanFeaturesAt(data,l-m,l); hasNext(); ) {
-                        next();
+                        next(); numF++;
                     }
                 }
             }
         }
+        return numF;
     }
     
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options, boolean addFeatureNow) throws Exception {

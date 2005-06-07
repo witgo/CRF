@@ -95,8 +95,15 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
-            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || keepFeature(data,f)))
+            /*
+            if ((id >= 0) && featureCollectMode) {
+                System.out.println("Feature " + f.identifier().id + " " + f.identifier());
+            }
+            */
+            if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || keepFeature(data,f))) {
+              //  System.out.println("Feature " + f.identifier().id + " " + f.identifier());
                 return add(f);
+            }
             return id;
         }
         private int getId(Object key) {
@@ -237,12 +244,14 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     /**
      * @param seq
      */
-    public void addTrainRecord(DataSequence seq) {
+    public int addTrainRecord(DataSequence seq) {
+        int numF = 0;
         for (int l = 0; l < seq.length(); l++) {
-            for (startScanFeaturesAt(seq,l); hasNext(); ) {
+            for (startScanFeaturesAt(seq,l); hasNext(); numF++) {
                 next();
             }
         }
+        return numF;
     }
     public void printStats() {
         System.out.println("Num states " + model.numStates());

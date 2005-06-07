@@ -34,11 +34,11 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
      */
    
     protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
-      
         return ((CandSegDataSequence)seq).holdsInTrainingData(f,cposStart-1,cposEnd);
     }
-    public void addTrainRecord(DataSequence data) {
+    public int addTrainRecord(DataSequence data) {
       //  if (!addOnlyTrainFeatures) {
+        int numF = 0;
             CandSegDataSequence dataRecord = (CandSegDataSequence)data;
             for (int segEnd = dataRecord.length()-1; segEnd >= 0; segEnd--) {
                 for (int nc = dataRecord.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
@@ -46,6 +46,7 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
                     startScanFeaturesAt(dataRecord, segStart-1, segEnd);
                     while (hasNext()) {
                         next();
+                        numF++;
                     }		                    
                 } 
             }
@@ -57,5 +58,6 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
                 for (startScanFeaturesAt(seq,l-1,segEnd); hasNext(); next());
             }
         } */
+            return numF;
     }
 }
