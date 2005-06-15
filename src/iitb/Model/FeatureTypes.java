@@ -57,7 +57,10 @@ public abstract class FeatureTypes implements Serializable {
     	return (labelIndependentId(f)-thisTypeId)/fgen.numFeatureTypes;
     }
     public static int featureTypeId(FeatureImpl f, FeatureGenImpl fgen) {
-        return f.strId.id % fgen.numFeatureTypes;
+        return featureTypeId(f.strId,fgen);
+    }
+    public static int featureTypeId(FeatureIdentifier strId, FeatureGenImpl fgen) {
+        return strId.id % fgen.numFeatureTypes;
     }
     public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
     public int maxFeatureId() {return Integer.MAX_VALUE;}
