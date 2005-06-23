@@ -30,13 +30,15 @@ public class SegmentTrainer extends SparseTrainer {
         allZeroVector.assign(0);
     }
 	
-    protected double computeFunctionGradient(double lambda[], double grad[]) {
+    protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
         try {
             FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
             double logli = 0;
+            if (grad != null) {
             for (int f = 0; f < lambda.length; f++) {
                 grad[f] = -1*lambda[f]*params.invSigmaSquare;
                 logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+            }
             }
             diter.startScan();
             initMDone=false;
@@ -95,7 +97,7 @@ public class SegmentTrainer extends SparseTrainer {
                 for (int segEnd = 0; segEnd < dataSize; segEnd++) {
                     alpha_Y_Array[segEnd-base].assign(RobustMath.LOG0);
                     if (trainingSegmentEnd < segEnd) {
-                        if ((!trainingSegmentFound)&& noneFired) {
+                        if ((grad != null) && (!trainingSegmentFound)&& noneFired) {
                             System.out.println("Error: Training segment ("+trainingSegmentStart + " "+ trainingSegmentEnd + ") not found amongst candidate segments");
                         }
                         trainingSegmentFound = false;
@@ -131,18 +133,10 @@ public class SegmentTrainer extends SparseTrainer {
                             int yp = feature.y();
                             int yprev = feature.yprev();
                             float val = feature.value();
-                            if (dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd)) {
+                            if ((grad != null) && dataSeq.holdsInTrainingData(feature,segEnd-ell,segEnd)) {
                                 grad[f] += val;
                                 thisSeqLogli += val*lambda[f];
                                 noneFired=false;
-                                /*
-                                 double lZx = alpha_Y_Array[i-base].zSum();
-                                 if ((thisSeqLogli > lZx) || (numRecord == 3)) {
-                                 System.out.println("This is shady: something is wrong Pr(y|x) > 1!");
-                                 System.out.println("Sequence likelihood "  + thisSeqLogli + " " + lZx + " " + Math.exp(lZx));
-                                 System.out.println("This Alpha-i " + alpha_Y_Array[i-base].toString());
-                                 }
-                                 */
                                 if (params.debugLvl > 2) {
                                     System.out.println("Feature fired " + f + " " + feature);
                                 }
@@ -152,10 +146,8 @@ public class SegmentTrainer extends SparseTrainer {
                             } else {
                                 ExpF[f] = RobustMath.logSumExp(ExpF[f], (alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[segEnd].get(yp)));
                             }
-                            
-                           
                         }
-                        if ((segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
+                        if ((grad != null) && (segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
                             trainingSegmentFound = true;
                             double val1 = Ri_Y.get(dataSeq.y(trainingSegmentEnd));
                             double val2 = 0;
@@ -188,8 +180,14 @@ public class SegmentTrainer extends SparseTrainer {
                 thisSeqLogli -= lZx;
                 logli += thisSeqLogli;
                 // update grad.
-                for (int f = 0; f < grad.length; f++)
-                    grad[f] -= expLE(ExpF[f]-lZx);
+                if (grad != null) 
+                    for (int f = 0; f < grad.length; f++)
+                        grad[f] -= expLE(ExpF[f]-lZx);
+                if (expFVals!=null) {
+                    for (int f = 0; f < lambda.length; f++) {
+                        expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
+                    }
+                }
                 if (noneFired) {
                     System.out.println("WARNING: no features fired in the training set");
                 }
@@ -216,7 +214,7 @@ public class SegmentTrainer extends SparseTrainer {
                 if (icall == 0) {
                     Util.printDbg("Number of training records " + numRecord);
                 }
-                Util.printDbg("Iter " + icall + " loglikelihood "+logli + " gnorm " + norm(grad) + " xnorm "+ norm(lambda));
+                if (grad != null) Util.printDbg("Iter " + icall + " loglikelihood "+logli + " gnorm " + norm(grad) + " xnorm "+ norm(lambda));
             }
             return logli;
             

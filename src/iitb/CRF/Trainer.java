@@ -140,10 +140,13 @@ public class Trainer {
         } while (( iflag[0] != 0) && (icall <= params.maxIters));
     }
     protected double computeFunctionGradient(double lambda[], double grad[]) {
+        return computeFunctionGradient(lambda,grad,null);
+    }
+    protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
         initMDone=false;
        
         if (params.trainerType.equals("ll"))
-            return computeFunctionGradientLL(lambda,  grad);
+            return computeFunctionGradientLL(lambda,  grad, expFVals);
         double logli = 0;
         try {
             for (int f = 0; f < lambda.length; f++) {
@@ -344,13 +347,14 @@ public class Trainer {
         return computeLogMi(featureGen, lambda, Mi_YY, Ri_Y, takeExp,reuseM, initMDone);
     }
     
-    
-    protected double computeFunctionGradientLL(double lambda[], double grad[]) {
+    protected double computeFunctionGradientLL(double lambda[], double grad[], double expFVals[]) {
         double logli = 0;
         try {
-            for (int f = 0; f < lambda.length; f++) {
-                grad[f] = -1*lambda[f]*params.invSigmaSquare;
-                logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+            if (grad != null) {
+                for (int f = 0; f < lambda.length; f++) {
+                    grad[f] = -1*lambda[f]*params.invSigmaSquare;
+                    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+                }
             }
             diter.startScan();
             if (featureGenCache != null) featureGenCache.startDataScan();
@@ -414,7 +418,7 @@ public class Trainer {
                         int yprev = feature.yprev();
                         float val = feature.value();
                         
-                       if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                       if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
                             grad[f] += val;
                             thisSeqLogli += val*lambda[f];
                             if (params.debugLvl > 2) {
@@ -441,10 +445,17 @@ public class Trainer {
                 double lZx = RobustMath.logSumExp(alpha_Y);
                 thisSeqLogli -= lZx;
                 logli += thisSeqLogli;
+                
                 // update grad.
+                if (grad != null) {
                 for (int f = 0; f < grad.length; f++) {
                     grad[f] -= RobustMath.exp(ExpF[f]-lZx);
-                    
+                }
+                }
+                if (expFVals!=null) {
+                    for (int f = 0; f < lambda.length; f++) {
+                        expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
+                    }
                 }
                 if (params.debugLvl > 1) {
                     System.out.println("Sequence "  + thisSeqLogli + " logli " + logli + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
@@ -455,12 +466,12 @@ public class Trainer {
                 for (int f = 0; f < lambda.length; f++)
                     System.out.print(lambda[f] + " ");
                 System.out.println(" :x");
-                for (int f = 0; f < lambda.length; f++)
+                if (grad != null) for (int f = 0; f < lambda.length; f++)
                     System.out.print(grad[f] + " ");
                 System.out.println(" :g");
             }
             
-            if (params.debugLvl > 0)
+            if ((params.debugLvl > 0) && (grad != null))
                 Util.printDbg("Iteration " + icall + " log-likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
             
         } catch (Exception e) {

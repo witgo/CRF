@@ -331,12 +331,13 @@ public class SegmentViterbi extends SparseViterbi {
             for (int i = segmentArr.length-1; i >= 0; segmentArr[i].id = i, i--);
         }
     };
-    public Segmentation[] segmentSequences(CandSegDataSequence dataSeq, double lambda[], int numLabelSeqs) {
+    public Segmentation[] segmentSequences(CandSegDataSequence dataSeq, double lambda[], int numLabelSeqs, double[] scores) {
         viterbiSearch(dataSeq, lambda,false);
         int numSols = Math.min(finalSoln.numSolns(), numLabelSeqs);
         Segmentation segments[] = new Segmentation[numSols];
         for (int k = numSols-1; k >= 0; k--) {
             Soln ybest = finalSoln.get(k);
+            if (scores != null) scores[k] = ybest.score;
             ybest = ybest.prevSoln;
             segments[k] = new SegmentationImpl();
             while (ybest != null) {	

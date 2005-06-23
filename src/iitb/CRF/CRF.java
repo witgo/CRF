@@ -127,4 +127,11 @@ public class CRF implements Serializable {
 	       viterbi = getViterbi(1);
 		return viterbi.viterbiSearch(dataSeq,lambda,true);
 	}
+    public void expectedFeatureValues(DataIter data, double expFVals[]) {
+        if (trainer==null) {
+            trainer = getTrainer();
+            trainer.init(this,data,lambda);
+        }
+        trainer.computeFunctionGradient(lambda,null,expFVals);
+    }
 };

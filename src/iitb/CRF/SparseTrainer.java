@@ -75,7 +75,7 @@ public class SparseTrainer extends Trainer {
     }
 
     
-    protected double computeFunctionGradient(double lambda[], double grad[]) {
+    protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
         if (params.trainerType.equals("ll"))
             return computeFunctionGradientLL(lambda,  grad);
         double logli = 0;

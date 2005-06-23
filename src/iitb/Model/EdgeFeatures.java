@@ -45,13 +45,13 @@ public class EdgeFeatures extends FeatureTypes {
 		Object name="";
 		if (featureCollectMode()) {
 			if (labelNames == null) {
-				name = "E."+model.label(e.start);
+				name = "E."+(edgeIsOuter?(""+model.label(e.start)):("I." + e.start));
 			} else {
 				name = labelNames[model.label(e.start)];
 			}
 		}
 		if (edgeIsOuter) {
-			setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end) + model.numEdges(), model.label(e.end),name,f);
+			setFeatureIdentifier(model.label(e.start)*model.numberOfLabels()+model.label(e.end) + model.numEdges(), e.end,name,f);
 		} else {
 			setFeatureIdentifier(edgeNum,e.end,name,f);
 		}
