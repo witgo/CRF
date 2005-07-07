@@ -1,0 +1,46 @@
+
+The second release mostly includes a bunch of changes for improving performance, 
+and a set of new features.
+
+The important changes are:
+
+a) A new version of semi-CRF that allows dataset to specify candidate segments 
+   instead of always evaluating all possible segment sizes from 1 to M. Refer
+   SegmentCRF.java this change.
+b) Support for a large number of sparse labels (classes) along with a sparse 
+   set of features (refer SparseCRF.java).
+c) Support for pairwise constraints on labels assigned during inference by Viterbi. 
+d) Caching of logSumExp calculations to remove the bottlenecks of the massive 
+   number of log/exp functions.
+
+e) Constructor change in FeatureTypes to allow more than one CRF object at a time. 
+   Instead of an object of the Model class, the FeatureTypes constructor now 
+   accepts a FeatureGenerator object. This is a major design change, as all 
+   the Features created by extending FeatureTypes class has to be modified for 
+   this version. 
+
+f) Support for serilizability for learned models.
+
+g) A set of new features
+
+	1) ClassPriorFeature.java      
+		Encodes prior probability of class labels.
+	2) FeatureTypesConcat.java
+		Concatenates token features over a segment (subsequence of tokens).		
+	3) ConcatRegexFeatures.java     
+		Regular expression based features for a segment.
+	4) RegexCountFeatures.java
+		Encodes count of a pattern in a segment of tokens.
+	5) FeatureTypesEachLabel.java
+		A wrapper for features on input token sequence. Such features are
+		fired for all class labels once they are wrapped inside this class.
+	6) WindowFeatures.java
+		A wrapper for token features, which can specify a window of tokens
+		in or around the current token (segment) to be used to generate
+		features for the current token (segment).
+	7) FeatureTypesPosition.java
+		To encode relative position of labels within a sequence.
+	8) FeatureTypesSegmentLength.java & FeatureTypesSegmentLengthPoly2.java  
+		To encode lengths of segments with a small number of new feature ids.
+	9) FeatureTypesWrapper.java
+		A wrapper for another feature types for backward compatibility.
