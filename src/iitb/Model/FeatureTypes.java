@@ -33,8 +33,6 @@ public abstract class FeatureTypes implements Serializable {
         fgen.numFeatureTypes--;
         
     }
-    public boolean requiresTraining(){return false;}
-    public void train(DataSequence data, int pos) {;}
     public  boolean startScanFeaturesAt(DataSequence data, int pos) {
 	return startScanFeaturesAt(data,pos-1,pos);
     }
@@ -75,5 +73,14 @@ public abstract class FeatureTypes implements Serializable {
     public boolean fixedTransitionFeatures() {
         return true;
     }
-};
+    public boolean requiresTraining(){return false;}
+    public void train(DataSequence data, int pos) {;}
+    /**
+     * Training for semi-Markov features
+     * @param sequence
+     * @param segStart
+     * @param segEnd
+     */
+    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {;}
+  };
 

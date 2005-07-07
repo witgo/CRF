@@ -212,6 +212,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         return train(trainData,cachedLabels,true);
     }
     public boolean labelMappingNeeded() {return model.numStates() != model.numberOfLabels();}
+   
     public boolean train(DataIter trainData, boolean cachedLabels, boolean collectIds) throws Exception {
         // map the y-values in the training set.
         boolean labelsMapped = false;
@@ -229,18 +230,26 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         if (requiresTraining) {
             for (trainData.startScan(); trainData.hasNext();) {
                 DataSequence seq = trainData.next();
-                for (int l = 0; l < seq.length(); l++) {
-                    // train each featuretype.
-                    for (int f = 0; f < features.size(); f++) {
-                        getFeature(f).train(seq,l);
-                    }
-                }
-                
+                for (int f = 0; f < features.size(); f++) {
+                    if (getFeature(f).requiresTraining()) {
+                        trainFeatureType(getFeature(f),seq);
+                    }       
+                }               
             }
         }
         if (collectIds) totalFeatures = featureMap.collectFeatureIdentifiers(trainData,maxMemory());
         return labelsMapped;
     };
+    /**
+     * @param featureType
+     * @param seq
+     */
+    protected void trainFeatureType(FeatureTypes featureType, DataSequence seq) {
+        for (int l = 0; l < seq.length(); l++) {
+            // train each featuretype.
+            featureType.train(seq,l);
+        }
+    }
     /**
      * @param seq
      */

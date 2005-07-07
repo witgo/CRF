@@ -30,7 +30,18 @@ public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGener
         }
         return numF;
     }
-    
+    /**
+     * @param featureType
+     * @param seq
+     */
+    protected void trainFeatureType(FeatureTypes featureType, DataSequence data) {
+        SegmentDataSequence seq = (SegmentDataSequence)data;
+        int segEnd;
+        for (int l = 0; l < seq.length(); l = segEnd+1) {
+            segEnd = seq.getSegmentEnd(l);
+            featureType.train(seq,l,segEnd);
+        }
+    }
     public NestedFeatureGenImpl(int numLabels,java.util.Properties options, boolean addFeatureNow) throws Exception {
         super("naive",numLabels,false);
         if (options.getProperty("MaxMemory") != null) {
