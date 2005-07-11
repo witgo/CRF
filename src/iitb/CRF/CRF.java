@@ -122,6 +122,11 @@ public class CRF implements Serializable {
             }
         }
     }
+    public LabelSequence[] topKLabelSequences(DataSequence dataSeq, int numLabelSeqs, boolean getScores) {
+	     if ((viterbi==null) || (viterbi.beamsize < numLabelSeqs))
+		        viterbi = getViterbi(numLabelSeqs);
+	     return viterbi.topKLabelSequences(dataSeq,lambda,numLabelSeqs,getScores);
+	}
     public double score(DataSequence dataSeq) {
 	    if (viterbi==null)
 	       viterbi = getViterbi(1);
@@ -133,5 +138,12 @@ public class CRF implements Serializable {
             trainer.init(this,data,lambda);
         }
         trainer.computeFunctionGradient(lambda,null,expFVals);
+    }
+    public double getLogZx(DataSequence dataSequence) {
+        if (trainer==null) {
+            trainer = getTrainer();
+            trainer.init(this,null,lambda);
+        }
+        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true);
     }
 };

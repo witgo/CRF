@@ -16,8 +16,8 @@ public class Trainer {
     double gradLogli[];
     double diag[];
     double lambda[];
-    protected boolean reuseM, initMDone=false;
-
+    protected boolean reuseM, initMDone=false, logProcessing=false;
+    
     protected double ExpF[];
     double scale[], rLogScale[];
     
@@ -26,7 +26,6 @@ public class Trainer {
     protected DoubleMatrix1D alpha_Y, newAlpha_Y;
     protected DoubleMatrix1D beta_Y[];
     protected DoubleMatrix1D tmp_Y;
-    
     
     static class  MultFunc implements DoubleDoubleFunction {
         public double apply(double a, double b) {return a*b;}
@@ -94,6 +93,8 @@ public class Trainer {
             featureGenerator = featureGenCache;
         } else
             featureGenCache = null;
+        if (params.trainerType.equals("ll"))
+            logProcessing=true;
     }
     void initMatrices() {
         Mi_YY = new DenseDoubleMatrix2D(numY,numY);
@@ -143,152 +144,145 @@ public class Trainer {
         return computeFunctionGradient(lambda,grad,null);
     }
     protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
-        initMDone=false;
-       
-        if (params.trainerType.equals("ll"))
-            return computeFunctionGradientLL(lambda,  grad, expFVals);
-        double logli = 0;
         try {
-            for (int f = 0; f < lambda.length; f++) {
-                grad[f] = -1*lambda[f]*params.invSigmaSquare;
-                logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+            double logli = 0;
+            if (grad != null) {
+                for (int f = 0; f < lambda.length; f++) {
+                    grad[f] = -1*lambda[f]*params.invSigmaSquare;
+                    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+                }
             }
-            boolean doScaling = params.doScaling;
-            
             diter.startScan();
+            initMDone=false;
             if (featureGenCache != null) featureGenCache.startDataScan();
-            int numRecord = 0;
+            int numRecord;
             for (numRecord = 0; diter.hasNext(); numRecord++) {
-                DataSequence dataSeq = (DataSequence)diter.next();
-                if (featureGenCache != null) featureGenCache.nextDataIndex();
-                if (params.debugLvl > 1) {
+                if (params.debugLvl > 1)
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
-                }
-                alpha_Y.assign(1);
-                for (int f = 0; f < lambda.length; f++)
-                    ExpF[f] = 0;
-                
-                if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
-                    beta_Y = new DenseDoubleMatrix1D[2*dataSeq.length()];
-                    for (int i = 0; i < beta_Y.length; i++)
-                        beta_Y[i] = new DenseDoubleMatrix1D(numY);
-                    
-                    scale = new double[2*dataSeq.length()];
-                }
-                // compute beta values in a backward scan.
-                // also scale beta-values to 1 to avoid numerical problems.
-                scale[dataSeq.length()-1] = (doScaling)?numY:1;
-                beta_Y[dataSeq.length()-1].assign(1.0/scale[dataSeq.length()-1]);
-                for (int i = dataSeq.length()-1; i > 0; i--) {
-                    if (params.debugLvl > 2) {
-                        Util.printDbg("Features fired");
-                        //featureGenerator.startScanFeaturesAt(dataSeq, i);    
-                        //while (featureGenerator.hasNext()) { 
-                        //Feature feature = featureGenerator.next();
-                        //Util.printDbg(feature.toString());
-                        //}
-                    }
-                    
-                    // compute the Mi matrix
-                    initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,true,reuseM,initMDone);
-                    tmp_Y.assign(beta_Y[i]);
-                    tmp_Y.assign(Ri_Y,multFunc);
-                    RobustMath.Mult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
-                    //		Mi_YY.zMult(tmp_Y, beta_Y[i-1]);
-                    
-                    // need to scale the beta-s to avoid overflow
-                    scale[i-1] = doScaling?beta_Y[i-1].zSum():1;
-                    if ((scale[i-1] < 1) && (scale[i-1] > -1))
-                        scale[i-1] = 1;
-                    constMultiplier.multiplicator = 1.0/scale[i-1];
-                    beta_Y[i-1].assign(constMultiplier);
-                }
-                
-                double thisSeqLogli = 0;
-                for (int i = 0; i < dataSeq.length(); i++) {
-                    // compute the Mi matrix
-                    initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,true,reuseM,initMDone);
-                    // find features that fire at this position..
-                    featureGenerator.startScanFeaturesAt(dataSeq, i);
-                    
-                    if (i > 0) {
-                        tmp_Y.assign(alpha_Y);
-                        RobustMath.Mult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
-                        //		Mi_YY.zMult(tmp_Y, newAlpha_Y,1,0,true);
-                        newAlpha_Y.assign(Ri_Y,multFunc); 
-                    } else {
-                        newAlpha_Y.assign(Ri_Y);     
-                    }
-                    while (featureGenerator.hasNext()) { 
-                        Feature feature = featureGenerator.next();
-                        int f = feature.index();
-                        
-                        int yp = feature.y();
-                        int yprev = feature.yprev();
-                        float val = feature.value();
-                        if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
-                            grad[f] += val;
-                            thisSeqLogli += val*lambda[f];
-                        }
-                        if (yprev < 0) {
-                            ExpF[f] += newAlpha_Y.get(yp)*val*beta_Y[i].get(yp);
-                        } else {
-                            ExpF[f] += alpha_Y.get(yprev)*Ri_Y.get(yp)*Mi_YY.get(yprev,yp)*val*beta_Y[i].get(yp);
-                        }
-                    }
-                    
-                    alpha_Y.assign(newAlpha_Y);
-                    // now scale the alpha-s to avoid overflow problems.
-                    constMultiplier.multiplicator = 1.0/scale[i];
-                    alpha_Y.assign(constMultiplier);
-                    
-                    if (params.debugLvl > 2) {
-                        System.out.println("Alpha-i " + alpha_Y.toString());
-                        System.out.println("Ri " + Ri_Y.toString());
-                        System.out.println("Mi " + Mi_YY.toString());
-                        System.out.println("Beta-i " + beta_Y[i].toString());
-                    }
-                }
-                double Zx = alpha_Y.zSum();
-                thisSeqLogli -= log(Zx);
-                // correct for the fact that alpha-s were scaled.
-                for (int i = 0; i < dataSeq.length(); i++) {
-                    thisSeqLogli -= log(scale[i]);
-                }
-                
-                logli += thisSeqLogli;
-                // update grad.
-                for (int f = 0; f < grad.length; f++)
-                    grad[f] -= ExpF[f]/Zx;
-                
-                if (params.debugLvl > 1) {
-                    System.out.println("Sequence "  + thisSeqLogli + " logli " + logli + " log(Zx) " + Math.log(Zx) + " Zx " + Zx);
-                }
-                
-            }
+                if (featureGenCache != null) featureGenCache.nextDataIndex();
+                logli += sumProduct(diter.next(),featureGenerator,lambda,grad,expFVals,false);
+            }                
             if (params.debugLvl > 2) {
                 for (int f = 0; f < lambda.length; f++)
                     System.out.print(lambda[f] + " ");
                 System.out.println(" :x");
                 for (int f = 0; f < lambda.length; f++)
-                    System.out.println(featureGenerator.featureName(f) + " " + grad[f] + " ");
+                    System.out.println(f + " " + featureGenerator.featureName(f) + " " + grad[f] + " ");
                 System.out.println(" :g");
             }
-            
-            if (params.debugLvl > 0)
-                Util.printDbg("Iter " + icall + " log likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
-            if (icall == 0) {
-                System.out.println("Number of training records" + numRecord);
+            if (params.debugLvl > 0) {
+                if (icall == 0) {
+                    Util.printDbg("Number of training records " + numRecord);
+                }
+                if (grad != null) Util.printDbg("Iter " + icall + " loglikelihood "+logli + " gnorm " + norm(grad) + " xnorm "+ norm(lambda));
             }
+            return logli;
         } catch (Exception e) {
             System.out.println("Alpha-i " + alpha_Y.toString());
             System.out.println("Ri " + Ri_Y.toString());
             System.out.println("Mi " + Mi_YY.toString());
             
             e.printStackTrace();
-            System.exit(0);
         }
-        return logli;
+        return 0;
+    }
+    protected double sumProduct(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
+        if (logProcessing) {
+            return sumProductLL(dataSeq,featureGenerator,lambda,grad,expFVals,onlyForwardPass);
+        }
+        boolean doScaling = params.doScaling;
+        alpha_Y.assign(1);
+        for (int f = 0; f < lambda.length; f++)
+            ExpF[f] = 0;
+        
+        if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
+            beta_Y = new DenseDoubleMatrix1D[2*dataSeq.length()];
+            for (int i = 0; i < beta_Y.length; i++)
+                beta_Y[i] = new DenseDoubleMatrix1D(numY);
+            
+            scale = new double[2*dataSeq.length()];
+        }
+        // compute beta values in a backward scan.
+        // also scale beta-values to 1 to avoid numerical problems.
+        scale[dataSeq.length()-1] = (doScaling)?numY:1;
+        beta_Y[dataSeq.length()-1].assign(1.0/scale[dataSeq.length()-1]);
+        for (int i = dataSeq.length()-1; i > 0; i--) {
+            
+            // compute the Mi matrix
+            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,true,reuseM,initMDone);
+            tmp_Y.assign(beta_Y[i]);
+            tmp_Y.assign(Ri_Y,multFunc);
+            RobustMath.Mult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
+            //		Mi_YY.zMult(tmp_Y, beta_Y[i-1]);
+            
+            // need to scale the beta-s to avoid overflow
+            scale[i-1] = doScaling?beta_Y[i-1].zSum():1;
+            if ((scale[i-1] < 1) && (scale[i-1] > -1))
+                scale[i-1] = 1;
+            constMultiplier.multiplicator = 1.0/scale[i-1];
+            beta_Y[i-1].assign(constMultiplier);
+        }
+        
+        double thisSeqLogli = 0;
+        for (int i = 0; i < dataSeq.length(); i++) {
+            // compute the Mi matrix
+            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,true,reuseM,initMDone);
+            if (i > 0) {
+                tmp_Y.assign(alpha_Y);
+                RobustMath.Mult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
+                //		Mi_YY.zMult(tmp_Y, newAlpha_Y,1,0,true);
+                newAlpha_Y.assign(Ri_Y,multFunc); 
+            } else {
+                newAlpha_Y.assign(Ri_Y);     
+            }
+            if ((grad !=null) || (expFVals!=null)) {
+//          find features that fire at this position..
+            featureGenerator.startScanFeaturesAt(dataSeq, i);
+            while (featureGenerator.hasNext()) { 
+                Feature feature = featureGenerator.next();
+                int f = feature.index();
+                
+                int yp = feature.y();
+                int yprev = feature.yprev();
+                float val = feature.value();
+                if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                    grad[f] += val;
+                    thisSeqLogli += val*lambda[f];
+                }
+                if (yprev < 0) {
+                    ExpF[f] += newAlpha_Y.get(yp)*val*beta_Y[i].get(yp);
+                } else {
+                    ExpF[f] += alpha_Y.get(yprev)*Ri_Y.get(yp)*Mi_YY.get(yprev,yp)*val*beta_Y[i].get(yp);
+                }
+            }
+            }
+            alpha_Y.assign(newAlpha_Y);
+            // now scale the alpha-s to avoid overflow problems.
+            constMultiplier.multiplicator = 1.0/scale[i];
+            alpha_Y.assign(constMultiplier);
+            
+            if (params.debugLvl > 2) {
+                System.out.println("Alpha-i " + alpha_Y.toString());
+                System.out.println("Ri " + Ri_Y.toString());
+                System.out.println("Mi " + Mi_YY.toString());
+                System.out.println("Beta-i " + beta_Y[i].toString());
+            }
+        }
+        double Zx = alpha_Y.zSum();
+        thisSeqLogli -= log(Zx);
+        // correct for the fact that alpha-s were scaled.
+        for (int i = 0; i < dataSeq.length(); i++) {
+            thisSeqLogli -= log(scale[i]);
+        }
+        // update grad.
+        if (grad != null) {
+        for (int f = 0; f < grad.length; f++)
+            grad[f] -= ExpF[f]/Zx;
+        }
+        if (params.debugLvl > 1) {
+            System.out.println("Sequence "  + thisSeqLogli + " log(Zx) " + Math.log(Zx) + " Zx " + Zx);
+        }
+        return thisSeqLogli;
     }
     static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
@@ -347,144 +341,94 @@ public class Trainer {
         return computeLogMi(featureGen, lambda, Mi_YY, Ri_Y, takeExp,reuseM, initMDone);
     }
     
-    protected double computeFunctionGradientLL(double lambda[], double grad[], double expFVals[]) {
-        double logli = 0;
-        try {
-            if (grad != null) {
-                for (int f = 0; f < lambda.length; f++) {
-                    grad[f] = -1*lambda[f]*params.invSigmaSquare;
-                    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
-                }
-            }
-            diter.startScan();
-            if (featureGenCache != null) featureGenCache.startDataScan();
-            for (int numRecord = 0; diter.hasNext(); numRecord++) {
-                DataSequence dataSeq = (DataSequence)diter.next();
-                if (featureGenCache != null) featureGenCache.nextDataIndex();
-                if (params.debugLvl > 1) {
-                    Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
-                }
-                alpha_Y.assign(0);
-                for (int f = 0; f < lambda.length; f++)
-                    ExpF[f] = RobustMath.LOG0;
-                
-                if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
-                    beta_Y = new DenseDoubleMatrix1D[2*dataSeq.length()];
-                    for (int i = 0; i < beta_Y.length; i++)
-                        beta_Y[i] = new DenseDoubleMatrix1D(numY);
-                }
-                // compute beta values in a backward scan.
-                // also scale beta-values to 1 to avoid numerical problems.
-                beta_Y[dataSeq.length()-1].assign(0);
-                for (int i = dataSeq.length()-1; i > 0; i--) {
-                    if (params.debugLvl > 2) {
-                        /*  Util.printDbg("Features fired");
-                         featureGenerator.startScanFeaturesAt(dataSeq, i);    
-                         while (featureGenerator.hasNext()) { 
-                         Feature feature = featureGenerator.next();
-                         Util.printDbg(feature.toString());
-                         }
-                         */
-                    }
-                    
-                    // compute the Mi matrix
-                    initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-                    tmp_Y.assign(beta_Y[i]);
-                    tmp_Y.assign(Ri_Y,sumFunc);
-                    RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
-                }
-                
-                
-                double thisSeqLogli = 0;
-                for (int i = 0; i < dataSeq.length(); i++) {
-                    // compute the Mi matrix
-                    initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-                    // find features that fire at this position..
-                    featureGenerator.startScanFeaturesAt(dataSeq, i);
-                    
-                    if (i > 0) {
-                        tmp_Y.assign(alpha_Y);
-                        RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
-                        newAlpha_Y.assign(Ri_Y,sumFunc); 
-                    } else {
-                        newAlpha_Y.assign(Ri_Y);
-                    }
-                    
-                    while (featureGenerator.hasNext()) { 
-                        Feature feature = featureGenerator.next();
-                        int f = feature.index();
-                        
-                        int yp = feature.y();
-                        int yprev = feature.yprev();
-                        float val = feature.value();
-                        
-                       if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
-                            grad[f] += val;
-                            thisSeqLogli += val*lambda[f];
-                            if (params.debugLvl > 2) {
-                                System.out.println("Feature fired " + f + " " + feature);
-                            } 
-                        }
-                       
-                        
-                        if (yprev < 0) {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
-                        } else {
-                            ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
-                        }
-                    }
-                    alpha_Y.assign(newAlpha_Y);
-                    
-                    if (params.debugLvl > 2) {
-                        System.out.println("Alpha-i " + alpha_Y.toString());
-                        System.out.println("Ri " + Ri_Y.toString());
-                        System.out.println("Mi " + Mi_YY.toString());
-                        System.out.println("Beta-i " + beta_Y[i].toString());
-                    }
-                }
-                double lZx = RobustMath.logSumExp(alpha_Y);
-                thisSeqLogli -= lZx;
-                logli += thisSeqLogli;
-                
-                // update grad.
-                if (grad != null) {
-                for (int f = 0; f < grad.length; f++) {
-                    grad[f] -= RobustMath.exp(ExpF[f]-lZx);
-                }
-                }
-                if (expFVals!=null) {
-                    for (int f = 0; f < lambda.length; f++) {
-                        expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
-                    }
-                }
-                if (params.debugLvl > 1) {
-                    System.out.println("Sequence "  + thisSeqLogli + " logli " + logli + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
-                }
-                
-            }
-            if (params.debugLvl > 2) {
-                for (int f = 0; f < lambda.length; f++)
-                    System.out.print(lambda[f] + " ");
-                System.out.println(" :x");
-                if (grad != null) for (int f = 0; f < lambda.length; f++)
-                    System.out.print(grad[f] + " ");
-                System.out.println(" :g");
-            }
-            
-            if ((params.debugLvl > 0) && (grad != null))
-                Util.printDbg("Iteration " + icall + " log-likelihood "+logli + " norm(grad logli) " + norm(grad) + " norm(x) "+ norm(lambda));
-            
-        } catch (Exception e) {
-            System.out.println("Alpha-i " + alpha_Y.toString());
-            System.out.println("Ri " + Ri_Y.toString());
-            System.out.println("Mi " + Mi_YY.toString());
-            
-            e.printStackTrace();
-            System.exit(0);
+    protected double sumProductLL(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
+        alpha_Y.assign(0);
+        for (int f = 0; f < lambda.length; f++)
+            ExpF[f] = RobustMath.LOG0;
+        
+        if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
+            beta_Y = new DenseDoubleMatrix1D[2*dataSeq.length()];
+            for (int i = 0; i < beta_Y.length; i++)
+                beta_Y[i] = new DenseDoubleMatrix1D(numY);
         }
-        return logli;
+        // compute beta values in a backward scan.
+        // also scale beta-values to 1 to avoid numerical problems.
+        beta_Y[dataSeq.length()-1].assign(0);
+        for (int i = dataSeq.length()-1; i > 0; i--) {
+            // compute the Mi matrix
+            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            tmp_Y.assign(beta_Y[i]);
+            tmp_Y.assign(Ri_Y,sumFunc);
+            RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
+        }
+        
+        double thisSeqLogli = 0;
+        for (int i = 0; i < dataSeq.length(); i++) {
+            // compute the Mi matrix
+            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            
+            if (i > 0) {
+                tmp_Y.assign(alpha_Y);
+                RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
+                newAlpha_Y.assign(Ri_Y,sumFunc); 
+            } else {
+                newAlpha_Y.assign(Ri_Y);
+            }
+
+            if ((grad !=null)||(expFVals!=null)) {
+            // find features that fire at this position..
+            featureGenerator.startScanFeaturesAt(dataSeq, i);
+            while (featureGenerator.hasNext()) { 
+                Feature feature = featureGenerator.next();
+                int f = feature.index();
+                
+                int yp = feature.y();
+                int yprev = feature.yprev();
+                float val = feature.value();
+                
+                if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                    grad[f] += val;
+                    thisSeqLogli += val*lambda[f];
+                    if (params.debugLvl > 2) {
+                        System.out.println("Feature fired " + f + " " + feature);
+                    } 
+                }
+                
+                
+                if (yprev < 0) {
+                    ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
+                } else {
+                    ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
+                }
+            }
+            }
+            alpha_Y.assign(newAlpha_Y);
+            
+            if (params.debugLvl > 2) {
+                System.out.println("Alpha-i " + alpha_Y.toString());
+                System.out.println("Ri " + Ri_Y.toString());
+                System.out.println("Mi " + Mi_YY.toString());
+                System.out.println("Beta-i " + beta_Y[i].toString());
+            }
+        }
+        double lZx = RobustMath.logSumExp(alpha_Y);
+        thisSeqLogli -= lZx;
+        // update grad.
+        if (grad != null) {
+            for (int f = 0; f < grad.length; f++) {
+                grad[f] -= RobustMath.exp(ExpF[f]-lZx);
+            }
+        }
+        if (expFVals!=null) {
+            for (int f = 0; f < lambda.length; f++) {
+                expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
+            }
+        }
+        if (params.debugLvl > 1) {
+            System.out.println("Sequence "  + thisSeqLogli  + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
+        }
+        return thisSeqLogli;
     }
-    
     
     static double log(double val) {
         try {

@@ -1,6 +1,8 @@
 package iitb.CRF;
 
 
+import iitb.CRF.SegmentViterbi.SegmentationImpl;
+
 import java.io.Serializable;
 
 import cern.colt.matrix.DoubleMatrix1D;
@@ -114,12 +116,15 @@ public class Viterbi implements Serializable {
         winningLabel = new Entry[numY][];
         finalSoln = new Entry(beamsize,0,0);
     }
+    protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
+        Trainer.computeLogMi(model.featureGenerator,lambda,dataSeq,i,Mi,Ri,false);
+    }
     double fillArray(DataSequence dataSeq, double lambda[], boolean calcScore) {
         double corrScore = 0;
         int numY = model.numY;
         for (int i = 0; i < dataSeq.length(); i++) {
             // compute Mi.
-            Trainer.computeLogMi(model.featureGenerator,lambda,dataSeq,i,Mi,Ri,false);
+            computeLogMi(dataSeq,i,1,lambda);
             for (int yi = 0; yi < numY; yi++) {
                 winningLabel[yi][i].clear();
                 winningLabel[yi][i].valid = true;
@@ -202,7 +207,7 @@ public class Viterbi implements Serializable {
         return corrScore;
     }
     
-    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+    protected static void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         dataSeq.set_y(pos, label);
     }
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
@@ -250,5 +255,36 @@ public class Viterbi implements Serializable {
     int numSolutions() {return finalSoln.numSolns();}
     Soln getBestSoln(int k) {
         return finalSoln.get(k).prevSoln;
+    }
+    LabelSequence newLabelSequence(int len){
+        return new LabelSequence(len);
+    }
+    /**
+     * @param dataSeq
+     * @param lambda
+     * @param numLabelSeqs
+     * @param scores
+     * @return
+     */
+    public LabelSequence[] topKLabelSequences(DataSequence dataSeq, double[] lambda, int numLabelSeqs, boolean getScores) {
+        viterbiSearch(dataSeq, lambda,false);
+        double lZx=0;
+        if (getScores) {
+            lZx = model.getLogZx(dataSeq);
+        }
+        int numSols = Math.min(finalSoln.numSolns(), numLabelSeqs);
+        LabelSequence labelSequences[] = new LabelSequence[numSols];
+        for (int k = numSols-1; k >= 0; k--) {
+            Soln ybest = finalSoln.get(k);
+            labelSequences[k] = newLabelSequence(dataSeq.length());
+            if (getScores) labelSequences[k].score = Math.exp((double)ybest.score-lZx);
+            ybest = ybest.prevSoln;
+            while (ybest != null) {	
+                labelSequences[k].add(ybest.prevPos(), ybest.pos, ybest.label);
+                ybest = ybest.prevSoln;
+            }
+            labelSequences[k].doneAdd();
+        }
+        return labelSequences;
     }
 };

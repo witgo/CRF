@@ -191,7 +191,7 @@ public class SegmentViterbi extends SparseViterbi {
     				return RobustMath.LOG0;
     		}
     	}
-    	if (model.params.debugLvl > 0) {
+    	if (model.params.debugLvl > 1) {
     	    // output features that hold
     	    segmentModel.featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
     	    while (segmentModel.featureGenNested.hasNext()) {
@@ -207,7 +207,7 @@ public class SegmentViterbi extends SparseViterbi {
     	}
     	return val;
     }
-    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+    protected static void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
     }
  
@@ -256,7 +256,7 @@ public class SegmentViterbi extends SparseViterbi {
         return super.viterbiSearch(dataSeq, lambda, calcCorrectScore);
     }
     
-    class SegmentationImpl implements Segmentation {
+    class SegmentationImpl extends LabelSequence implements Segmentation {
         class Segment implements Comparable {
             int start;
             int end;
@@ -330,14 +330,30 @@ public class SegmentViterbi extends SparseViterbi {
             }
             for (int i = segmentArr.length-1; i >= 0; segmentArr[i].id = i, i--);
         }
+        public void apply(DataSequence data) {
+            for (int i = 0; i < numSegments(); i++)
+                SegmentViterbi.setSegment(data,segmentStart(i)-1,segmentEnd(i),segmentLabel(i));
+        }
+        /**
+         * @param prevPos
+         * @param pos
+         * @param label
+         */
+        public void add(int prevPos, int pos, int label) {
+            setSegment(prevPos+1,pos,label);
+        };
     };
     public Segmentation[] segmentSequences(CandSegDataSequence dataSeq, double lambda[], int numLabelSeqs, double[] scores) {
         viterbiSearch(dataSeq, lambda,false);
+        double lZx=0;
+        if (scores!=null) {
+            lZx = model.getLogZx(dataSeq);
+        }
         int numSols = Math.min(finalSoln.numSolns(), numLabelSeqs);
         Segmentation segments[] = new Segmentation[numSols];
         for (int k = numSols-1; k >= 0; k--) {
             Soln ybest = finalSoln.get(k);
-            if (scores != null) scores[k] = ybest.score;
+            if (scores != null) scores[k] = Math.exp((double)ybest.score-lZx);
             ybest = ybest.prevSoln;
             segments[k] = new SegmentationImpl();
             while (ybest != null) {	
@@ -347,5 +363,8 @@ public class SegmentViterbi extends SparseViterbi {
             ((SegmentationImpl)segments[k]).doneAdd();
         }
         return segments;
+    }
+    LabelSequence newLabelSequence(int len){
+        return new SegmentationImpl();
     }
 };
