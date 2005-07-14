@@ -16,8 +16,6 @@ import cern.colt.matrix.impl.*;
  *
  */ 
 
-
-
 public class Viterbi implements Serializable {
     private static final long serialVersionUID = 8122L;
     protected CRF model;
@@ -45,8 +43,8 @@ public class Viterbi implements Serializable {
             for (int i = 0; i < solns.length; i++)
                 solns[i].clear();
         }
-        protected int size() {return solns.length;}
-        protected Soln get(int i) {return solns[i];}
+        public int size() {return solns.length;}
+        public Soln get(int i) {return solns[i];}
         protected void insert(int i, float score, Soln prev) {
             for (int k = size()-1; k > i; k--) {
                 solns[k].copy(solns[k-1]);
@@ -211,10 +209,10 @@ public class Viterbi implements Serializable {
         dataSeq.set_y(pos, label);
     }
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
-        //System.out.println("Viterbi ");
         double corrScore = viterbiSearch(dataSeq, lambda,false);
-        //System.out.print(finalSoln.get(0).score + "\t");
-        assignLabels(dataSeq);
+        if(model.params.debugLvl > 1)
+            System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
+        assignLabels(dataSeq);        
     }
     
     void assignLabels(DataSequence dataSeq) {
@@ -249,8 +247,7 @@ public class Viterbi implements Serializable {
             finalSoln.add(winningLabel[yi][dataSeq.length()-1], 0);
         }
         return corrScore;
-    }
-    
+    }   
     
     int numSolutions() {return finalSoln.numSolns();}
     Soln getBestSoln(int k) {
