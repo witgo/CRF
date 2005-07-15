@@ -2,7 +2,9 @@ package iitb.CRF;
 
 import java.util.Iterator;
 import java.util.TreeSet;
-import java.util.Vector;
+
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
@@ -19,6 +21,7 @@ public class SegmentViterbi extends SparseViterbi {
     static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
         ConstraintDisallowedPairs disallowedPairs;
+        
         class Intersects implements TIntProcedure {
             int label;
             int prevLabel;
@@ -39,7 +42,7 @@ public class SegmentViterbi extends SparseViterbi {
          * @param i
          * @return
          */
-        private boolean valid(TIntHashSet set, int label, int prevLabel) {
+        boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
              if (disallowedPairs.conflictingPair(label,prevLabel,true))
@@ -48,6 +51,7 @@ public class SegmentViterbi extends SparseViterbi {
              intersectTest.prevLabel = prevLabel;
              return set.forEach(intersectTest);
         }
+        
         /**
          * @param dataSeq
          * @return
@@ -76,6 +80,7 @@ public class SegmentViterbi extends SparseViterbi {
             return disallowedPairs.conflicting(label);
         }
     }
+
     LabelConstraints labelConstraints=null;
     class SolnWithLabelsOnPath extends Soln {
         void clear() {
@@ -210,7 +215,19 @@ public class SegmentViterbi extends SparseViterbi {
     protected static void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
     }
- 
+
+    void assignLabels(DataSequence dataSeq) {
+        Soln ybest = finalSoln.get(0);
+        ybest = ybest.prevSoln;
+        int pos=-1;
+        while (ybest != null) {
+            pos = ybest.pos;
+            setSegment(dataSeq,ybest.prevPos(),ybest.pos, ybest.label);
+            ybest = ybest.prevSoln;
+        }
+        assert(pos>=0);
+    }
+
     public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
         viterbiSearch(dataSeq, lambda,false);
         scores.clear();
@@ -250,11 +267,40 @@ public class SegmentViterbi extends SparseViterbi {
             return new Context(numY,beamsize,pos);        
         return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos); 
     }
+    
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
-        labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
-        return super.viterbiSearch(dataSeq, lambda, calcCorrectScore);
+        //labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+        return viterbiSearch(dataSeq, lambda, null, null, true, calcCorrectScore);
     }
+    
+	public double viterbiSearch(DataSequence dataSeq, double lambda[], 
+	        DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris, 
+	        boolean constraints, boolean calCorrectScore) {
+	    if(constraints)
+	        labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+	    else
+	        labelConstraints = null;
+		return super.viterbiSearch(dataSeq, lambda, Mis, Ris, calCorrectScore);
+	}
+
+	public double viterbiSearch(DataSequence dataSeq, double lambda[],  
+	        DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris,  
+	        Soln soln, boolean constraints, boolean calCorrectScore) {
+	    if(constraints)
+	        labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+	    else
+	        labelConstraints = null;
+
+		return super.viterbiSearch(dataSeq, lambda, Mis, Ris, soln, calCorrectScore);
+	}	
+
+	public double viterbiSearchBackward(DataSequence dataSeq, double[] lambda,
+	        DoubleMatrix2D Mis[][],DoubleMatrix1D Ris[][],
+			boolean calcCorrectScore) {
+	    labelConstraints = null;
+		return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
+	}
     
     class SegmentationImpl extends LabelSequence implements Segmentation {
         class Segment implements Comparable {
