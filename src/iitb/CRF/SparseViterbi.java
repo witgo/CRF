@@ -413,8 +413,8 @@ public class SparseViterbi extends Viterbi {
             Mis[i] = new LogSparseDoubleMatrix2D[size + 1];
             Ris[i] = new LogSparseDoubleMatrix1D[size + 1];            
             for(int j = 0; j < Mis[i].length; j++){
-                Mis[i][j] =  staticHeapMi.getObject(); //new LogSparseDoubleMatrix2D(numY,numY);
-                Ris[i][j] =  staticHeapRi.getObject(); //new LogSparseDoubleMatrix1D(numY);
+                Mis[i][j] =  (DoubleMatrix2D) staticHeapMi.getObject(); //new LogSparseDoubleMatrix2D(numY,numY);
+                Ris[i][j] =  (DoubleMatrix1D) staticHeapRi.getObject(); //new LogSparseDoubleMatrix1D(numY);
             }
         }
     }
@@ -426,8 +426,8 @@ public class SparseViterbi extends Viterbi {
             this.numY = numY;
         }
 
-        protected LogSparseDoubleMatrix2D getObject() {
-            return (LogSparseDoubleMatrix2D)getFreeObject();
+        protected Object getObject() {
+            return getFreeObject();
         }        
 
         protected Object newObject() {
@@ -446,8 +446,8 @@ public class SparseViterbi extends Viterbi {
             return new LogSparseDoubleMatrix1D(numY);
         }
 
-        protected LogSparseDoubleMatrix1D getObject() {
-            return (LogSparseDoubleMatrix1D)getFreeObject();
+        protected Object getObject() {
+            return getFreeObject();
         }        
     }
     

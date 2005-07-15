@@ -37,7 +37,7 @@ public class SegmentAStar extends AStarInference {
     SegmentIterForward iter;
     
     OptimizedSparseMatrixMapper stateGenerator;//not used
-    ArrayList<SegmentState> states;
+    ArrayList states;
     TIntHashSet nextLabelsOnPath = null;
     int succEll, succPos;
     Soln lbSoln;
@@ -59,7 +59,7 @@ public class SegmentAStar extends AStarInference {
         segmentViterbi = new SegmentViterbi(model, forwardViterbiBeamSize);
         backwardSegmentViterbi = new SegmentViterbi(model, backwardViterbiBeamSize);
         iter = new SegmentIterForward(segmentViterbi.new SegmentIter());
-        states = new ArrayList<SegmentState>();
+        states = new ArrayList();
                        
         if(sparseMatrix){
             staticHeapOptSparseDoubleMatrix1D = new StaticHeapOptimizedSparseDoubleMatrix1D(0);
@@ -336,7 +336,8 @@ public class SegmentAStar extends AStarInference {
             this.labelsOnPath = labelsOnPath;
         }
         
-        State[] generateSucessors() {                        
+        State[] generateSucessors() {
+            SegmentState successors[];
 
             iter.start(pos, dataSeq);
             states.clear();
@@ -350,8 +351,11 @@ public class SegmentAStar extends AStarInference {
 	                    createSuccessors(Mi[succPos][succEll].viewRow(y));
                 }else
                     createSuccessors(Ri[succPos][succEll]);
-            }                        
-            return states.toArray(new SegmentState[0]);
+            }
+            successors = new SegmentState[states.size()];
+            for(int i = 0; i < states.size(); i++)
+                successors[i] = (SegmentState)states.get(i);
+            return successors;
         }
 
         private void createSuccessors(DoubleMatrix1D miRow){

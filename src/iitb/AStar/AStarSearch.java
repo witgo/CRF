@@ -17,10 +17,10 @@ public class AStarSearch {
 
     
     State startState, goalState;
-    TreeSet<State> stateQueue;
+    TreeSet stateQueue;
     long numExpansions = 0;
     boolean profiling = false, debug = false;
-    private ArrayList<State> expansionList;
+    private ArrayList expansionList;
     
     long maxExapnsions = Long.MAX_VALUE;
     int avgStatesPerExpansion = 100;
@@ -70,7 +70,7 @@ public class AStarSearch {
     }
     
     void init(){
-        stateQueue = new TreeSet<State>();
+        stateQueue = new TreeSet();
     }
     
     private void initSearch(State startState) {
@@ -83,7 +83,7 @@ public class AStarSearch {
         numBoundUpdate = 0;
         curLowBoundCalStep = lowBoundCalStep;
         if(profiling)
-            expansionList = new ArrayList<State>();
+            expansionList = new ArrayList();
         else
             expansionList = null;
     }
@@ -96,7 +96,7 @@ public class AStarSearch {
         while(numExpansions < maxExapnsions && stateQueue.size() < maxQueueSize){
             
             try{
-                curState = stateQueue.first();
+                curState = (State) stateQueue.first();
                 stateQueue.remove(curState);
             }catch(NoSuchElementException nsee){
                 System.err.println("Exception in AStar loop::" + nsee);
@@ -125,13 +125,8 @@ public class AStarSearch {
             if(shouldUpdateBound()){
                 numBoundUpdate++;
                 updateBound(curState);
-                //System.out.println(numBoundUpdate + ">LB:" + lowerBound + " " + stateQueue.size() + " " + numExpansions * avgStatesPerExpansion);                
             }            
             lastState = curState;
-            /*
-            if(numExpansions % 5000 == 0 || stateQueue.size()%5000 ==0)
-                System.err.println("Running:: NumExpansion:" + numExpansions + "\t QueueSize:" + stateQueue.size() + "\t");
-            */    
         }
 
 
@@ -159,10 +154,10 @@ public class AStarSearch {
     }
 
     private void pruneQueue(State state) {
-        Collection<State> headSet = stateQueue.headSet(state);
+        Collection headSet = stateQueue.headSet(state);
         if(headSet.size() < stateQueue.size()){
             //System.out.println("HeadSetSize:" + headSet.size() + "Reduction in queueSize:" + (stateQueue.size() - headSet.size()));
-            TreeSet<State> tempQueue = new TreeSet<State>();
+            TreeSet tempQueue = new TreeSet();
             tempQueue.addAll(headSet);
             stateQueue.clear();
             stateQueue = tempQueue;
@@ -190,7 +185,7 @@ public class AStarSearch {
         this.startState = startState;
     }
         
-    public ArrayList<State> getExpansionList() {
+    public ArrayList getExpansionList() {
         return expansionList;
     }
     
