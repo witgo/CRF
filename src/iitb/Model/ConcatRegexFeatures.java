@@ -281,7 +281,10 @@ public class ConcatRegexFeatures extends FeatureTypes {
 
 		if(featureCollectMode()){
 			//This is a feature collection mode, so return id and name
-			f.strId.name = patternString[index][0] + "_" + window + "_" + Integer.toBinaryString(curId);
+			f.strId.name = "R_" + patternString[index][0];
+			if ((window > 1) || (curId > 0)) {
+			    f.strId.name =  f.strId.name + ("_" + window + "_" + Integer.toBinaryString(curId));
+			}
 		}
 		
 		/*//Return feature on token window
