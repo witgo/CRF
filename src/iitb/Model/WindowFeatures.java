@@ -141,4 +141,7 @@ public class WindowFeatures extends FeatureTypes  {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
+	public boolean needsCaching() {
+        return single.needsCaching();
+	}
 }

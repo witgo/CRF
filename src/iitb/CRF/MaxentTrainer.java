@@ -18,7 +18,7 @@ public class MaxentTrainer extends Trainer {
     }
     
     protected double sumProduct(DataSequence dataSeq, FeatureGenerator featureGenerator, double[] lambda,
-            double[] grad, double[] expFVals, boolean onlyForwardPass) {
+            double[] grad, double[] expFVals, boolean onlyForwardPass, int numRecord) {
         double thisSeqLogli=0;
         for (int i = 0; i < dataSeq.length(); i++) {
             // compute the Mi matrix

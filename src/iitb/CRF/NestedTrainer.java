@@ -15,7 +15,7 @@ class NestedTrainer extends Trainer {
     }
     DenseDoubleMatrix1D alpha_Y_Array[];
     
-    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
+    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass, int numRecord) {
         FeatureGeneratorNested featureGenNested = (FeatureGeneratorNested)featureGenerator;
         SegmentDataSequence dataSeq = (SegmentDataSequence)data;
         for (int f = 0; f < lambda.length; f++)

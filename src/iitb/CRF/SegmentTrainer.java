@@ -26,7 +26,7 @@ public class SegmentTrainer extends SparseTrainer {
         allZeroVector = newLogDoubleMatrix1D(numY);
         allZeroVector.assign(0);
     }
-    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
+    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass, int numRecord) {
         FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
         CandSegDataSequence dataSeq = (CandSegDataSequence)data;
         
@@ -36,8 +36,8 @@ public class SegmentTrainer extends SparseTrainer {
         }
         int dataSize = dataSeq.length();
         CandidateSegments candidateSegs = (CandidateSegments)dataSeq;
+        DoubleMatrix1D oldBeta =  beta_Y[dataSeq.length()-1];
         if (!onlyForwardPass) {
-            DoubleMatrix1D oldBeta =  beta_Y[dataSeq.length()-1];
             beta_Y[dataSize-1] = allZeroVector;
             for (int i = dataSeq.length()-2; i >= 0; i--) {
                 beta_Y[i].assign(RobustMath.LOG0);
@@ -169,6 +169,7 @@ public class SegmentTrainer extends SparseTrainer {
                 expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
             }
         }
+        beta_Y[dataSize-1] = oldBeta;
         return thisSeqLogli;
     }
  
@@ -176,12 +177,11 @@ public class SegmentTrainer extends SparseTrainer {
      * @param i
      */
     protected void allocateAlphaBeta(int newSize) {
+        super.allocateAlphaBeta(newSize);
         alpha_Y_Array = new DoubleMatrix1D[newSize];
         for (int i = 0; i < alpha_Y_Array.length; i++)
             alpha_Y_Array[i] = newLogDoubleMatrix1D(numY);
-        beta_Y = new DoubleMatrix1D[newSize];
-        for (int i = 0; i < beta_Y.length; i++)
-            beta_Y[i] = newLogDoubleMatrix1D(numY);
+        
         alpha_Y_ArrayM = new DoubleMatrix1D[newSize];
         for (int i = 0; i < alpha_Y_ArrayM.length; i++)
             alpha_Y_ArrayM[i] = newLogDoubleMatrix1D(numY);

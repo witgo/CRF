@@ -212,20 +212,8 @@ public class SegmentViterbi extends SparseViterbi {
     	}
     	return val;
     }
-    protected static void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
-    }
-
-    void assignLabels(DataSequence dataSeq) {
-        Soln ybest = finalSoln.get(0);
-        ybest = ybest.prevSoln;
-        int pos=-1;
-        while (ybest != null) {
-            pos = ybest.pos;
-            setSegment(dataSeq,ybest.prevPos(),ybest.pos, ybest.label);
-            ybest = ybest.prevSoln;
-        }
-        assert(pos>=0);
     }
 
     public void singleSegmentClassScores(CandSegDataSequence dataSeq, double lambda[], TIntFloatHashMap scores) {
@@ -302,7 +290,7 @@ public class SegmentViterbi extends SparseViterbi {
 		return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
 	}
     
-    class SegmentationImpl extends LabelSequence implements Segmentation {
+    public static class SegmentationImpl extends LabelSequence implements Segmentation {
         class Segment implements Comparable {
             int start;
             int end;
@@ -378,7 +366,7 @@ public class SegmentViterbi extends SparseViterbi {
         }
         public void apply(DataSequence data) {
             for (int i = 0; i < numSegments(); i++)
-                SegmentViterbi.setSegment(data,segmentStart(i)-1,segmentEnd(i),segmentLabel(i));
+                ((CandSegDataSequence)data).setSegment(segmentStart(i),segmentEnd(i),segmentLabel(i));
         }
         /**
          * @param prevPos
@@ -410,7 +398,7 @@ public class SegmentViterbi extends SparseViterbi {
         }
         return segments;
     }
-    LabelSequence newLabelSequence(int len){
+    protected LabelSequence newLabelSequence(int len){
         return new SegmentationImpl();
     }
 };

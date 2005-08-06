@@ -131,6 +131,8 @@ public class ConcatRegexFeatures extends FeatureTypes {
 			p[i] = Pattern.compile(patternString[i][1]);
 
 		}
+		
+		cache=true;
 	}
 
 	/**

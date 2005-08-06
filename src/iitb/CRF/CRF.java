@@ -144,6 +144,6 @@ public class CRF implements Serializable {
             trainer = getTrainer();
             trainer.init(this,null,lambda);
         }
-        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true);
+        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true, -1);
     }
 };

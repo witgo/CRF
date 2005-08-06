@@ -28,22 +28,7 @@ public class SparseTrainer extends Trainer {
     static ExpFunc expFunc = new ExpFunc(); 
     static IntDoubleFunction expFunc1D = new ExpFunc1D();
     static IntIntDoubleFunction expFunc2D = new ExpFunc2D();
-    
-    /**
-     * @param numY
-     * @return
-     */
-    protected DoubleMatrix1D newLogDoubleMatrix1D(int numY) {
-        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
-            return new LogSparseDoubleMatrix1D(numY);
-        return new LogDenseDoubleMatrix1D(numY);
-    }
-    
-    protected DoubleMatrix2D newLogDoubleMatrix2D(int numR, int numC) {
-        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
-            return new LogSparseDoubleMatrix2D(numR, numC);
-        return new LogDenseDoubleMatrix2D(numR, numC);
-    }
+ 
     public SparseTrainer(CrfParams p) {
         super(p);
         params = p;
@@ -56,6 +41,20 @@ public class SparseTrainer extends Trainer {
             Util.printDbg("Number of features :" + lambda.length);	    
         }
         doTrain();
+    }
+    /**
+     * @param numY
+     * @return
+     */
+    protected DoubleMatrix1D newLogDoubleMatrix1D(int numY) {
+        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
+            return new LogSparseDoubleMatrix1D(numY);
+        return new LogDenseDoubleMatrix1D(numY);
+    }
+    protected DoubleMatrix2D newLogDoubleMatrix2D(int numR, int numC) {
+        if ((Boolean.valueOf(params.miscOptions.getProperty("sparse", "false"))).booleanValue())
+            return new LogSparseDoubleMatrix2D(numR, numC);
+        return new LogDenseDoubleMatrix2D(numR, numC);
     }
     void initMatrices() {        
         if (!logTrainer) {
@@ -74,7 +73,7 @@ public class SparseTrainer extends Trainer {
         }
     }
 
-    
+    /*
     protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
         if (params.trainerType.equals("ll"))
             return computeFunctionGradientLL(lambda,  grad);
@@ -224,7 +223,7 @@ public class SparseTrainer extends Trainer {
         }
         return logli;
     }
-    
+    */
     static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y) {
@@ -279,7 +278,7 @@ public class SparseTrainer extends Trainer {
         featureGen.startScanFeaturesAt(dataSeq, i);
         computeLogMi(featureGen, lambda, Mi_YY, Ri_Y);	
     }
-    
+    /*
     protected double computeFunctionGradientLL(double lambda[], double grad[]) {
         double logli = 0;
         try {
@@ -402,5 +401,5 @@ public class SparseTrainer extends Trainer {
         }
         return logli;
     }
- 
+ */
 }

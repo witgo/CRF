@@ -25,27 +25,27 @@ public class FeatureTypesMulti extends FeatureTypesWrapper {
     }
     void advance() {
         while (true) {
-            if (ftype.hasNext())
+            if (single.hasNext())
                 return;
             currPos++;
             if (currPos > segEnd)
                 return;
-            ftype.startScanFeaturesAt(dataSeq,currPos-1,currPos);
+            single.startScanFeaturesAt(dataSeq,currPos-1,currPos);
         }
     }
     public  boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
         currPos = prevPos+1;
         segEnd = pos;
         dataSeq = data;
-        ftype.startScanFeaturesAt(data,prevPos,prevPos+1);
+        single.startScanFeaturesAt(data,prevPos,prevPos+1);
         advance();
-        return ftype.hasNext();
+        return single.hasNext();
     }
     public boolean hasNext() {
-        return (currPos <= segEnd) && ftype.hasNext();
+        return (currPos <= segEnd) && single.hasNext();
     }
     public void next(FeatureImpl f) {
-        ftype.next(f);
+        single.next(f);
         advance();
     }
 };

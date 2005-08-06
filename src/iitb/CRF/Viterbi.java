@@ -205,7 +205,7 @@ public class Viterbi implements Serializable {
         return corrScore;
     }
     
-    protected static void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
+    protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         dataSeq.set_y(pos, label);
     }
     public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
@@ -253,7 +253,7 @@ public class Viterbi implements Serializable {
     Soln getBestSoln(int k) {
         return finalSoln.get(k).prevSoln;
     }
-    LabelSequence newLabelSequence(int len){
+    protected LabelSequence newLabelSequence(int len){
         return new LabelSequence(len);
     }
     /**

@@ -89,7 +89,7 @@ public class Trainer {
         initMatrices();
         reuseM = params.reuseM; 
         if (params.miscOptions.getProperty("cache", "false").equals("true")) {
-            featureGenCache = new FeatureGenCache(featureGenerator);
+            featureGenCache = new FeatureGenCache(featureGenerator,reuseM);
             featureGenerator = featureGenCache;
         } else
             featureGenCache = null;
@@ -143,6 +143,9 @@ public class Trainer {
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         return computeFunctionGradient(lambda,grad,null);
     }
+    protected double finishGradCompute(double grad[], double lambda[], double logli) {
+        return logli;
+    }
     protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[]) {
         try {
             double logli = 0;
@@ -160,8 +163,9 @@ public class Trainer {
                 if (params.debugLvl > 1)
                     Util.printDbg("Read next seq: " + numRecord + " logli " + logli);
                 if (featureGenCache != null) featureGenCache.nextDataIndex();
-                logli += sumProduct(diter.next(),featureGenerator,lambda,grad,expFVals,false);
-            }                
+                logli += sumProduct(diter.next(),featureGenerator,lambda,grad,expFVals,false, numRecord);
+            } 
+            logli = finishGradCompute(grad,lambda,logli);
             if (params.debugLvl > 2) {
                 for (int f = 0; f < lambda.length; f++)
                     System.out.print(lambda[f] + " ");
@@ -186,7 +190,7 @@ public class Trainer {
         }
         return 0;
     }
-    protected double sumProduct(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
+    protected double sumProduct(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass, int numRecord) {
         if (logProcessing) {
             return sumProductLL(dataSeq,featureGenerator,lambda,grad,expFVals,onlyForwardPass);
         }
@@ -340,16 +344,23 @@ public class Trainer {
         featureGen.startScanFeaturesAt(dataSeq, i);
         return computeLogMi(featureGen, lambda, Mi_YY, Ri_Y, takeExp,reuseM, initMDone);
     }
-    
+    protected void allocateAlphaBeta(int newSize) {
+        beta_Y = new DoubleMatrix1D[newSize];
+        for (int i = 0; i < beta_Y.length; i++)
+            beta_Y[i] = newLogDoubleMatrix1D(numY);
+    }
+    protected DoubleMatrix1D newLogDoubleMatrix1D(int numY) {
+        return new DenseDoubleMatrix1D(numY);
+    }
+    protected DoubleMatrix2D newLogDoubleMatrix2D(int numR, int numC) {
+        return new DenseDoubleMatrix2D(numR,numC);
+    }
     protected double sumProductLL(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass) {
-        alpha_Y.assign(0);
         for (int f = 0; f < lambda.length; f++)
             ExpF[f] = RobustMath.LOG0;
         
         if ((beta_Y == null) || (beta_Y.length < dataSeq.length())) {
-            beta_Y = new DenseDoubleMatrix1D[2*dataSeq.length()];
-            for (int i = 0; i < beta_Y.length; i++)
-                beta_Y[i] = new DenseDoubleMatrix1D(numY);
+           allocateAlphaBeta(2*dataSeq.length()+1);
         }
         // compute beta values in a backward scan.
         // also scale beta-values to 1 to avoid numerical problems.
@@ -361,7 +372,7 @@ public class Trainer {
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
         }
-        
+        alpha_Y.assign(0);
         double thisSeqLogli = 0;
         for (int i = 0; i < dataSeq.length(); i++) {
             // compute the Mi matrix

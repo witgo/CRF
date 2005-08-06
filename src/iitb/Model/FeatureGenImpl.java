@@ -292,7 +292,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 if (featureToReturn.id < 0){
                     continue;
                 }
-                if (featureValid(data, cposStart, cposEnd, featureToReturn, model))
+                if (featureValid(data, cposStart, cposEnd, featureToReturn, model, _fixedTransitions))
                     return;
                 
             }
@@ -312,10 +312,11 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
      * @param data
      * @return
      */
-    public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model) {
+    public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
         if (((cposStart > 0) && (cposEnd < data.length()-1)) 
                 || (featureToReturn.y() >= model.numStates())
-                || (featureToReturn.yprev() >= model.numStates()))
+                || (featureToReturn.yprev() >= model.numStates())
+                || ((featureToReturn.yprev() >= 0) && cacheEdgeFeatures))
             return true;
         if ((cposStart == 0) && (model.isStartState(featureToReturn.y()))
                 && ((data.length()>1) || (model.isEndState(featureToReturn.y())))) 
@@ -338,11 +339,29 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         initScanFeaturesAt(d);
     }
+    public void startScanFeaturesAtOnlyNonCached(DataSequence d, int prev, int p) {
+        cposEnd = p;
+        cposStart = prev+1;
+        for (int i = 0; i < features.size(); i++) {
+            if (!getFeature(i).needsCaching()) 
+                getFeature(i).startScanFeaturesAt(d,prev,cposEnd);
+        }
+        initScanFeaturesAt(d);
+    }
     public void startScanFeaturesAt(DataSequence d, int p) {
         cposEnd = p;
         cposStart = p;
         for (int i = 0; i < features.size(); i++) {
             getFeature(i).startScanFeaturesAt(d,cposEnd);
+        }
+        initScanFeaturesAt(d);
+    }
+    public void startScanFeaturesAtOnlyNonCached(DataSequence d, int p) {
+        cposEnd = p;
+        cposStart = p;
+        for (int i = 0; i < features.size(); i++) {
+            if (!getFeature(i).needsCaching()) 
+                getFeature(i).startScanFeaturesAt(d,cposEnd);
         }
         initScanFeaturesAt(d);
     }

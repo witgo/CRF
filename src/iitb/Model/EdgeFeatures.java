@@ -62,7 +62,9 @@ public class EdgeFeatures extends FeatureTypes {
 	}
 	
 	 public boolean fixedTransitionFeatures() {
-	     return ((model.numStartStates()==model.numStates())&&
+	     return true;
+	     /*((model.numStartStates()==model.numStates())&&
 	             (model.numEndStates()==model.numEndStates()));
+	             */
 	 }
 };
