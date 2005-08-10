@@ -15,6 +15,7 @@
      <pathelement location="${build}"/>
      <pathelement location="lib/LBFGS.jar"/>
      <pathelement location="lib/colt.jar"/>
+     <pathelement location="lib/trove.jar"/>
   </path>
 
 
