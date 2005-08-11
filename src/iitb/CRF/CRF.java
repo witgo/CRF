@@ -110,17 +110,23 @@ public class CRF implements Serializable {
     public double[] learntWeights() {
         return lambda;
     }
-    public void apply(DataSequence dataSeq) {
+    public double apply(DataSequence dataSeq) {
         if (viterbi==null)
             viterbi = getViterbi(1);
         if (params.debugLvl > 1) 
             Util.printDbg("CRF: Applying on " + dataSeq);
-        viterbi.bestLabelSequence(dataSeq,lambda);
+        double score = viterbi.bestLabelSequence(dataSeq,lambda);
         if (histMgr != null) {
             for(int i = dataSeq.length()-1; i >= 0; i--) {
                 histMgr.set_y(dataSeq, i, dataSeq.y(i));
             }
         }
+        return score;
+    }
+    public double applyAndScore(DataSequence dataSeq) {
+        double score = apply(dataSeq);
+        double lZx = getLogZx(dataSeq);
+        return Math.exp(score-lZx);
     }
     public LabelSequence[] topKLabelSequences(DataSequence dataSeq, int numLabelSeqs, boolean getScores) {
 	     if ((viterbi==null) || (viterbi.beamsize < numLabelSeqs))

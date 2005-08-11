@@ -26,14 +26,14 @@ public class NestedCRF extends CRF {
     protected Viterbi getViterbi(int beamsize) {
     	return new NestedViterbi(this,beamsize);
     }
-    public void apply(DataSequence dataSeq) {
-    	apply((SegmentDataSequence)dataSeq);
+    public double apply(DataSequence dataSeq) {
+    	return apply((SegmentDataSequence)dataSeq);
     }
-    public void apply(SegmentDataSequence dataSeq) {
+    public double apply(SegmentDataSequence dataSeq) {
         if (nestedViterbi==null)
             nestedViterbi = new NestedViterbi(this,1);
 	if (params.debugLvl > 2) 
 	    Util.printDbg("NestedCRF: Applying on " + dataSeq);
-	nestedViterbi.bestLabelSequence(dataSeq,lambda);
+	return nestedViterbi.bestLabelSequence(dataSeq,lambda);
     }
 };

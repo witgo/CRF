@@ -283,6 +283,11 @@ public class Trainer {
         for (int f = 0; f < grad.length; f++)
             grad[f] -= ExpF[f]/Zx;
         }
+        if (expFVals!=null) {
+            for (int f = 0; f < lambda.length; f++) {
+                expFVals[f] += ExpF[f]/Zx;
+            }
+        }
         if (params.debugLvl > 1) {
             System.out.println("Sequence "  + thisSeqLogli + " log(Zx) " + Math.log(Zx) + " Zx " + Zx);
         }

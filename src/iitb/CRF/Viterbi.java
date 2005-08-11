@@ -208,11 +208,12 @@ public class Viterbi implements Serializable {
     protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         dataSeq.set_y(pos, label);
     }
-    public void bestLabelSequence(DataSequence dataSeq, double lambda[]) {
+    public double bestLabelSequence(DataSequence dataSeq, double lambda[]) {
         double corrScore = viterbiSearch(dataSeq, lambda,false);
         if(model.params.debugLvl > 1)
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
-        assignLabels(dataSeq);        
+        assignLabels(dataSeq);   
+        return finalSoln.get(0).score;
     }
     
     void assignLabels(DataSequence dataSeq) {

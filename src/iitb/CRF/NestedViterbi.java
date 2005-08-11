@@ -38,7 +38,7 @@ public class NestedViterbi extends Viterbi {
         }
         return 0;
     }
-    public void bestLabelSequence(SegmentDataSequence dataSeq, double lambda[]) {
+    public double bestLabelSequence(SegmentDataSequence dataSeq, double lambda[]) {
         viterbiSearch(dataSeq, lambda,false);
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
@@ -46,5 +46,6 @@ public class NestedViterbi extends Viterbi {
             dataSeq.setSegment(ybest.prevPos()+1,ybest.pos,ybest.label);
             ybest = ybest.prevSoln;
         }
+        return finalSoln.get(0).score;
     }
 };

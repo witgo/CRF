@@ -24,7 +24,7 @@ public class Soln implements Serializable, Comparable {
         prevSoln=null;
     }
     boolean isClear() {
-        return (score == -1*Double.MAX_VALUE);
+        return (score == -1*Float.MAX_VALUE);
     }
     protected void copy(Soln soln) {
         score = soln.score;

@@ -73,11 +73,12 @@ public class SegmentAStar extends AStarInference {
         sparseMatrix = (Boolean.valueOf(model.params.miscOptions.getProperty("sparse", "false"))).booleanValue();
     }
 
-    public void bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
+    public double bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
         double corrScore = aStarSearch(dataSeq, lambda, false);
         int pos;
         //check whehter the search succeed or not
         int segmentCount = 0;//profiling
+        double score = goalState.g();
         if (goalState != null && goalState.goalState()) {
             do {
                 pos = goalState.pos;
@@ -86,14 +87,15 @@ public class SegmentAStar extends AStarInference {
                 segmentCount++;
             } while (goalState != null && goalState.pos >= 0);
             assert (pos == 0);
-            return;
+            return score;
         } else {
             //Error! Failure in A* search, finding solution using Vitrbi
             Soln soln = getViterbiSoln(dataSeq, lambda, (SegmentState)goalState);
             if(soln == null || (lbSoln != null && Double.compare(soln.score, lbSoln.score) < 0)){
                 soln = lbSoln;
-            }    
+            }
             if(soln != null){
+                score = soln.score;
                 Soln ybest = soln;
                 while (ybest != null) {
                     pos = ybest.pos;
@@ -102,7 +104,7 @@ public class SegmentAStar extends AStarInference {
                 }
             }                
         }
-        return;
+        return score;
     }
 
     public double aStarSearch(DataSequence dataSeq, double lambda[],

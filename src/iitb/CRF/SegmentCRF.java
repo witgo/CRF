@@ -63,18 +63,18 @@ public class SegmentCRF extends CRF {
 	    }
 	}
 
-	public void apply(DataSequence dataSeq) {
-	    apply((CandSegDataSequence)dataSeq);
+	public double apply(DataSequence dataSeq) {
+	    return apply((CandSegDataSequence)dataSeq);
 	}
-	public void apply(CandSegDataSequence dataSeq) {
+	public double apply(CandSegDataSequence dataSeq) {
 	    if(params.inferenceType.equalsIgnoreCase("AStar")){
 	        if(segmentAStar == null)
 	            segmentAStar = new SegmentAStar(this, 1);
-	        segmentAStar.bestLabelSequence(dataSeq, lambda);
+	        return segmentAStar.bestLabelSequence(dataSeq, lambda);
 	    }else{//default
 		    if (segmentViterbi==null)
 		        segmentViterbi = new SegmentViterbi(this,1);
-		    segmentViterbi.bestLabelSequence(dataSeq,lambda);
+		    return segmentViterbi.bestLabelSequence(dataSeq,lambda);
 	    }
 	}
 
