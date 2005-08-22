@@ -149,6 +149,7 @@ public class Trainer {
     protected void computeFeatureExpectedValue(DataIter dataIter, FeatureGenerator fgen, double lambda[], double expFVals[]) {
         diter = dataIter;
         featureGenCache = null;
+        for (int i = 0; i < expFVals.length; expFVals[i++] = 0);
         if (fgen.numFeatures() > ExpF.length) {
             // a different feature generator..
             ExpF = new double[fgen.numFeatures()];
