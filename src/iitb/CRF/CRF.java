@@ -138,18 +138,18 @@ public class CRF implements Serializable {
 	       viterbi = getViterbi(1);
 		return viterbi.viterbiSearch(dataSeq,lambda,true);
 	}
-    public void expectedFeatureValues(DataIter data, double expFVals[]) {
+    public void expectedFeatureValues(DataIter data, double expFVals[], FeatureGenerator fgen) {
         if (trainer==null) {
             trainer = getTrainer();
             trainer.init(this,data,lambda);
         }
-        trainer.computeFunctionGradient(lambda,null,expFVals);
+        trainer.computeFeatureExpectedValue(data,fgen,lambda,expFVals);
     }
     public double getLogZx(DataSequence dataSequence) {
         if (trainer==null) {
             trainer = getTrainer();
             trainer.init(this,null,lambda);
         }
-        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true, -1);
+        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true, -1, null);
     }
 };

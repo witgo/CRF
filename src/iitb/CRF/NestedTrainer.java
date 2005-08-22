@@ -15,11 +15,11 @@ class NestedTrainer extends Trainer {
     }
     DenseDoubleMatrix1D alpha_Y_Array[];
     
-    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass, int numRecord) {
+    protected double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, 
+            double lambda[], double grad[],  
+            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpVals) {
         FeatureGeneratorNested featureGenNested = (FeatureGeneratorNested)featureGenerator;
         SegmentDataSequence dataSeq = (SegmentDataSequence)data;
-        for (int f = 0; f < lambda.length; f++)
-            ExpF[f] = RobustMath.LOG0;
         
         int base = -1;
         if ((alpha_Y_Array == null) || (alpha_Y_Array.length < dataSeq.length()-base)) {
@@ -73,12 +73,12 @@ class NestedTrainer extends Trainer {
                 //	break;
                 initMDone = computeLogMi(featureGenNested,lambda,Mi_YY,Ri_Y,false,reuseM,initMDone);
                 
-                if ((grad !=null)||(expFVals!=null)) {
+                if (fgenForExpVals != null) {
                     // find features that fire at this position..
-                    featureGenNested.startScanFeaturesAt(dataSeq, i-ell,i);
+                    ((FeatureGeneratorNested)fgenForExpVals).startScanFeaturesAt(dataSeq, i-ell,i);
                     boolean isSegment = ((i-ell+1==segmentStart) && (i == segmentEnd));
-                    while (featureGenNested.hasNext()) { 
-                        Feature feature = featureGenNested.next();
+                    while (fgenForExpVals.hasNext()) { 
+                        Feature feature = fgenForExpVals.next();
                         int f = feature.index();
                         int yp = feature.y();
                         int yprev = feature.yprev();
@@ -118,17 +118,7 @@ class NestedTrainer extends Trainer {
         }
         if (invalid)
             return 0;
-        double lZx = RobustMath.logSumExp(alpha_Y_Array[dataSeq.length()-1-base]);
-        thisSeqLogli -= lZx;
-        if (grad != null)
-            // update grad.
-            for (int f = 0; f < grad.length; f++)
-                grad[f] -= RobustMath.exp(ExpF[f]-lZx);
-        
-        if (params.debugLvl > 1) {
-            System.out.println("Sequence "  + thisSeqLogli + " " + Math.exp(lZx));
-            System.out.println("Last Alpha-i " + alpha_Y_Array[dataSeq.length()-1-base].toString());
-        }
+        lZx = RobustMath.logSumExp(alpha_Y_Array[dataSeq.length()-1-base]);
         return thisSeqLogli;
     }
 };

@@ -177,7 +177,9 @@ class BSegmentTrainer extends SegmentTrainer {
         return rbeta;
     }
     
-    private double computeFeatureGradOpt(DataSequence dataSeq, int m, double grad[], double lambda[], double thisSeqLogli) {
+    private double computeFeatureGradOpt(FeatureStore.Iter fIter, DataSequence dataSeq, int m, double grad[], double lambda[], double thisSeqLogli) {
+        if (!fIter.hasNext())
+            return thisSeqLogli;
         for (int i = 0; i <= m; exactETerms[i++].assign(RobustMath.LOG0)) {
             prevExactETerms[i].assign(RobustMath.LOG0);
         }
@@ -185,9 +187,7 @@ class BSegmentTrainer extends SegmentTrainer {
         int base = -1;
         // now compute the feature gradient for state features.
         // go over each feature in increasing (s,e) order.
-        fstore.scanFeaturesSorted(fIter);
-        if (!fIter.hasNext())
-            return thisSeqLogli;
+        
         BFeature f = fIter.next();
         DoubleMatrix1D aMdR = aMdRs[0];
         for (int s = 0; s < dataSize; s++) {
@@ -302,12 +302,10 @@ class BSegmentTrainer extends SegmentTrainer {
         }
         return thisSeqLogli;
     }
-    protected double sumProduct(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], 
-            double expFVals[], boolean onlyForwardPass, int numRecord) {
+    protected double sumProductInner(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], double grad[], 
+            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpVals) {
         fstore.init(dataSeq,bfgen,lambda,numY,numRecord);
         int m = bfgen.maxBoundaryGap();
-        for (int f = 0; f < lambda.length; f++)
-            ExpF[f] = RobustMath.LOG0;
         int base = -1;
         int dataSize = dataSeq.length();
         if ((beta_Y==null) || beta_Y.length < dataSize+1)
@@ -406,23 +404,29 @@ class BSegmentTrainer extends SegmentTrainer {
                 System.out.println("Beta-i " + beta_Y[i].toString());
             }
         }
-        if ((grad != null) || (expFVals != null))
-            thisSeqLogli = computeFeatureGradOpt(dataSeq,m,grad,lambda,thisSeqLogli);
-        double lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
-        thisSeqLogli -= lZx;
-        if (grad != null) {
-            // update grad.
-            for (int fi = 0; fi < grad.length; fi++) {
-                grad[fi] -= RobustMath.exp(ExpF[fi]-lZx);
+        if (fgenForExpVals != null) {
+            FeatureStore.Iter featureIter = fIter;
+            if (fgenForExpVals != featureGenerator) {
+                // a feature generator different than used for training.
+                FeatureStore featureStore = new FeatureStore(reuseM);
+                featureStore.init(dataSeq,(BFeatureGenerator)fgenForExpVals,lambda,numY);
+                featureIter = featureStore.getIterator();
+                featureStore.scanFeaturesSorted(featureIter);
+            } else {
+                fstore.scanFeaturesSorted(fIter);
             }
+            thisSeqLogli = computeFeatureGradOpt(featureIter, dataSeq,m,grad,lambda,thisSeqLogli);
         }
+        lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
         beta_Y[dataSeq.length()-1] = oldBeta;
         return thisSeqLogli;
     }
     protected double finishGradCompute(double grad[], double lambda[], double logli) {
+        if (grad != null) {
         for (int fi = 0; fi < grad.length; fi++) {
             logli += F[fi]*lambda[fi];
             grad[fi] += F[fi];
+        }
         }
         return logli;
     }

@@ -23,12 +23,15 @@ public class SegmentTrainer extends SparseTrainer {
     }
     protected void init(CRF model, DataIter data, double[] l) {
         super.init(model,data,l);
+        logProcessing = true;
         allZeroVector = newLogDoubleMatrix1D(numY);
         allZeroVector.assign(0);
     }
-    protected double sumProduct(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], double expFVals[], boolean onlyForwardPass, int numRecord) {
+    protected double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], 
+            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute) {
         FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
         CandSegDataSequence dataSeq = (CandSegDataSequence)data;
+        FeatureGeneratorNested featureGenNestedForExpVals = (FeatureGeneratorNested)fgenForExpCompute;
         
         int base = -1;
         if ((alpha_Y_Array == null) || (alpha_Y_Array.length < dataSeq.length()-base)) {
@@ -63,9 +66,7 @@ public class SegmentTrainer extends SparseTrainer {
             }
         }
         double thisSeqLogli = 0;
-        
-        for (int f = 0; f < lambda.length; f++)
-            ExpF[f] = RobustMath.LOG0;
+
         if (reuseM) {
             for (int i = dataSeq.length(); i >= 0; i--)
                 initAlphaMDone[i] = false;
@@ -107,11 +108,11 @@ public class SegmentTrainer extends SparseTrainer {
                     newAlpha_Y.assign(Ri_Y);
                 alpha_Y_Array[segEnd-base].assign(newAlpha_Y, RobustMath.logSumExpFunc);
                 
-                if ((expFVals != null) || (grad != null)) {
+                if (featureGenNestedForExpVals != null) {
                     // find features that fire at this position..
-                    featureGenNested.startScanFeaturesAt(dataSeq, segEnd-ell,segEnd);
-                    while (featureGenNested.hasNext()) { 
-                        Feature feature = featureGenNested.next();
+                    featureGenNestedForExpVals.startScanFeaturesAt(dataSeq, segEnd-ell,segEnd);
+                    while (featureGenNestedForExpVals.hasNext()) { 
+                        Feature feature = featureGenNestedForExpVals.next();
                         int f = feature.index();
                         int yp = feature.y();
                         int yprev = feature.yprev();
@@ -158,17 +159,7 @@ public class SegmentTrainer extends SparseTrainer {
             }
             
         }
-        double lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
-        thisSeqLogli -= lZx;
-        // update grad.
-        if (grad != null) 
-            for (int f = 0; f < grad.length; f++)
-                grad[f] -= expLE(ExpF[f]-lZx);
-        if (expFVals!=null) {
-            for (int f = 0; f < lambda.length; f++) {
-                expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
-            }
-        }
+        lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
         beta_Y[dataSize-1] = oldBeta;
         return thisSeqLogli;
     }
