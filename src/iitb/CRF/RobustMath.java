@@ -90,6 +90,18 @@ public class RobustMath {
             v1.set(i,logSumExp(v1.get(i), v2.get(i)));
         }
     }
+    public static double logMinusExp(double v1, double v2) throws Exception {
+		if (v1 + Double.MIN_VALUE < v2)
+		    return -1*MINUS_LOG_EPSILON;
+//			throw new Exception("Cannot take log of negative numbers");
+		double vmin = v2;
+		double vmax = v1;
+		if (vmax > vmin + MINUS_LOG_EPSILON) {
+			return vmax;
+		} else {
+			return vmax + Math.log(1.0 - Math.exp(vmin - vmax));
+		}
+	}
     static class LogMult implements IntIntDoubleFunction {
         DoubleMatrix2D M;
         DoubleMatrix1D z;
