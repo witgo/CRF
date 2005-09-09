@@ -7,6 +7,7 @@ package iitb.Model;
 import java.io.Serializable;
 
 import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 
 /**
  * @author Administrator
@@ -141,6 +142,10 @@ public class WindowFeatures extends FeatureTypes  {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
+     public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
+            single.train(sequence, segStart, segEnd);
+     }
+    
 	public boolean needsCaching() {
         return single.needsCaching();
 	}

@@ -5,6 +5,7 @@
 package iitb.Model;
 
 import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 import iitb.Model.FeatureGenImpl.FeatureMap;
 
 /**
@@ -45,7 +46,7 @@ public class FeatureTypesWrapper extends FeatureTypes {
 		ftype.print(strToInt, crfWs);
 	}
 	*/
-	int labelIndependentId(FeatureImpl f) {
+	public int labelIndependentId(FeatureImpl f) {
 		return single.labelIndependentId(f);
 	}
 	public int maxFeatureId() {
@@ -71,6 +72,9 @@ public class FeatureTypesWrapper extends FeatureTypes {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
+    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
+        single.train(sequence, segStart, segEnd);
+    }
 	 public boolean fixedTransitionFeatures() {
 	        return single.fixedTransitionFeatures();
 	 }
