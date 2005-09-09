@@ -1,6 +1,7 @@
 package iitb.Model;
 
 import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 
 /**
  * This can be used as a wrapper around a FeatureTypes class that wants to
@@ -77,6 +78,10 @@ public class FeatureTypesEachLabel extends FeatureTypes {
      */
     public void train(DataSequence data, int pos) {
         single.train(data, pos);
+    }
+    
+    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
+        single.train(sequence, segStart, segEnd);
     }
     public boolean fixedTransitionFeatures() {
         return single.fixedTransitionFeatures();
