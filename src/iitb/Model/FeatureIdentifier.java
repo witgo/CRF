@@ -6,12 +6,12 @@ public class FeatureIdentifier implements Cloneable, Serializable {
     public int id;
     public Object name;
     public int stateId;
-    FeatureIdentifier() {
+    public FeatureIdentifier() {
     }
-    FeatureIdentifier(int fid, int s, Object n) {
+    public FeatureIdentifier(int fid, int s, Object n) {
 	init(fid,s,n);
     }
-    FeatureIdentifier(String strRep) {
+    public FeatureIdentifier(String strRep) {
 	StringTokenizer strTok = new StringTokenizer(strRep, ":");
 	name = strTok.nextToken();
 	id = Integer.parseInt(strTok.nextToken());
