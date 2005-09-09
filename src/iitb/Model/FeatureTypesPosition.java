@@ -87,7 +87,7 @@ public class FeatureTypesPosition extends FeatureTypes {
 	public void train(DataSequence data, int pos) {
 		ftype.train(data, pos);
 	}
-	int labelIndependentId(FeatureImpl f) {
+	public int labelIndependentId(FeatureImpl f) {
 		return ftype.labelIndependentId(f);
 	}
 	public int maxFeatureId() {
