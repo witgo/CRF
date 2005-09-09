@@ -49,7 +49,7 @@ public abstract class FeatureTypes implements Serializable {
     public void setFeatureIdentifier(int fId, FeatureImpl f) {
         f.strId.init(fId*fgen.numFeatureTypes + thisTypeId);
     }
-    int labelIndependentId(FeatureImpl f) {
+    public int labelIndependentId(FeatureImpl f) {
         return ((f.strId.id-thisTypeId)-f.strId.stateId*fgen.numFeatureTypes)/model.numStates()+thisTypeId;
     }
     int offsetLabelIndependentId(FeatureImpl f) {
@@ -82,7 +82,8 @@ public abstract class FeatureTypes implements Serializable {
      * @param segStart
      * @param segEnd
      */
-    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {;}
+    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
+        }
     /**
      * @return
      */
