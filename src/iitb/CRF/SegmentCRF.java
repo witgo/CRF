@@ -14,7 +14,7 @@ import gnu.trove.TIntFloatHashMap;
  *
  */
 public class SegmentCRF extends CRF {
-	FeatureGeneratorNested featureGenNested;
+	protected FeatureGeneratorNested featureGenNested;
 	transient SegmentViterbi segmentViterbi;
 	transient SegmentAStar segmentAStar;
 	public SegmentCRF(int numLabels, FeatureGeneratorNested fgen, String arg) {

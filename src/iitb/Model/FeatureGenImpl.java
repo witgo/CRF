@@ -95,11 +95,15 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         public int getId(FeatureImpl f) {
             int id = getId(f.identifier());
-            /*
+            
             if ((id >= 0) && featureCollectMode) {
-                System.out.println("Feature " + f.identifier().id + " " + f.identifier());
+                FeatureIdentifier storedFIdentifier = ((FeatureImpl)strToInt.get(f.identifier())).identifier();
+                if (!storedFIdentifier.name.equals(f.identifier().name)) {
+                    System.out.println("WARNING: same feature-id for different feature names?: " 
+                            + storedFIdentifier + ":" + f.identifier());
+                }
             }
-            */
+            
             if ((id < 0) && featureCollectMode && (!addOnlyTrainFeatures || keepFeature(data,f))) {
               //  System.out.println("Feature " + f.identifier().id + " " + f.identifier());
                 return add(f);
@@ -108,13 +112,17 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         private int getId(Object key) {
             if (strToInt.get(key) != null) {
-                return ((Integer)strToInt.get(key)).intValue();
+//                return ((Integer)strToInt.get(key)).intValue();
+                return ((FeatureImpl)strToInt.get(key)).index();
             }
             return -1;
         }
         public int add(FeatureImpl feature) {
             int newId = strToInt.size();
-            strToInt.put(feature.identifier().clone(), new Integer(newId));
+//            strToInt.put(feature.identifier().clone(), new Integer(newId));
+            FeatureImpl newFeature = (FeatureImpl) feature.clone();
+            newFeature.id = newId;
+            strToInt.put(newFeature.identifier(),newFeature);
             return newId;
         }
         void freezeFeatures() {
@@ -140,7 +148,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             out.println(strToInt.size());
             for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
                 Object key = e.nextElement();
-                out.println(key + " " + ((Integer)strToInt.get(key)).intValue());
+                out.println(key + " " + getId(key));
             }
         }
         public int read(BufferedReader in) throws IOException {
@@ -151,7 +159,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
                 StringTokenizer entry = new StringTokenizer(line," ");
                 FeatureIdentifier key = new FeatureIdentifier(entry.nextToken());
                 int pos = Integer.parseInt(entry.nextToken());
-                strToInt.put(key,new Integer(pos));
+                strToInt.put(key,new FeatureImpl(pos,key));
             }
             freezeFeatures();
             return strToInt.size();
@@ -372,7 +380,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public Feature next() {
         feature.copy(featureToReturn);
         advance();
-//      System.out.println(feature);
+       // System.out.println(feature);
         return feature;
     }
     public void freezeFeatures() {

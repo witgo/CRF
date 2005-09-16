@@ -15,25 +15,29 @@ public class FeatureImpl implements Feature, Serializable {
     public float val = 1;
     public int historyArray[] = null;
     public void init() {
-	val = 1;
-	historyArray = null;
-	ystart = -1;
-	id = 0;
+        val = 1;
+        historyArray = null;
+        ystart = -1;
+        id = 0;
     }
     public FeatureImpl() {init();}
     public FeatureImpl(FeatureImpl f) {copy(f);}
     public FeatureImpl(Feature f) {copy(f);}
     public void copy(Feature featureToReturn) {
-    	id = featureToReturn.index();
-	ystart = featureToReturn.yprev();
-	yend = featureToReturn.y();
-	val = featureToReturn.value();
-	historyArray = featureToReturn.yprevArray();
+        id = featureToReturn.index();
+        ystart = featureToReturn.yprev();
+        yend = featureToReturn.y();
+        val = featureToReturn.value();
+        historyArray = featureToReturn.yprevArray();
     }
     public void copy(FeatureImpl featureToReturn) {
-	copy((Feature)featureToReturn);
-	strId.copy(featureToReturn.strId);
-	type = featureToReturn.type;
+        copy((Feature)featureToReturn);
+        strId.copy(featureToReturn.strId);
+        type = featureToReturn.type;
+    }
+    public FeatureImpl(int id, FeatureIdentifier strId) {
+        this.id = id;
+        this.strId = strId;
     }
     public int index() {return id;} 
     public int y() {return yend;}
@@ -42,6 +46,8 @@ public class FeatureImpl implements Feature, Serializable {
     public String toString() {return strId + " " + val;}
     public FeatureIdentifier identifier() {return strId;}
     public int[] yprevArray() {return historyArray;}
-
+    public Object clone() {
+        return new FeatureImpl(this);
+    }
 };
 

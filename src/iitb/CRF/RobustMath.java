@@ -108,6 +108,7 @@ public class RobustMath {
         double lalpha;
         boolean transposeA;
         DoubleMatrix1D y;
+        int cnt;
         public double apply(int i, int j, double val) {
             int r = i;
             int c = j;
@@ -139,7 +140,9 @@ public class RobustMath {
         logMult.lalpha = lalpha;
         logMult.transposeA = transposeA;
         logMult.y = y;
+        logMult.cnt=0;
         M.forEachNonZero(logMult);
+//        System.out.println("Matrix "+M.size()+" "+M.columns()+ " "+logMult.cnt);
         return z;
     }
 
