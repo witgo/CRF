@@ -91,7 +91,7 @@ public class RobustMath {
         }
     }
     public static double logMinusExp(double v1, double v2) throws Exception {
-		if (v1 + Double.MIN_VALUE < v2)
+		if (v1 - Double.MIN_VALUE < v2)
 		    return -1*MINUS_LOG_EPSILON;
 //			throw new Exception("Cannot take log of negative numbers");
 		double vmin = v2;
