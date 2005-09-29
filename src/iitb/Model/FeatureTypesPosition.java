@@ -11,11 +11,9 @@ import iitb.CRF.DataSequence;
  *
  */
 public class FeatureTypesPosition extends FeatureTypes {
-    /**
-     * @param ftype
-     */
+    static byte maxParams=3;
     FeatureTypes ftype;
-    boolean squareSent;
+    byte currentParamId; // send three terms per feature: constant, linear, square.
     int segStart;
     int segEnd;
     int currPos;
@@ -27,9 +25,14 @@ public class FeatureTypesPosition extends FeatureTypes {
         this.ftype = ftype;
     }
     void advance() {
+        currentParamId++;
+        if (currentParamId<maxParams)
+            return;
         while (true) {
-            if (ftype.hasNext())
+            if ((currPos >= segStart) && ftype.hasNext()) {
+                currentParamId=0;
                 return;
+            }
             currPos++;
             if (currPos > segEnd)
                 return;
@@ -39,47 +42,39 @@ public class FeatureTypesPosition extends FeatureTypes {
     public  boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
         segStart = prevPos+1;
         segEnd = pos;
-        currPos = prevPos+1;
-        squareSent=true;
+        currPos = segStart-1;
+        currentParamId = maxParams;
         dataSeq = data;
         dataLen = data.length();
-        ftype.startScanFeaturesAt(data,prevPos,prevPos+1);
         advance();
         return ftype.hasNext();
     }
     public boolean hasNext() {
-        return !squareSent || ((currPos <= segEnd) && ftype.hasNext());
+        return (currentParamId < maxParams) || ((currPos <= segEnd) && ftype.hasNext());
     }
     public void next(FeatureImpl f) {
-        if (!squareSent) {
-            squareSent = true;
-            f.copy(savedFeature);
-            // saved feature with value change to square.
-            f.val *= f.val;
-            advance();
-           
-            String name="";
-            if (featureCollectMode()) {
-                name = "POS^2" + f.strId.name;
-            }
-            setFeatureIdentifier(f.strId.id*2+1,f.strId.stateId, name, f);
-        } else {
+        if (currentParamId==0) {
             ftype.next(f);
-            f.val = (float)(currPos-segStart+1)/(segEnd-segStart+1); //dataLen;
             savedFeature.copy(f);
-            squareSent = false;
-            int bin = (int)(f.val*10);
-            //f.val = 1;
-            //int fid = f.strId.id*10+bin;
-            int fid = f.strId.id;
-            String name="";
-            if (featureCollectMode()) {
-                name = "POS_" + f.strId.name;
+        } else {
+            f.copy(savedFeature);
+            switch (currentParamId) {
+            case 1:
+                f.val = currPos-segStart+1; // (float)(currPos-segStart+1)/(segEnd-segStart+1); //dataLen;
+                break;
+            case 3:
+                f.val = segEnd-currPos+1;
+                break;
+            default:
+                f.val *= f.val; 
             }
-            setFeatureIdentifier(fid, f.strId.stateId, name, f);
+        } 
+        String name="";
+        if (featureCollectMode()) {
+            name = "POS^" + currentParamId +  f.strId.name;
         }
-        //if (featureCollectMode())
-        //    System.out.println(f + " " + f.val);
+        setFeatureIdentifier(maxParams*f.strId.id+currentParamId,f.strId.stateId, name, f);
+        advance();
     }
     public boolean requiresTraining() {
 		return ftype.requiresTraining();
@@ -91,6 +86,6 @@ public class FeatureTypesPosition extends FeatureTypes {
 		return ftype.labelIndependentId(f);
 	}
 	public int maxFeatureId() {
-		return ftype.maxFeatureId()*2;
+		return ftype.maxFeatureId()*maxParams;
 	}
 }
