@@ -122,7 +122,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		this.maxMemory = maxMemory;
 		
 		window = getWindowSize(relSegmentStart, relSegmentEnd);		
-		idbase = (int) Math.pow(2, window);
+		idbase = (int) Math.pow(2, window-1);
 		getPatterns(patternFile);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
@@ -323,7 +323,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	}
 
 	public int maxFeatureId(){
-	    return idbase * (patternString.length - 1) + (idbase -1); //(maximum base i.e. most significat bits + maximum offset)
+	    return idbase * patternString.length; //(maximum base i.e. most significat bits + maximum offset)
 	}
 	int offsetLabelIndependentId(FeatureImpl f) {
 	    return f.strId.id;
