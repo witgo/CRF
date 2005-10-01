@@ -23,13 +23,22 @@ public class FeatureTypesConcat extends FeatureTypes {
 	public FeatureTypesConcat(FeatureGenImpl fgen, FeatureTypes single, int maxMemory) {
 		super(fgen);
 		this.single = single;
-		// TODO: set this properly for different classes.
-		int maxId = single.maxFeatureId()+1; // for the feature not firing.
-		numBits = Utils.log2Ceil(maxId);
-		thisTypeId = single.thisTypeId;
-		maxConcatLength = maxMemory;
+        maxConcatLength = maxMemory;
+        thisTypeId = single.thisTypeId;
+        numBits = 0;
+		
 	}
 
+    void setNumBits() {
+        if (numBits > 0) return;
+        int maxId = single.maxFeatureId()+1; // for the feature not firing.
+        numBits = Utils.log2Ceil(maxId);
+        if (maxConcatLength*numBits > Integer.SIZE) {
+            System.out.println("Cannot handle larger than " + Integer.SIZE/numBits 
+                    + " long segments. Resetting to this value");
+            maxConcatLength = Integer.SIZE/numBits;
+        }
+    }
 	/* (non-Javadoc)
 	 * @see iitb.Model.FeatureTypes#startScanFeaturesAt(iitb.CRF.DataSequence, int, int)
 	 */
@@ -37,13 +46,14 @@ public class FeatureTypesConcat extends FeatureTypes {
 		int bitMap = 0;
 		String name = "";
 		feature.strId.id=0;
+        setNumBits();
 		if (pos-prevPos > maxConcatLength)
 		    return false;
 		for (int i = 0; (i < pos-prevPos) && (i < maxConcatLength); i++) {
 			if (single.startScanFeaturesAt(data,pos-i-1,pos-i) && single.hasNext()) {
 				single.next(feature);
 				// this could be wrong since label information is not present in single.
-				int thisId = offsetLabelIndependentId(feature)+1;
+				int thisId = single.offsetLabelIndependentId(feature);
 				bitMap = bitMap | (thisId << i*numBits);
 				if (featureCollectMode()) {
 					name = feature.strId.name + "." + name;
