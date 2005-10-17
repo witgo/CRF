@@ -63,7 +63,7 @@ public abstract class FeatureTypes implements Serializable {
     }
     //public void print(FeatureGenImpl.FeatureMap strToInt, double crfWs[]) {;}
     public int maxFeatureId() {
-		LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement maxFeatureId(). Returning default value. Please refer to the documentation.");
+		iitb.Utils.LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement maxFeatureId(). Returning default value. Please refer to the documentation.");
 		return Integer.MAX_VALUE;
 	}
     /*  private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException  {
@@ -80,7 +80,7 @@ public abstract class FeatureTypes implements Serializable {
     public boolean requiresTraining(){return false;}
     public void train(DataSequence data, int pos) {
 		if(requiresTraining()) {
-			LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(DataSequence, int) method. Please implement the train() methods properly.");
+			iitb.Utils.LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(DataSequence, int) method. Please implement the train() methods properly.");
 		}
 	}	
     /**
@@ -91,7 +91,7 @@ public abstract class FeatureTypes implements Serializable {
      */
     public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
 		if(requiresTraining()) {
-			LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(SegmentDataSequence, int, int) method. Calling train(DataSequence, int) instead. Please implement the train() methods properly.");
+			iitb.Utils.LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(SegmentDataSequence, int, int) method. Calling train(DataSequence, int) instead. Please implement the train() methods properly.");
 			train((DataSequence)sequence, segEnd);
         }
 	}	
