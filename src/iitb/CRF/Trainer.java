@@ -406,13 +406,15 @@ public class Trainer {
         }
         // compute beta values in a backward scan.
         // also scale beta-values to 1 to avoid numerical problems.
-        beta_Y[dataSeq.length()-1].assign(0);
-        for (int i = dataSeq.length()-1; i > 0; i--) {
-            // compute the Mi matrix
-            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-            tmp_Y.assign(beta_Y[i]);
-            tmp_Y.assign(Ri_Y,sumFunc);
-            RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
+        if (!onlyForwardPass) {
+            beta_Y[dataSeq.length()-1].assign(0);
+            for (int i = dataSeq.length()-1; i > 0; i--) {
+                // compute the Mi matrix
+                initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+                tmp_Y.assign(beta_Y[i]);
+                tmp_Y.assign(Ri_Y,sumFunc);
+                RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
+            }
         }
         alpha_Y.assign(0);
         double thisSeqLogli = 0;
@@ -430,28 +432,28 @@ public class Trainer {
 
             if (fgenForExpVals != null) {
             // find features that fire at this position..
-            fgenForExpVals.startScanFeaturesAt(dataSeq, i);
-            while (fgenForExpVals.hasNext()) { 
-                Feature feature = fgenForExpVals.next();
-                int f = feature.index();
-                
-                int yp = feature.y();
-                int yprev = feature.yprev();
-                float val = feature.value();
-                
-                if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
-                    grad[f] += val;
-                    thisSeqLogli += val*lambda[f];
-                    if (params.debugLvl > 2) {
-                        System.out.println("Feature fired " + f + " " + feature);
-                    } 
+                fgenForExpVals.startScanFeaturesAt(dataSeq, i);
+                while (fgenForExpVals.hasNext()) { 
+                    Feature feature = fgenForExpVals.next();
+                    int f = feature.index();
+                    
+                    int yp = feature.y();
+                    int yprev = feature.yprev();
+                    float val = feature.value();
+                    
+                    if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                        grad[f] += val;
+                        thisSeqLogli += val*lambda[f];
+                        if (params.debugLvl > 2) {
+                            System.out.println("Feature fired " + f + " " + feature);
+                        } 
+                    }
+                    if (yprev < 0) {
+                        ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
+                    } else {
+                        ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
+                    }
                 }
-                if (yprev < 0) {
-                    ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
-                } else {
-                    ExpF[f] = RobustMath.logSumExp(ExpF[f], alpha_Y.get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+RobustMath.log(val)+beta_Y[i].get(yp));
-                }
-            }
             }
             alpha_Y.assign(newAlpha_Y);
             

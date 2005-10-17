@@ -85,6 +85,8 @@ public class CRF implements Serializable {
     protected Trainer getTrainer() {
         if (params.trainerType.startsWith("Collins"))
             return new CollinsTrainer(params);
+        if (params.trainerType.startsWith("Piecewise"))
+            return new PiecewiseTrainer(params);
         return new Trainer(params);
     }
     protected Viterbi getViterbi(int beamsize) {

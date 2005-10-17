@@ -212,6 +212,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         }
         return true;
     }
+    public void labelsToSegments(SegmentDataSequence data) {
+         model.mapStatesToLabels((SegmentDataSequence)data);
+    }
     public int maxMemory() {return 1;}
     public boolean train(DataIter trainData) throws Exception {
         return train(trainData,true);
