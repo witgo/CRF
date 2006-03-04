@@ -1,5 +1,7 @@
 package iitb.CRF;
 
+import java.util.Iterator;
+
 import riso.numerical.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
@@ -43,7 +45,7 @@ public class Trainer {
     MultSingle constMultiplier = new MultSingle();
     
     protected DataIter diter;
-    FeatureGenerator featureGenerator;
+    protected FeatureGenerator featureGenerator;
     protected CrfParams params;
     EdgeGenerator edgeGen;
     protected int icall;
@@ -312,6 +314,71 @@ public class Trainer {
             DoubleMatrix1D Ri_Y, boolean takeExp) {
         computeLogMi(featureGen,lambda,Mi_YY,Ri_Y,takeExp,false,false);
     }
+    static boolean computeLogMiInitDone(FeatureGenerator featureGen, double lambda[], 
+            DoubleMatrix2D Mi_YY,
+            DoubleMatrix1D Ri_Y, double DEFAULT_VALUE) {
+        boolean mSet = false;
+        while (featureGen.hasNext()) { 
+            Feature feature = featureGen.next();
+            int f = feature.index();
+            int yp = feature.y();
+            int yprev = feature.yprev();
+            float val = feature.value();
+            if (yprev == -1) {
+                // this is a single state feature.
+                
+                // if default value was a negative_infinity, need to
+                // reset to.
+                double oldVal = Ri_Y.get(yp);
+                if (oldVal == DEFAULT_VALUE)
+                    oldVal = 0;
+                Ri_Y.set(yp,oldVal+lambda[f]*val);
+            } else if (Mi_YY != null) {
+                double oldVal = Mi_YY.get(yprev,yp);
+                if (oldVal == DEFAULT_VALUE) {
+                    oldVal = 0;
+                    if (Ri_Y.get(yp) == DEFAULT_VALUE)
+                        Ri_Y.set(yp,0);
+                }
+                Mi_YY.set(yprev,yp,oldVal+lambda[f]*val);
+                mSet = true;
+            }
+        }
+        return mSet;
+    }
+    public static double initLogMi(double defaultValue, Iterator constraints,
+            DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
+        if (constraints != null) {
+            defaultValue = RobustMath.LOG0;
+            if (Mi != null) Mi.assign(defaultValue);
+            Ri.assign(defaultValue);
+            for (; constraints.hasNext();) {
+                Constraint constraint = (Constraint)constraints.next();
+                if (constraint.type() == Constraint.ALLOW_ONLY) {
+                    RestrictConstraint cons = (RestrictConstraint)constraint;
+                    /*
+                     for (int c = cons.numAllowed()-1; c >= 0; c--) {
+                     Ri.set(cons.allowed(c),0);
+                     }
+                     */
+                    for (cons.startScan(); cons.hasNext();) {
+                        cons.advance();
+                        int y = cons.y();
+                        int yprev = cons.yprev();
+                        if (yprev < 0) {
+                            Ri.set(y,0);
+                        } else {
+                            if (Mi != null) Mi.set(yprev,y,0);
+                        }
+                    }
+                }
+            }
+        } else {
+            if (Mi != null) Mi.assign(defaultValue);
+            Ri.assign(defaultValue);    
+        } 
+        return defaultValue;
+    }
     static boolean computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, boolean takeExp,boolean reuseM, boolean initMDone) {
@@ -322,23 +389,7 @@ public class Trainer {
             initMDone = false;
         if (Mi_YY != null) Mi_YY.assign(0);
         Ri_Y.assign(0);
-        while (featureGen.hasNext()) { 
-            Feature feature = featureGen.next();
-            int f = feature.index();
-            int yp = feature.y();
-            int yprev = feature.yprev();
-            float val = feature.value();
-            //	    System.out.println(feature.toString());
-            
-            if (yprev < 0) {
-                // this is a single state feature.
-                double oldVal = Ri_Y.getQuick(yp);
-                Ri_Y.setQuick(yp,oldVal+lambda[f]*val);
-            } else if (Mi_YY != null) {
-                Mi_YY.setQuick(yprev,yp,Mi_YY.getQuick(yprev,yp)+lambda[f]*val);
-                initMDone = true;
-            }
-        }
+        initMDone = computeLogMiInitDone(featureGen,lambda,Mi_YY,Ri_Y,0);
         if (takeExp) {
             for(int r = Ri_Y.size()-1; r >= 0; r--) {
                 Ri_Y.setQuick(r,expE(Ri_Y.getQuick(r)));
@@ -389,7 +440,7 @@ public class Trainer {
             }
         }
         if (expFVals!=null) {
-            for (int f = 0; f < lambda.length; f++) {
+            for (int f = 0; f < expFVals.length; f++) {
                 expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
             }
         }
@@ -410,7 +461,7 @@ public class Trainer {
             beta_Y[dataSeq.length()-1].assign(0);
             for (int i = dataSeq.length()-1; i > 0; i--) {
                 // compute the Mi matrix
-                initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+                initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
                 tmp_Y.assign(beta_Y[i]);
                 tmp_Y.assign(Ri_Y,sumFunc);
                 RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
@@ -420,7 +471,7 @@ public class Trainer {
         double thisSeqLogli = 0;
         for (int i = 0; i < dataSeq.length(); i++) {
             // compute the Mi matrix
-            initMDone = computeLogMi(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
             
             if (i > 0) {
                 tmp_Y.assign(alpha_Y);
@@ -448,6 +499,12 @@ public class Trainer {
                             System.out.println("Feature fired " + f + " " + feature);
                         } 
                     }
+                    if (Math.abs(val) < Double.MIN_VALUE) continue;
+                    if (val < 0) {
+                        System.out.println("ERROR: Cannot process negative feature values in log domains: " 
+                                + "either disable the '-trainer=ll' flag or ensure feature values are not -ve");
+                        continue;
+                    }
                     if (yprev < 0) {
                         ExpF[f] = RobustMath.logSumExp(ExpF[f], newAlpha_Y.get(yp) + RobustMath.log(val) + beta_Y[i].get(yp));
                     } else {
@@ -467,7 +524,12 @@ public class Trainer {
         lZx = RobustMath.logSumExp(alpha_Y);
         return thisSeqLogli;
     }
-    
+    protected boolean computeLogMiTrainMode(FeatureGenerator featureGen, double lambda[], 
+            DataSequence dataSeq, int i, 
+            DoubleMatrix2D Mi_YY,
+            DoubleMatrix1D Ri_Y, boolean takeExp, boolean reuseM, boolean initMDone) {
+        return computeLogMi(featureGen,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+    }
     static double log(double val) {
         try {
             return logE(val);

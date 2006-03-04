@@ -1,6 +1,8 @@
 package iitb.CRF;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+
 /**
  *
  * CRF (conditional random fields) This class provides support for
@@ -82,14 +84,32 @@ public class CRF implements Serializable {
             lambda[pos++] = Double.parseDouble(line);
         }
     }
+    protected Trainer dynamicallyLoadedTrainer() {
+        if (params.trainerType.startsWith("load=")) {
+            try {
+                Class c =  Class.forName(params.trainerType.substring(5));
+                Constructor constr = c.getConstructor( new Class[] { CrfParams.class } );
+                return (Trainer)constr.newInstance( new Object[] { params } );
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
     protected Trainer getTrainer() {
+        Trainer thisTrainer = dynamicallyLoadedTrainer();
+        if (thisTrainer != null)
+            return thisTrainer;
         if (params.trainerType.startsWith("Collins"))
             return new CollinsTrainer(params);
         if (params.trainerType.startsWith("Piecewise"))
             return new PiecewiseTrainer(params);
+        
         return new Trainer(params);
     }
-    protected Viterbi getViterbi(int beamsize) {
+    public Viterbi getViterbi(int beamsize) {
         return new Viterbi(this,beamsize);
     }
     /**
@@ -152,6 +172,6 @@ public class CRF implements Serializable {
             trainer = getTrainer();
             trainer.init(this,null,lambda);
         }
-        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,true, -1, null);
+        return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,false, -1, null);
     }
 };

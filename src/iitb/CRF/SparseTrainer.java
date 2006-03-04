@@ -232,35 +232,7 @@ public class SparseTrainer extends Trainer {
         Ri_Y.assign(DEFAULT_VALUE);
         computeLogMiInitDone(featureGen,lambda,Mi_YY,Ri_Y, DEFAULT_VALUE);
     }
-    static void computeLogMiInitDone(FeatureGenerator featureGen, double lambda[], 
-            DoubleMatrix2D Mi_YY,
-            DoubleMatrix1D Ri_Y, double DEFAULT_VALUE) {
-        while (featureGen.hasNext()) { 
-            Feature feature = featureGen.next();
-            int f = feature.index();
-            int yp = feature.y();
-            int yprev = feature.yprev();
-            float val = feature.value();
-            if (yprev == -1) {
-                // this is a single state feature.
-                
-                // if default value was a negative_infinity, need to
-                // reset to.
-                double oldVal = Ri_Y.get(yp);
-                if (oldVal == DEFAULT_VALUE)
-                    oldVal = 0;
-                Ri_Y.set(yp,oldVal+lambda[f]*val);
-            } else if (Mi_YY != null) {
-                double oldVal = Mi_YY.get(yprev,yp);
-                if (oldVal == DEFAULT_VALUE) {
-                    oldVal = 0;
-                    if (Ri_Y.get(yp) == DEFAULT_VALUE)
-                        Ri_Y.set(yp,0);
-                }
-                Mi_YY.set(yprev,yp,oldVal+lambda[f]*val);
-            }
-        }
-    }
+    
     static void computeMi(FeatureGenerator featureGen, double lambda[], 
             DataSequence dataSeq, int i, 
             DoubleMatrix2D Mi_YY,

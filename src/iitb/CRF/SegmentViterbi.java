@@ -8,6 +8,7 @@ import cern.colt.matrix.DoubleMatrix2D;
 
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
+import gnu.trove.TIntIterator;
 import gnu.trove.TIntProcedure;
 
 /**
@@ -51,7 +52,28 @@ public class SegmentViterbi extends SparseViterbi {
              intersectTest.prevLabel = prevLabel;
              return set.forEach(intersectTest);
         }
-        
+        public boolean valid(TIntHashSet set, int yp, TIntHashSet set2) {
+            intersectTest.label = yp;
+            intersectTest.prevLabel = -1;
+            boolean isValid = !conflicting(yp) || set2.forEach(intersectTest);
+            for(TIntIterator iter = set.iterator(); iter.hasNext();) {
+                if (!isValid) return false;
+                intersectTest.label = iter.next();
+                isValid = set2.forEach(intersectTest);
+            }
+            return isValid;
+        }
+        public boolean match(TIntHashSet set1, TIntHashSet set2) {
+            return set1.equals(set2);
+        }
+        public TIntHashSet formPathLabels(TIntHashSet set, int label, TIntHashSet labelsOnPath) {
+            if (!conflicting(label))
+                return set;
+            labelsOnPath.clear();
+            labelsOnPath.add(label);
+            labelsOnPath.addAll(set.toArray());
+            return labelsOnPath;
+        }
         /**
          * @param dataSeq
          * @return
@@ -63,7 +85,7 @@ public class SegmentViterbi extends SparseViterbi {
     				Constraint constraint = (Constraint)constraints.next();
     				if (constraint.type() == Constraint.PAIR_DISALLOW) {
     				    if (labelCons != null) {
-    				        labelCons.disallowedPairs = (ConstraintDisallowedPairs)constraint;
+    				        labelCons.init((ConstraintDisallowedPairs)constraint);
     				        return labelCons;
     				    } else
     				        return new LabelConstraints((ConstraintDisallowedPairs)constraint);
@@ -72,6 +94,9 @@ public class SegmentViterbi extends SparseViterbi {
             }
             return null;
         }
+        protected void init(ConstraintDisallowedPairs pairs) {
+            disallowedPairs = pairs;
+        }
         /**
          * @param label
          * @return
@@ -79,6 +104,8 @@ public class SegmentViterbi extends SparseViterbi {
         public boolean conflicting(int label) {
             return disallowedPairs.conflicting(label);
         }
+       
+ 
     }
 
     LabelConstraints labelConstraints=null;
@@ -141,8 +168,8 @@ public class SegmentViterbi extends SparseViterbi {
         }
     }
     class ContextForLabelConstraints extends Context {
-        ContextForLabelConstraints(int numY, int beamsize, int pos) {
-            super(numY, beamsize, pos);
+        ContextForLabelConstraints(int numY, int beamsize, int pos, int startPos) {
+            super(numY, beamsize, pos, startPos);
         }
         private static final long serialVersionUID = 1L;
         public void add(int y, Entry prevSoln, float thisScore) {
@@ -150,13 +177,13 @@ public class SegmentViterbi extends SparseViterbi {
                 super.add(y,prevSoln,thisScore);
             } else {
                 if (getQuick(y) == null) {
-                    setQuick(y, new EntryForLabelConstraints((pos==0)?1:beamsize, y, pos)); 
+                    setQuick(y, new EntryForLabelConstraints((pos==startPos)?1:beamsize, y, pos)); 
                 }
                 super.add(y,prevSoln,thisScore);
             }
         }
     }
-    protected SegmentViterbi(SegmentCRF nestedModel, int bs) {
+    public SegmentViterbi(SegmentCRF nestedModel, int bs) {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
     }
@@ -250,10 +277,10 @@ public class SegmentViterbi extends SparseViterbi {
             */
         }
     }
-    protected Context newContext(int numY, int beamsize, int pos){
+    protected Context newContext(int numY, int beamsize, int pos, int startPos){
         if (labelConstraints == null)
-            return new Context(numY,beamsize,pos);        
-        return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos); 
+            return new Context(numY,beamsize,pos, startPos);        
+        return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos,startPos); 
     }
     
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
@@ -289,6 +316,15 @@ public class SegmentViterbi extends SparseViterbi {
 	    labelConstraints = null;
 		return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
 	}
+    public double viterbiSearchBackward(DataSequence dataSeq, double[] lambda,
+            DoubleMatrix2D Mis[][],DoubleMatrix1D Ris[][], boolean constraints,
+            boolean calcCorrectScore) {
+        if(constraints)
+            labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+        else
+            labelConstraints = null;
+        return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
+    }
     
     public static class SegmentationImpl extends LabelSequence implements Segmentation {
         class Segment implements Comparable {

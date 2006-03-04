@@ -1,5 +1,8 @@
 package iitb.CRF;
 
+import gnu.trove.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleIterator;
+
 import java.util.*;
 
 import cern.colt.matrix.*;
@@ -29,6 +32,10 @@ public class SegmentTrainer extends SparseTrainer {
     }
     protected double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], 
             boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute) {
+        return sumProductInner(data,featureGenerator,lambda,grad,onlyForwardPass,numRecord,fgenForExpCompute,null);
+    }
+    double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], 
+            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute,TIntDoubleHashMap segmentMarginals[][]) {
         FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
         CandSegDataSequence dataSeq = (CandSegDataSequence)data;
         FeatureGeneratorNested featureGenNestedForExpVals = (FeatureGeneratorNested)fgenForExpCompute;
@@ -132,6 +139,13 @@ public class SegmentTrainer extends SparseTrainer {
                         }
                     }
                 }
+                if (segmentMarginals != null) {
+                    for (int i = newAlpha_Y.size()-1; i >= 0; i--) {
+                        if (segmentMarginals[i][segEnd-ell+1]==null)
+                            segmentMarginals[i][segEnd-ell+1] = new TIntDoubleHashMap();
+                        segmentMarginals[i][segEnd-ell+1].put(segEnd,newAlpha_Y.get(i)+beta_Y[segEnd].get(i));
+                    }
+                }
                 if ((grad != null) && (segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
                     trainingSegmentFound = true;
                     double val1 = Ri_Y.get(dataSeq.y(trainingSegmentEnd));
@@ -161,6 +175,20 @@ public class SegmentTrainer extends SparseTrainer {
         }
         lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
         beta_Y[dataSize-1] = oldBeta;
+        if (segmentMarginals != null) {
+            // normalize with respect to thisSeqLogLi.
+            for (int y = 0; y < segmentMarginals.length; y++) {
+                for (int segStart = 0; segStart < segmentMarginals[y].length; segStart++) {
+                    for (TIntDoubleIterator segEndProbIter = segmentMarginals[y][segStart].iterator(); segEndProbIter.hasNext();) {
+                        segEndProbIter.advance();
+                        segEndProbIter.setValue(Math.exp(segEndProbIter.value()-lZx));
+                        //System.out.println(segEndProbIter.key() + " " + segEndProbIter.value());
+                        assert (segmentMarginals[y][segStart].get(segEndProbIter.key()) < 1);
+                    }
+                }
+            }
+            return lZx;
+        }
         return thisSeqLogli;
     }
  
@@ -184,38 +212,9 @@ public class SegmentTrainer extends SparseTrainer {
             FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
         featureGenNested.startScanFeaturesAt(dataSeq,prevPos,pos);
         Iterator constraints = dataSeq.constraints(prevPos,pos);
-        double defaultValue = RobustMath.LOG0;
-        if (Mi != null) Mi.assign(defaultValue);
-        Ri.assign(defaultValue);
-        if (constraints != null) {
-            for (; constraints.hasNext();) {
-                Constraint constraint = (Constraint)constraints.next();
-                if (constraint.type() == Constraint.ALLOW_ONLY) {
-                    RestrictConstraint cons = (RestrictConstraint)constraint;
-                    /*
-                     for (int c = cons.numAllowed()-1; c >= 0; c--) {
-                     Ri.set(cons.allowed(c),0);
-                     }
-                     */
-                    for (cons.startScan(); cons.hasNext();) {
-                        cons.advance();
-                        int y = cons.y();
-                        int yprev = cons.yprev();
-                        if (yprev < 0) {
-                            Ri.set(y,0);
-                        } else {
-                            if (Mi != null) Mi.set(yprev,y,0);
-                        }
-                    }
-                }
-            }
-        } else {
-            defaultValue = 0;
-            if (Mi != null) Mi.assign(defaultValue);
-            Ri.assign(defaultValue);	
-        } 
-        return defaultValue;
+        return initLogMi(0.0,constraints,Mi,Ri);
     }
+    
     static boolean computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, 
             double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri, 

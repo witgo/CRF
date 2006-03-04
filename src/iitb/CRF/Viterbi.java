@@ -182,7 +182,7 @@ public class Viterbi implements Serializable {
         }    	
         for (int i = dataSeq.length() - 1; i >= 0; i--) {
             // compute Mi.
-            Trainer.computeLogMi(model.featureGenerator,lambda,dataSeq,i,Mi,Ri,false);
+            computeLogMi(dataSeq,i,1,lambda);
             Mis[i].assign(Mi);
             Ris[i].assign(Ri);
             if(i == 0)
@@ -250,8 +250,8 @@ public class Viterbi implements Serializable {
         return corrScore;
     }   
     
-    int numSolutions() {return finalSoln.numSolns();}
-    Soln getBestSoln(int k) {
+    public int numSolutions() {return finalSoln.numSolns();}
+    public Soln getBestSoln(int k) {
         return finalSoln.get(k).prevSoln;
     }
     protected LabelSequence newLabelSequence(int len){
@@ -275,6 +275,7 @@ public class Viterbi implements Serializable {
         for (int k = numSols-1; k >= 0; k--) {
             Soln ybest = finalSoln.get(k);
             labelSequences[k] = newLabelSequence(dataSeq.length());
+            labelSequences[k].score = ybest.score;
             if (getScores) labelSequences[k].score = Math.exp((double)ybest.score-lZx);
             ybest = ybest.prevSoln;
             while (ybest != null) {	

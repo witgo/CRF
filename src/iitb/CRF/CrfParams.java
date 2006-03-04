@@ -38,6 +38,11 @@ public class CrfParams implements Serializable {
     public boolean doRobustScale = false;
     
     public boolean reuseM = false;
+    
+    /** This when set to true will only allow transitions
+     *  for which there is a corresponding edge feature
+     */
+    public boolean onlyFeatureBasedTransitions = false;
 
     public java.util.Properties miscOptions;
     /**
@@ -112,5 +117,6 @@ public class CrfParams implements Serializable {
 	    }catch(NumberFormatException nfe){}
 	}
     reuseM = Boolean.valueOf(opts.getProperty("reuseM","false")).booleanValue();
+    onlyFeatureBasedTransitions = Boolean.valueOf(opts.getProperty("onlyFeatureTransitions","false"));
     }
 };

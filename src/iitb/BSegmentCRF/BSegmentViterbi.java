@@ -172,7 +172,7 @@ public class BSegmentViterbi extends SparseViterbi {
          * @param arg2
          */
         protected OpenContext(int arg0, int arg1, int arg2) {
-            super(arg0, arg1, arg2);
+            super(arg0, arg1, arg2, 0);
             // TODO Auto-generated constructor stub
         }
         protected Entry newEntry(int beamsize, int label, int pos) {

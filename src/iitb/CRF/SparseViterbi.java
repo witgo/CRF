@@ -24,18 +24,20 @@ public class SparseViterbi extends Viterbi {
     protected class Context extends DenseObjectMatrix1D {
         protected int pos;
         protected int beamsize;
+        protected int startPos=0;
        
-        protected Context(int numY, int beamsize, int pos){
+        protected Context(int numY, int beamsize, int pos, int startPos){
             super(numY);
             this.pos = pos;
             this.beamsize = beamsize;
+            this.startPos = startPos;
         }
         protected Entry newEntry(int beamsize, int label, int pos) {
             return new Entry(beamsize,label,pos);
         }
         public void add(int y, Entry prevEntry, float thisScore) {
             if (getQuick(y) == null) {
-                setQuick(y, newEntry((pos==0)?1:beamsize, y, pos));
+                setQuick(y, newEntry((pos==startPos)?1:beamsize, y, pos));
             }
             getEntry(y).valid = true;
             getEntry(y).add(prevEntry,thisScore);
@@ -222,15 +224,14 @@ public class SparseViterbi extends Viterbi {
         Context firstContext;
         
         public double apply(int yp, int yi, double val) {
-            if(i == dataSeq.length() - 1){
-                context[i+1].add(yi, null, 0);
-            }
+            
             if (context[i+1].entryNotNull(yi))
                 context[i-ell+1].add(yp, context[i+1].getEntry(yi),(float)(Mi.get(yp,yi)+Ri.get(yi)));
             return val;
         }
         public double apply(int yi, double val) {
-            context[0].add(yi,i == dataSeq.length() -1 ? null : context[i+1].getEntry(yi),(float) val);
+            // this is not quite right since there is no yp value..
+            context[0].add(0,i == dataSeq.length() -1 ? null : context[i+1].getEntry(yi),(float) val);
             return val;
         }
 
@@ -251,7 +252,9 @@ public class SparseViterbi extends Viterbi {
  
             for (i = dataSeq.length(); i >= 0; i--) {
                 context[i].clear();
-            }    
+            }
+            
+            boolean notInit = true;
             for (i = dataSeq.length() - 1; i >= 0; i--) {
                 for (iter.start(i,dataSeq); (ell = iter.nextEll(i)) > 0;) {
                     // compute Mi.
@@ -261,7 +264,12 @@ public class SparseViterbi extends Viterbi {
 	                    Ri = (LogSparseDoubleMatrix1D) Ris[i][ell];
                     }else
                         computeLogMi(dataSeq, i, ell, lambda);
-                    
+            
+                    if (notInit) {
+                        for(int yi=0; yi < Ri.size(); yi++)
+                            context[dataSeq.length()].add(yi, null, 0);
+                        notInit = false;
+                    }
                     if (i - ell >= 0)
                         Mi.forEachNonZero(this);
                     else
@@ -306,19 +314,21 @@ public class SparseViterbi extends Viterbi {
         staticHeapRi = new StaticHeapLogSparseDoubleMatrix1D(0, model.numY);        
     }
     
-    void allocateContext(int numY, int seqLength){
+    void allocateContext(int numY, int seqLength, int startPos){
         Context oldContext[] = context;
         context = new Context[seqLength + 1];
         for (int l = 0; l < oldContext.length; l++) {
             context[l] = oldContext[l];
+            if ((context[l].startPos == l) && (l != startPos))
+                context[l] = newContext(numY,beamsize,l,startPos);
         }
         for (int l = oldContext.length; l < context.length; l++) {
-            context[l] = newContext(numY,beamsize,l);
+            context[l] = newContext(numY,beamsize,l, startPos);
         }
     }
     
-    protected Context newContext(int numY, int beamsize, int pos){
-        return new Context(numY,beamsize,pos);        
+    protected Context newContext(int numY, int beamsize, int pos, int startPos){
+        return new Context(numY,beamsize,pos, startPos);        
     }
     
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {
@@ -330,7 +340,7 @@ public class SparseViterbi extends Viterbi {
         initSearch(dataSeq.length());
         double corrScore = contextUpdate.fillArray(dataSeq, lambda,Mis, Ris, calScore);
         if(dataSeq.length() > 0)
-            calculatFinalSolution(context[dataSeq.length() - 1]);
+            calculateFinalSolution(context[dataSeq.length() - 1]);
         if (model.params.debugLvl > 1) {
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }
@@ -345,7 +355,7 @@ public class SparseViterbi extends Viterbi {
         initSearch(dataSeq.length());
         double corrScore = contextUpdate.fillArray(dataSeq, lambda, Mis, Ris, soln, calScore);
         if(dataSeq.length() > 0)
-            calculatFinalSolution(context[dataSeq.length() - 1]);
+            calculateFinalSolution(context[dataSeq.length() - 1]);
         if (model.params.debugLvl > 1) {
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }
@@ -354,25 +364,28 @@ public class SparseViterbi extends Viterbi {
 
     public double viterbiSearchBackward(DataSequence dataSeq, double lambda[], 
             DoubleMatrix2D Mis[][], DoubleMatrix1D Ris[][], boolean calcCorrectScore) {
-        initSearch(dataSeq.length());
+        initSearch(dataSeq.length(), dataSeq.length());
         double corrScore = backwardContextUpdate.fillArray(dataSeq, lambda, Mis, Ris, calcCorrectScore);
         if(context.length > 0)
-            calculatFinalSolution(context[0]);
+            calculateFinalSolution(context[0]);
         if (model.params.debugLvl > 1) {
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
         }
         return corrScore;
     }
 
-    protected void initSearch(int seqLength){
+    protected void initSearch(int seqLength) {
+        initSearch(seqLength,0);
+    }
+    protected void initSearch(int seqLength, int startPos){
         if (Mi == null)
             allocateScratch(model.numY);
         if(context.length <= seqLength)
-            allocateContext(model.numY, seqLength);
+            allocateContext(model.numY, seqLength, startPos);
         finalSoln.clear();        
     }
 
-    protected void calculatFinalSolution(Context context){
+    protected void calculateFinalSolution(Context context){
         finalSoln.valid = true;
         for (int y = 0; y < context.size(); y++) {
             if (context.entryNotNull(y))
@@ -380,7 +393,7 @@ public class SparseViterbi extends Viterbi {
         }
     }
     
-    void cacheMis(DataSequence dataSeq, double lambda[]){
+    public void cacheMis(DataSequence dataSeq, double lambda[]){
         if(Mi == null)
             allocateScratch(model.numY);
         allocateCacheArray(dataSeq);

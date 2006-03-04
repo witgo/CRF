@@ -42,7 +42,7 @@ public class BSegmentCRF extends SegmentCRF {
         return new BSegmentTrainer(params);
     }
     
-    protected Viterbi getViterbi(int beamsize) {
+    public Viterbi getViterbi(int beamsize) {
         return params.miscOptions.getProperty("segmentViterbi", "false").equals("true")?
                 super.getViterbi(beamsize):new BSegmentViterbi(this,numY,beamsize);
     }

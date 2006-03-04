@@ -7,6 +7,7 @@
 package iitb.CRF;
 
 import gnu.trove.TIntArrayList;
+import gnu.trove.TIntDoubleHashMap;
 import gnu.trove.TIntFloatHashMap;
 
 /**
@@ -34,47 +35,28 @@ public class SegmentCRF extends CRF {
 	    public void stateMappingGivenLength(int label, int len, TIntArrayList stateIds) 
 	    throws Exception;
 	};
-	/*
-	public SegmentCRF(int numLabels, FeatureGeneratorNested fgen, FeatureGenerator markovGen, 
-	        ModelGraph modelGraph, java.util.Properties configOptions) {
-		super(numLabels,fgen,configOptions);
-		combinedFeatureCache = new CombinedFeatureCache(numLabels,fgen,markovGen, modelGraph);
-		featureGenNested = combinedFeatureCache;
-		segmentViterbi = new SegmentViterbi(this,1);
-	}*/
+
 	protected Trainer getTrainer() {
+        Trainer thisTrainer = dynamicallyLoadedTrainer();
+        if (thisTrainer != null)
+            return thisTrainer;
 		if (params.trainerType.startsWith("SegmentCollins"))
 			return new NestedCollinsTrainer(params);
 		return new SegmentTrainer(params);
 	}
-	protected Viterbi getViterbi(int beamsize) {
+	public Viterbi getViterbi(int beamsize) {
 		return new SegmentViterbi(this,beamsize);
 	}
-
-	public void apply(CandSegDataSequence dataSeq, int rank) {
-	    if(params.inferenceType.equalsIgnoreCase("AStar")){
-	        if(segmentAStar == null)
-	            segmentAStar = new SegmentAStar(this, 1);
-	        segmentAStar.bestLabelSequence(dataSeq, lambda);
-	    }else{//default
-		    if (segmentViterbi==null)
-		        segmentViterbi = new SegmentViterbi(this,1);
-		    segmentViterbi.bestLabelSequence(dataSeq,lambda);
-	    }
-	}
-
+    public void apply(CandSegDataSequence dataSeq, int rank) {
+      System.out.println("Not implemented yet");
+    }
 	public double apply(DataSequence dataSeq) {
-	    return apply((CandSegDataSequence)dataSeq);
-	}
-	public double apply(CandSegDataSequence dataSeq) {
 	    if(params.inferenceType.equalsIgnoreCase("AStar")){
 	        if(segmentAStar == null)
 	            segmentAStar = new SegmentAStar(this, 1);
-	        return segmentAStar.bestLabelSequence(dataSeq, lambda);
+	        return segmentAStar.bestLabelSequence((CandSegDataSequence)dataSeq, lambda);
 	    }else{//default
-		    if (segmentViterbi==null)
-		        segmentViterbi = new SegmentViterbi(this,1);
-		    return segmentViterbi.bestLabelSequence(dataSeq,lambda);
+            return super.apply(dataSeq);
 	    }
 	}
 
@@ -91,7 +73,13 @@ public class SegmentCRF extends CRF {
 		        segmentViterbi = (SegmentViterbi)getViterbi(numLabelSeqs);
 	     return segmentViterbi.segmentSequences(dataSeq,lambda,numLabelSeqs,scores);
 	 }
-	 
+     public double segmentMarginalProbabilities(DataSequence dataSequence, TIntDoubleHashMap segmentMarginals[][]) {
+            if (trainer==null) {
+                trainer = getTrainer();
+                trainer.init(this,null,lambda);
+            }
+            return -1*((SegmentTrainer)trainer).sumProductInner(dataSequence,featureGenerator,lambda,null,false, -1, null,segmentMarginals);
+    }
 	/*
 	public void apply(DataSequence dataSeq) {
 		apply((CandSegDataSequence)dataSeq);

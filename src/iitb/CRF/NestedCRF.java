@@ -23,7 +23,7 @@ public class NestedCRF extends CRF {
 	    return new NestedCollinsTrainer(params);
 	return new NestedTrainer(params);
     }
-    protected Viterbi getViterbi(int beamsize) {
+    public Viterbi getViterbi(int beamsize) {
     	return new NestedViterbi(this,beamsize);
     }
     public double apply(DataSequence dataSeq) {

@@ -100,7 +100,7 @@ public class MaxentTagger extends CRF {
             return labelSequences;
         }
     }
-    protected Viterbi getViterbi(int beamsize) {
+    public Viterbi getViterbi(int beamsize) {
         return new MaxentViterbi(this,beamsize);
     }
 }
