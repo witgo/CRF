@@ -78,7 +78,7 @@ public class Viterbi implements Serializable {
         protected void add(float thisScore) {
             findInsert(0, thisScore, null);
         }
-        protected int numSolns() {
+        public int numSolns() {
             for (int i = 0; i < solns.length; i++)
                 if (solns[i].isClear())
                     return i;

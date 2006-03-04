@@ -21,7 +21,7 @@ public class SparseViterbi extends Viterbi {
         super(model,bs);
     }
     
-    protected class Context extends DenseObjectMatrix1D {
+    public class Context extends DenseObjectMatrix1D {
         protected int pos;
         protected int beamsize;
         protected int startPos=0;
@@ -73,7 +73,7 @@ public class SparseViterbi extends Viterbi {
         }
     };
     
-    protected Context context[];
+    public Context context[];
     protected LogSparseDoubleMatrix1D Ri;
     
     StaticHeapLogSparseDoubleMatrix2D staticHeapMi = null;

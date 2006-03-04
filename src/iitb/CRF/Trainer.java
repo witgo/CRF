@@ -17,7 +17,7 @@ public class Trainer {
     protected int numF,numY;
     double gradLogli[];
     double diag[];
-    double lambda[];
+    protected double lambda[];
     protected boolean reuseM, initMDone=false, logProcessing=false;
     
     protected double ExpF[], lZx;

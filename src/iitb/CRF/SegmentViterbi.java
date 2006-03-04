@@ -19,23 +19,26 @@ import gnu.trove.TIntProcedure;
 
 public class SegmentViterbi extends SparseViterbi {
     protected SegmentCRF segmentModel;
-    static class LabelConstraints  {
+    public static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
-        ConstraintDisallowedPairs disallowedPairs;
+        protected ConstraintDisallowedPairs disallowedPairs;
         
-        class Intersects implements TIntProcedure {
-            int label;
-            int prevLabel;
+        public class Intersects implements TIntProcedure {
+            public int label;
+            public int prevLabel;
             public boolean execute(int arg0) {
                 return !disallowedPairs.conflictingPair(label,arg0,(arg0==prevLabel));
             }
         }
-        Intersects intersectTest = new Intersects();
+        protected Intersects intersectTest = new Intersects();
         /**
          * @param pairs
          */
         public LabelConstraints(ConstraintDisallowedPairs pairs) {
             disallowedPairs = pairs;
+        }
+        public LabelConstraints(LabelConstraints labelCons) {
+            this(labelCons.disallowedPairs);
         }
         /**
          * @param set
@@ -43,7 +46,7 @@ public class SegmentViterbi extends SparseViterbi {
          * @param i
          * @return
          */
-        boolean valid(TIntHashSet set, int label, int prevLabel) {
+        public boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
              if (disallowedPairs.conflictingPair(label,prevLabel,true))
@@ -109,7 +112,7 @@ public class SegmentViterbi extends SparseViterbi {
     }
 
     LabelConstraints labelConstraints=null;
-    class SolnWithLabelsOnPath extends Soln {
+    public class SolnWithLabelsOnPath extends Soln {
         void clear() {
             super.clear();
             labelsOnPath.clear();
@@ -120,7 +123,7 @@ public class SegmentViterbi extends SparseViterbi {
             labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
         }
         private static final long serialVersionUID = 1L;
-        TIntHashSet labelsOnPath;
+        public TIntHashSet labelsOnPath;
         /**
          * @param id
          * @param p
@@ -129,7 +132,7 @@ public class SegmentViterbi extends SparseViterbi {
             super(id, p);
             labelsOnPath = new TIntHashSet();
         }
-        protected void setPrevSoln(Soln prevSoln, float score) {
+        public void setPrevSoln(Soln prevSoln, float score) {
             super.setPrevSoln(prevSoln,score);
             if ((prevSoln != null) && (labelConstraints != null)) {
                 labelsOnPath.clear();
@@ -140,13 +143,13 @@ public class SegmentViterbi extends SparseViterbi {
             }
         }       
     }
-    class EntryForLabelConstraints extends Entry {
+    public class EntryForLabelConstraints extends Entry {
         /**
          * @param beamsize
          * @param id
          * @param pos
          */
-        EntryForLabelConstraints(int beamsize, int id, int pos) {
+        protected EntryForLabelConstraints(int beamsize, int id, int pos) {
             super();
             solns = new Soln[beamsize];
             for (int i = 0; i < solns.length; i++)
