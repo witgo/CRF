@@ -46,10 +46,12 @@ public class Viterbi implements Serializable {
         public int size() {return solns.length;}
         public Soln get(int i) {return solns[i];}
         protected void insert(int i, float score, Soln prev) {
+            Soln saved = solns[size()-1];
             for (int k = size()-1; k > i; k--) {
-                solns[k].copy(solns[k-1]);
+                //solns[k].copy(solns[k-1]);
+                solns[k] = solns[k-1];
             }
-            
+            solns[i] = saved;
             solns[i].setPrevSoln(prev,score);
         }
         protected void add(Entry e, float thisScore) {
@@ -244,9 +246,10 @@ public class Viterbi implements Serializable {
         
         finalSoln.clear();
         finalSoln.valid = true;
-        for (int yi = 0; yi < model.numY; yi++) {
-            finalSoln.add(winningLabel[yi][dataSeq.length()-1], 0);
-        }
+        if (dataSeq.length() > 0)
+            for (int yi = 0; yi < model.numY; yi++) {
+                finalSoln.add(winningLabel[yi][dataSeq.length()-1], 0);
+            }
         return corrScore;
     }   
     

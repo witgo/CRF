@@ -86,7 +86,7 @@ public abstract class FeatureTypes implements Serializable {
     /**
      * Training for semi-Markov features
      * @param sequence
-     * @param segStart
+     * @param segStart: inclusive of the segment start
      * @param segEnd
      */
     public void train(SegmentDataSequence sequence, int segStart, int segEnd) {

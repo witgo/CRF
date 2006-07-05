@@ -73,12 +73,12 @@ public class SegmentCRF extends CRF {
 		        segmentViterbi = (SegmentViterbi)getViterbi(numLabelSeqs);
 	     return segmentViterbi.segmentSequences(dataSeq,lambda,numLabelSeqs,scores);
 	 }
-     public double segmentMarginalProbabilities(DataSequence dataSequence, TIntDoubleHashMap segmentMarginals[][]) {
+     public double segmentMarginalProbabilities(DataSequence dataSequence, TIntDoubleHashMap segmentMarginals[][], TIntDoubleHashMap edgeMarginals[][][]) {
             if (trainer==null) {
                 trainer = getTrainer();
                 trainer.init(this,null,lambda);
             }
-            return -1*((SegmentTrainer)trainer).sumProductInner(dataSequence,featureGenerator,lambda,null,false, -1, null,segmentMarginals);
+            return -1*((SegmentTrainer)trainer).sumProductInner(dataSequence,featureGenerator,lambda,null,false, -1, null,segmentMarginals,edgeMarginals);
     }
 	/*
 	public void apply(DataSequence dataSeq) {

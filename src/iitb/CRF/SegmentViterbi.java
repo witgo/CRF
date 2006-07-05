@@ -8,6 +8,7 @@ import cern.colt.matrix.DoubleMatrix2D;
 
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
+import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntIterator;
 import gnu.trove.TIntProcedure;
 
@@ -74,7 +75,8 @@ public class SegmentViterbi extends SparseViterbi {
                 return set;
             labelsOnPath.clear();
             labelsOnPath.add(label);
-            labelsOnPath.addAll(set.toArray());
+            for(TIntIterator iter = set.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
+//            labelsOnPath.addAll(set.toArray());
             return labelsOnPath;
         }
         /**
@@ -120,7 +122,8 @@ public class SegmentViterbi extends SparseViterbi {
         protected void copy(Soln soln) {
             super.copy(soln);
             labelsOnPath.clear();
-            labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
+//            labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
+            for(TIntIterator iter = ((SolnWithLabelsOnPath)soln).labelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
         }
         private static final long serialVersionUID = 1L;
         public TIntHashSet labelsOnPath;
@@ -136,7 +139,8 @@ public class SegmentViterbi extends SparseViterbi {
             super.setPrevSoln(prevSoln,score);
             if ((prevSoln != null) && (labelConstraints != null)) {
                 labelsOnPath.clear();
-            	labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
+            	//labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
+                for(TIntIterator iter = ((SolnWithLabelsOnPath)prevSoln).labelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
             	assert(labelConstraints.valid(labelsOnPath,label,prevSoln.label));
             	if (labelConstraints.conflicting(prevSoln.label))
             		labelsOnPath.add(prevSoln.label);
@@ -190,8 +194,10 @@ public class SegmentViterbi extends SparseViterbi {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
     }
+    
     protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         SegmentTrainer.computeLogMi((CandSegDataSequence)dataSeq,i-ell,i,segmentModel.featureGenNested,lambda,Mi,Ri);
+        
     }
     class SegmentIter extends Iter {
         int nc;

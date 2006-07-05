@@ -231,7 +231,7 @@ public class SparseViterbi extends Viterbi {
         }
         public double apply(int yi, double val) {
             // this is not quite right since there is no yp value..
-            context[0].add(0,i == dataSeq.length() -1 ? null : context[i+1].getEntry(yi),(float) val);
+            context[0].add(0, context[i+1].getEntry(yi),(float) val);
             return val;
         }
 

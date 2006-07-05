@@ -32,10 +32,11 @@ public class SegmentTrainer extends SparseTrainer {
     }
     protected double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], 
             boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute) {
-        return sumProductInner(data,featureGenerator,lambda,grad,onlyForwardPass,numRecord,fgenForExpCompute,null);
+        return sumProductInner(data,featureGenerator,lambda,grad,onlyForwardPass,numRecord,fgenForExpCompute,null,null);
     }
     double sumProductInner(DataSequence data, FeatureGenerator featureGenerator, double lambda[], double grad[], 
-            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute,TIntDoubleHashMap segmentMarginals[][]) {
+            boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpCompute,TIntDoubleHashMap segmentMarginals[][],
+            TIntDoubleHashMap edgeMarginals[][][]) {
         FeatureGeneratorNested featureGenNested  = (FeatureGeneratorNested)featureGenerator;
         CandSegDataSequence dataSeq = (CandSegDataSequence)data;
         FeatureGeneratorNested featureGenNestedForExpVals = (FeatureGeneratorNested)fgenForExpCompute;
@@ -53,7 +54,8 @@ public class SegmentTrainer extends SparseTrainer {
                 beta_Y[i].assign(RobustMath.LOG0);
             }
             for (int segEnd = dataSeq.length()-1; segEnd >= 0; segEnd--) {
-                for (int nc = candidateSegs.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
+                int numCands = candidateSegs.numCandSegmentsEndingAt(segEnd)-1;
+                for (int nc = 0; nc <= numCands; nc++) {
                     int segStart = candidateSegs.candSegmentStart(segEnd,nc);
                     int ell = segEnd-segStart+1;
                     int i = segStart-1;
@@ -94,8 +96,9 @@ public class SegmentTrainer extends SparseTrainer {
                 trainingSegmentStart = segEnd;
                 trainingSegmentEnd =((SegmentDataSequence)dataSeq).getSegmentEnd(segEnd);
             }
-            
-            for (int nc = candidateSegs.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
+            int numCands = candidateSegs.numCandSegmentsEndingAt(segEnd)-1;
+            for (int nc = 0; nc <= numCands; nc++) {
+            //for (int nc = candidateSegs.numCandSegmentsEndingAt(segEnd)-1; nc >= 0; nc--) {
                 int ell = segEnd - candidateSegs.candSegmentStart(segEnd,nc)+1;
                 // compute the Mi matrix
                 initMDone=computeLogMi(dataSeq,segEnd-ell,segEnd,featureGenNested,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
@@ -139,11 +142,19 @@ public class SegmentTrainer extends SparseTrainer {
                         }
                     }
                 }
+                
                 if (segmentMarginals != null) {
-                    for (int i = newAlpha_Y.size()-1; i >= 0; i--) {
-                        if (segmentMarginals[i][segEnd-ell+1]==null)
-                            segmentMarginals[i][segEnd-ell+1] = new TIntDoubleHashMap();
-                        segmentMarginals[i][segEnd-ell+1].put(segEnd,newAlpha_Y.get(i)+beta_Y[segEnd].get(i));
+                    for (int yp = newAlpha_Y.size()-1; yp >= 0; yp--) {
+                        if (segmentMarginals[yp][segEnd-ell+1]==null)
+                            segmentMarginals[yp][segEnd-ell+1] = new TIntDoubleHashMap();
+                        segmentMarginals[yp][segEnd-ell+1].put(segEnd,newAlpha_Y.get(yp)+beta_Y[segEnd].get(yp));
+                        if (edgeMarginals != null) {
+                            for (int yprev = newAlpha_Y.size()-1; yprev >= 0; yprev--) {
+                                if (edgeMarginals[yprev][yp][segEnd-ell+1]==null)
+                                    edgeMarginals[yprev][yp][segEnd-ell+1] = new TIntDoubleHashMap();
+                                edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+beta_Y[segEnd].get(yp));
+                            }
+                        }
                     }
                 }
                 if ((grad != null) && (segEnd == trainingSegmentEnd) && (segEnd-ell+1==trainingSegmentStart)) {
@@ -183,7 +194,16 @@ public class SegmentTrainer extends SparseTrainer {
                         segEndProbIter.advance();
                         segEndProbIter.setValue(Math.exp(segEndProbIter.value()-lZx));
                         //System.out.println(segEndProbIter.key() + " " + segEndProbIter.value());
-                        assert (segmentMarginals[y][segStart].get(segEndProbIter.key()) < 1);
+                        assert (segmentMarginals[y][segStart].get(segEndProbIter.key()) < 1+0.0001);
+                    }
+                    if (edgeMarginals != null) {
+                        for (int yprev = 0; yprev < edgeMarginals.length; yprev++) {
+                            for (TIntDoubleIterator segEndProbIter = edgeMarginals[yprev][y][segStart].iterator(); segEndProbIter.hasNext();) {
+                                segEndProbIter.advance();
+                                segEndProbIter.setValue(Math.exp(segEndProbIter.value()-lZx));
+                                assert (segEndProbIter.value() < 1+0.0001);
+                            }
+                        }
                     }
                 }
             }

@@ -222,10 +222,12 @@ class TestDataWrite {
 			    ptr++;
 			}
 		    } else {
+                
 			int revScanPtr=outputBuffer.length()-1;
 			int goBackPtr=0;
 			boolean foundOpenChar=false;
-			while(outputBuffer.charAt(revScanPtr)==' ' || outputBuffer.charAt(revScanPtr)=='(' || outputBuffer.charAt(revScanPtr)=='{' || outputBuffer.charAt(revScanPtr)=='[') {
+			while((revScanPtr >= 0) && (outputBuffer.charAt(revScanPtr)==' ' 
+                || outputBuffer.charAt(revScanPtr)=='(' || outputBuffer.charAt(revScanPtr)=='{' || outputBuffer.charAt(revScanPtr)=='[')) {
 			    char currChar=outputBuffer.charAt(revScanPtr);
 			    if (impDelimit.indexOf(currChar)!=-1) {
 				break;
@@ -240,6 +242,7 @@ class TestDataWrite {
 			    outputBuffer=outputBuffer.substring(0,revScanPtr+1);
 			    ptr-=goBackPtr;
 			}
+            
 			outputBuffer=new String(outputBuffer+tagDelimit+labelmap.revMap(t));
 			out.println(outputBuffer);
 			outputBuffer=new String();

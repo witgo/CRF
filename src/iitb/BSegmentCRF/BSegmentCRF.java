@@ -6,6 +6,7 @@ package iitb.BSegmentCRF;
 
 import java.util.Properties;
 
+import gnu.trove.TIntDoubleHashMap;
 import iitb.CRF.*;
 
 /**
@@ -46,4 +47,10 @@ public class BSegmentCRF extends SegmentCRF {
         return params.miscOptions.getProperty("segmentViterbi", "false").equals("true")?
                 super.getViterbi(beamsize):new BSegmentViterbi(this,numY,beamsize);
     }
+    public double segmentMarginalProbabilities(DataSequence dataSequence, TIntDoubleHashMap segmentMarginals[][], TIntDoubleHashMap edgeMarginals[][][]) {
+        System.err.println("Not yet implemented for this CRF--use SegmentCRF");
+        System.exit(-1);
+        return 0;
+    }
+        
 }

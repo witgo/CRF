@@ -8,6 +8,7 @@ import gnu.trove.TIntHashSet;
 import iitb.CRF.CandSegDataSequence;
 import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
+import iitb.CRF.Feature;
 import iitb.CRF.SegmentDataSequence;
 
 import java.util.Properties;
@@ -17,7 +18,8 @@ import java.util.Properties;
  *
  */
 public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
-    
+    boolean length1SegsForOther=false;
+    int otherLabel = -1;
     public CandSegFeatureGenImpl(String modelSpecs, int numLabels,
             boolean addFeatureNow) throws Exception {
         super(modelSpecs, numLabels, addFeatureNow);
@@ -25,7 +27,13 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
     public CandSegFeatureGenImpl(int numLabels,java.util.Properties options, boolean addFeatureNow) throws Exception {
         super(numLabels,options,addFeatureNow);
     }
-
+    public CandSegFeatureGenImpl(String modelSpecs, int numLabels,
+            boolean addFeatureNow, int otherLabel) throws Exception {
+        super(modelSpecs, numLabels, addFeatureNow);
+        this.otherLabel = otherLabel;
+        length1SegsForOther = (otherLabel >= 0);
+        //length1SegsForOther = false;
+    }
     /**
      * @param numLabels
      * @param options
@@ -59,5 +67,16 @@ public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
             }
         } */
             return numF;
+    }
+    @Override
+    protected void advance() {
+        super.advance();
+        while (hasNext() && length1SegsForOther && (cposEnd>cposStart) && (featureToReturn.y()==otherLabel)) {
+            super.advance();
+        }
+    }
+    @Override
+    public boolean fixedTransitionFeatures() {
+        return !length1SegsForOther && super.fixedTransitionFeatures();
     }
 }
