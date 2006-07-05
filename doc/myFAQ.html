@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<TITLE>
+FAQ
+</TITLE>
+</HEAD>
+<body>
+<h1> Frequently asked questions </h1>
+
+<b>What can I do to improve the training time for CRF.</b>
+<li>
+ Use the flag "reuseM true" if the edge features are independent of i
+ and x.  This should certainly reduce the number of exp/log
+ computations.
+</li>
+<li>
+If you have lots of memory run with "-cache true" flag on.
+</li>
+<li>
+If you do not expect to face numerical overflow problems because of
+small number of features or small sequence sizes, do not use the "trainer ll"
+option.  This option performs computations in log math to handle
+numerical problems.
+</li>
+<li> Use alternative trainers: for example, we found the PiecewiseTrainer to be fast and also
+accurate.
+</li>
+<li> If you are using the semi-Markov model, consider using BSegmentCRF instead of NestedCRF or SegmentCRF.
+</li>
+</ul>
+
+<b>How do I know if the model is overfitting and what can I do if it is.</b>
+<br>
+There are three things you can do to control over-fitting:
+<ul>
+<li> Reduce the number of iterations controlled by the "maxIters" parameter in CrfParams class 
+</li>
+<li> Reduce the value of the invSigmaSquare parameter in the CrfParams class
+</li>
+<li> Call train() with the Evaluator class whose evaluate() function is invoked at each iteration.  When the function returns false, training stops. You can test accuracy on a set aside dataset at some regular intervals of calls to
+evaluate() and return false when accuracy starts to drop.
+</ul>
+
+<p>
+<b>
+How do I get the second-best solution in CRF?</b>
+<br>
+You can use viterbi.getBestSoln(k) for getting the k-th best solution. For that you need to modify the beamsize argument of when Viterbi() is constructed
+to the maximum value of k you might be interested in.  Look in Viterbi.java.  An example of usage can be found in CollinsTrainer.java
+</p>
+
+
+<p>
+<b>
+ Is the CRF code from sourceforge just for 1st order Markov models?  I 
+notice that you can specify a history length, but is this extended 
+history only for the input sequence and not for the label sequence?
+I know we can simulate higher order models using 1st order models 
+by increasing the state space and having a huge, but sparse transition 
+matrix.  
+</b>
+<br>
+	The code supports higher order markov models, although the performance is not as great.  The history size refers to the label sequence history.  The CRF part of the package does not care about the history in the input sequence --- that would only affect the feature generator that you use.
+The CRF package will use exactly those dependencies that you specify by the features.  Even in a first order markov model, you can choose independently for each label pair whether to add that as a dependency or not. Consult the Feature.java file; the yprev() function controls that.  When you move to higher order models the yprevArray() controls for each history position, what labels you want to depend on. 
+</p>
+
+<b>
+How can I use the Semi-CRF model as described in your NIPS 2004 paper?
+</b>
+<br>
+You will find it in iitb.CRF.NestedCRF and a slightly different version that allows control over which segments are considered in iitb.CRF.SegmentCRF. 
+</p>
+</body>
+</html>
