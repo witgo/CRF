@@ -37,5 +37,7 @@ public abstract class BFeatureTypes extends FeatureTypes implements BoundaryFeat
     /* (non-Javadoc)
      * @see iitb.Model.FeatureTypes#next(iitb.Model.FeatureImpl)
      */
-    public void next(FeatureImpl f) {;}
+    public void next(FeatureImpl f) {
+        System.err.println("WARNING: Semi-CRF feature not implemented ");
+    }
 }
