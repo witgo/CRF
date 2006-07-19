@@ -117,6 +117,6 @@ public class CrfParams implements Serializable {
 	    }catch(NumberFormatException nfe){}
 	}
     reuseM = Boolean.valueOf(opts.getProperty("reuseM","false")).booleanValue();
-    onlyFeatureBasedTransitions = Boolean.valueOf(opts.getProperty("onlyFeatureTransitions","false"));
+    onlyFeatureBasedTransitions = Boolean.valueOf(opts.getProperty("onlyFeatureTransitions","false")).booleanValue();
     }
 };
