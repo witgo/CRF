@@ -6,6 +6,7 @@ package iitb.BSegment;
 
 import iitb.CRF.CandSegDataSequence;
 import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 import iitb.Model.FeatureImpl;
 import iitb.Model.FeatureTypes;
 
@@ -110,4 +111,23 @@ public class BSegmentFeatureType extends BFeatureTypes {
     public boolean needsCaching() {
         return single.needsCaching();
     }
+    @Override
+    public boolean requiresTraining() {
+        return single.requiresTraining();
+    }
+
+    @Override
+    public void train(DataSequence data, int pos) {
+        single.train(data, pos);
+    }
+
+    @Override
+    public void train(SegmentDataSequence sequence, int segStart, int segEnd) {
+        single.train(sequence, segStart, segEnd);
+    }
+
+    @Override
+    public void trainingDone() {
+        single.trainingDone();
+    } 
 }

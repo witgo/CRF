@@ -101,5 +101,10 @@ public abstract class FeatureTypes implements Serializable {
     public boolean needsCaching() {
         return cache;
     }
+    public void trainingDone() {
+        if(requiresTraining()) {
+            iitb.Utils.LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(SegmentDataSequence, int, int) method. Calling train(DataSequence, int) instead. Please implement the trainDone() methods properly.");
+        }
+    }
 };
 
