@@ -401,7 +401,7 @@ public class Trainer {
         }
         return initMDone;
     }
-    static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
+    public static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DataSequence dataSeq, int i, 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, boolean takeExp) {
