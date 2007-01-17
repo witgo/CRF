@@ -421,11 +421,18 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         displayModel(featureWts,System.out);
     }
     public void displayModel(double featureWts[], PrintStream out) throws IOException {
-        for (int fIndex = 0; fIndex < featureWts.length; fIndex++) {
+        displayModel(featureWts, out, false);
+    }
+    public void displayModel(double featureWts[], PrintStream out, boolean origFName) throws IOException {
+        int numF = numFeatures();
+        for (int fIndex = 0; fIndex < numF; fIndex++) {
             Object feature = featureIdentifier(fIndex).name;
             int classIndex = featureIdentifier(fIndex).stateId;
             int label = model.label(classIndex);
-            out.println(feature + " " + label + " " + classIndex + " " + featureWts[fIndex]);
+            if (!origFName)
+                out.println(feature + " " + label + " " + classIndex + " " + featureWts[fIndex]);
+            else
+                out.println(featureName(fIndex) + " "+featureWts[fIndex]);
         }
         /*
          out.println("Feature types statistics");

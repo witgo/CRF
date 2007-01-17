@@ -1,11 +1,18 @@
 package iitb.CRF;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.StringTokenizer;
 
 import riso.numerical.*;
 import cern.colt.function.*;
 import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
+import gnu.trove.TIntArrayList;
 import iitb.CRF.HistoryManager.*;
 /**
  *
@@ -71,10 +78,43 @@ public class Trainer {
         doTrain();
     }
     
+    void setInitValue(double lambda[]) {
+        if (params.miscOptions.getProperty("initValues") != null) {
+            // starting values stored in a file where each line has (featureName, value) pair
+            String fname = params.miscOptions.getProperty("initValues");
+            BufferedReader in;
+            try {
+                in = new BufferedReader(new FileReader(fname));
+            
+            String line;
+            boolean idOrdered=Boolean.parseBoolean(params.miscOptions.getProperty("initValuesOrdered", "false"));
+            Hashtable<String, Double> initVals = new Hashtable<String, Double>();
+            for(int l = 0; ((line=in.readLine())!=null); l++) {
+                StringTokenizer entry = new StringTokenizer(line);
+                String featureName = entry.nextToken();
+                double fval = Double.parseDouble(entry.nextToken());
+                if (!idOrdered) 
+                    initVals.put(featureName,fval);
+                else
+                    lambda[l] = fval;
+            }
+            if (!idOrdered) {
+            for (int j = 0 ; j < lambda.length ; j ++) {
+                String featureName = featureGenerator.featureName(j);
+                lambda[j] = (initVals.get(featureName) != null)?initVals.get(featureName):getInitValue();
+            }
+            }
+            return;
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("ERROR: in file initialization, using default init process");
+            }
+        }
+        for (int j = 0 ; j < lambda.length ; j ++) {
+            lambda[j] = getInitValue();
+        }
+    }
     double getInitValue() { 
-        // returns a negative value to avoid overflow in the initial stages.
-        //      if (params.initValue == 0)
-        //	return -1*Math.log(numY);
         return params.initValue;
     }
     protected void init(CRF model, DataIter data, double[] l) {
@@ -117,10 +157,8 @@ public class Trainer {
         iprint [1] = params.debugLvl-1;
         iflag[0]=0;
         
-        for (int j = 0 ; j < lambda.length ; j ++) {
-            // lambda[j] = 1.0/lambda.length;
-            lambda[j] = getInitValue();
-        }
+        setInitValue(lambda);
+        
         do {
             f = computeFunctionGradient(lambda,gradLogli); 
             f = -1*f; // since the routine below minimizes and we want to maximize logli

@@ -148,11 +148,13 @@ public class SegmentTrainer extends SparseTrainer {
                         if (segmentMarginals[yp][segEnd-ell+1]==null)
                             segmentMarginals[yp][segEnd-ell+1] = new TIntDoubleHashMap();
                         segmentMarginals[yp][segEnd-ell+1].put(segEnd,newAlpha_Y.get(yp)+beta_Y[segEnd].get(yp));
+                        segmentMarginals[yp][segEnd-ell+1].put(segEnd,Ri_Y.get(yp));
                         if (edgeMarginals != null) {
                             for (int yprev = newAlpha_Y.size()-1; yprev >= 0; yprev--) {
                                 if (edgeMarginals[yprev][yp][segEnd-ell+1]==null)
                                     edgeMarginals[yprev][yp][segEnd-ell+1] = new TIntDoubleHashMap();
                                 edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+beta_Y[segEnd].get(yp));
+                                edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,Mi_YY.get(yprev,yp));
                             }
                         }
                     }
@@ -248,7 +250,7 @@ public class SegmentTrainer extends SparseTrainer {
         }
         return initMDone;
     }
-    static void computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
+    public static void computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri) {
         double defaultValue = initLogMi(dataSeq, prevPos,pos,featureGenNested,lambda,Mi,Ri);
         SparseTrainer.computeLogMiInitDone(featureGenNested,lambda,Mi,Ri,defaultValue);
