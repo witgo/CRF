@@ -496,14 +496,7 @@ public class Trainer {
         // compute beta values in a backward scan.
         // also scale beta-values to 1 to avoid numerical problems.
         if (!onlyForwardPass) {
-            beta_Y[dataSeq.length()-1].assign(0);
-            for (int i = dataSeq.length()-1; i > 0; i--) {
-                // compute the Mi matrix
-                initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-                tmp_Y.assign(beta_Y[i]);
-                tmp_Y.assign(Ri_Y,sumFunc);
-                RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
-            }
+            beta_Y = computeBetaArray(dataSeq,lambda,featureGenerator);
         }
         alpha_Y.assign(0);
         double thisSeqLogli = 0;
@@ -561,6 +554,17 @@ public class Trainer {
         }
         lZx = RobustMath.logSumExp(alpha_Y);
         return thisSeqLogli;
+    }
+    protected DoubleMatrix1D[] computeBetaArray(DataSequence dataSeq, double[] lambda2, FeatureGenerator featureGenerator) {
+        beta_Y[dataSeq.length()-1].assign(0);
+        for (int i = dataSeq.length()-1; i > 0; i--) {
+            // compute the Mi matrix
+            initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            tmp_Y.assign(beta_Y[i]);
+            tmp_Y.assign(Ri_Y,sumFunc);
+            RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
+        }
+        return beta_Y;
     }
     protected boolean computeLogMiTrainMode(FeatureGenerator featureGen, double lambda[], 
             DataSequence dataSeq, int i, 

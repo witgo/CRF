@@ -1,10 +1,13 @@
 package iitb.CRF;
 
+import iitb.CRF.Trainer.SumFunc;
+
 import java.io.Serializable;
 import java.util.*;
 import cern.colt.function.*;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
@@ -78,7 +81,7 @@ public class RobustMath {
     }
     
     // matrix stuff for the older version..
-    static double logSumExp(DoubleMatrix1D logProb) {
+    public static double logSumExp(DoubleMatrix1D logProb) {
         TreeSet logProbVector = new TreeSet();
         for ( int lpx = 0; lpx < logProb.size(); lpx++ )
             if (logProb.getQuick(lpx) != RobustMath.LOG0)
@@ -146,7 +149,7 @@ public class RobustMath {
         return z;
     }
 
-    static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA, EdgeGenerator edgeGen) {
+    public static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA, EdgeGenerator edgeGen) {
         // z = alpha * A * y + beta*z
         // in log domain this becomes: 
         
@@ -222,5 +225,15 @@ public class RobustMath {
      */
     public static double log(float val) {
         return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
+    }
+    public static void logMatrixMult(DoubleMatrix2D A, DoubleMatrix2D B, DoubleMatrix1D ri) {
+        DoubleDoubleFunction sumFunc = new SumFunc();
+        DoubleMatrix2D tmp = A.copy();
+        for (int i = 0; i < B.columns(); i++) {
+            logMult(tmp, B.viewColumn(i), A.viewColumn(i), 1, 0, false);
+        }
+        for (int i = 0; i < A.rows(); i++) {
+            A.viewRow(i).assign(ri, sumFunc);
+        }
     }
 };

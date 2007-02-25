@@ -23,6 +23,12 @@ public class FeatureImpl implements Feature, Serializable {
     public FeatureImpl() {init();}
     public FeatureImpl(FeatureImpl f) {copy(f);}
     public FeatureImpl(Feature f) {copy(f);}
+    public FeatureImpl(int id, int ystart, int yend, float val) {
+        this.id = id;
+        this.ystart = ystart;
+        this.yend = yend;
+        this.val = val;
+    }
     public void copy(Feature featureToReturn) {
         id = featureToReturn.index();
         ystart = featureToReturn.yprev();

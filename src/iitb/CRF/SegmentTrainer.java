@@ -47,9 +47,9 @@ public class SegmentTrainer extends SparseTrainer {
         }
         int dataSize = dataSeq.length();
         CandidateSegments candidateSegs = (CandidateSegments)dataSeq;
-        DoubleMatrix1D oldBeta =  beta_Y[dataSeq.length()-1];
+        DoubleMatrix1D oldBeta =  (dataSize > 0)?beta_Y[dataSeq.length()-1]:null;
         if (!onlyForwardPass) {
-            beta_Y[dataSize-1] = allZeroVector;
+            if (dataSize > 0) beta_Y[dataSize-1] = allZeroVector;
             for (int i = dataSeq.length()-2; i >= 0; i--) {
                 beta_Y[i].assign(RobustMath.LOG0);
             }
@@ -187,7 +187,7 @@ public class SegmentTrainer extends SparseTrainer {
             
         }
         lZx = alpha_Y_Array[dataSeq.length()-1-base].zSum();
-        beta_Y[dataSize-1] = oldBeta;
+        if (dataSize > 0) beta_Y[dataSize-1] = oldBeta;
         if (segmentMarginals != null) {
             // normalize with respect to thisSeqLogLi.
             for (int y = 0; y < segmentMarginals.length; y++) {
