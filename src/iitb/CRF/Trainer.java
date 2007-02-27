@@ -54,7 +54,7 @@ public class Trainer {
     protected DataIter diter;
     protected FeatureGenerator featureGenerator;
     protected CrfParams params;
-    EdgeGenerator edgeGen;
+    protected EdgeGenerator edgeGen;
     protected int icall;
     Evaluator evaluator = null;
     

@@ -164,7 +164,7 @@ public class RobustMath {
             z.assign(LOG0);
         }
         for (int j = 0; j < M.columns(); j++) {
-            for (int i = edgeGen.first(j); i < M.rows(); i = edgeGen.next(j,i)) {
+            for (int i = (edgeGen==null?j:edgeGen.first(j)); i < M.rows(); i = (edgeGen==null)?i+1:edgeGen.next(j,i)) {
                 int r = i;
                 int c = j;
                 if (transposeA) {
@@ -180,7 +180,7 @@ public class RobustMath {
         // z = alpha * A * y + beta*z
         for (int i = 0; i < z.size(); z.set(i,z.get(i)*beta),i++);
         for (int j = 0; j < M.columns(); j++) {
-            for (int i = edgeGen.first(j); i < M.rows(); i = edgeGen.next(j,i)) {
+            for (int i = (edgeGen==null)?j:edgeGen.first(j); i < M.rows(); i = (edgeGen==null)?i+1:edgeGen.next(j,i)) {
                 int r = i;
                 int c = j;
                 if (transposeA) {
