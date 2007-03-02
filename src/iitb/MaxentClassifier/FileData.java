@@ -9,7 +9,7 @@ import java.util.*;
 
 
 // interface for reading and writing fixed column record data
-class FileData {
+public class FileData {
     BufferedReader inpStream;
     DataDesc dataDescriptor;
     void openForRead(String fileName, DataDesc data) throws IOException {
@@ -34,7 +34,7 @@ class FileData {
 	}
 	return false;
     }
-    static Vector read(String fileName, DataDesc dataDesc) throws IOException {
+    public static Vector read(String fileName, DataDesc dataDesc) throws IOException {
 	Vector allRecords = new Vector();
 	BufferedReader in=new BufferedReader(new FileReader(fileName));
 	DataRecord dataRecord = new DataRecord(dataDesc.numColumns);
@@ -53,6 +53,28 @@ class FileData {
 	    out.println(dataRecord.y(0));
 	}
 	out.close();
+    }
+    class FileIterator implements Iterator {
+        DataRecord dataRecord;
+        FileIterator() {
+            dataRecord = new DataRecord(dataDescriptor.numColumns);
+        }
+        public boolean hasNext() {
+            try {
+                return readNext(dataRecord);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+        public Object next() {
+            return dataRecord;
+        }
+        public void remove() {
+        }
+    }
+    public Iterator iterator() {
+        return new FileIterator();
     }
 };
     

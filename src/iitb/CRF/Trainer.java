@@ -156,11 +156,26 @@ public class Trainer {
         iprint [0] = params.debugLvl-2;
         iprint [1] = params.debugLvl-1;
         iflag[0]=0;
+        double variables[] = lambda;
+        boolean positiveConstraint = params.miscOptions.getProperty("prior", "gaussian").equals("exp");
+        if (positiveConstraint) {
+            variables = new double[lambda.length];
+        }
         
-        setInitValue(lambda);
+        setInitValue(variables);
         
         do {
-            f = computeFunctionGradient(lambda,gradLogli); 
+            if (positiveConstraint) {
+                for (int i = 0; i < variables.length; i++) {
+                    lambda[i] = Math.exp(variables[i]);
+                }
+                f = computeFunctionGradient(lambda,gradLogli); 
+                for (int i = 0; i < gradLogli.length; i++) {
+                    gradLogli[i] *= Math.exp(variables[i]);
+                }
+            } else {
+                f = computeFunctionGradient(lambda,gradLogli); 
+            }
             f = -1*f; // since the routine below minimizes and we want to maximize logli
             for (int j = 0 ; j < lambda.length ; j ++) {
                 gradLogli[j] *= -1;
@@ -169,7 +184,7 @@ public class Trainer {
             if ((evaluator != null) && (evaluator.evaluate() == false))
                 break;
             try	{
-                LBFGS.lbfgs (numF, params.mForHessian, lambda, f, gradLogli, false, diag, iprint, params.epsForConvergence, xtol, iflag);
+                LBFGS.lbfgs (numF, params.mForHessian, variables, f, gradLogli, false, diag, iprint, params.epsForConvergence, xtol, iflag);
             } catch (LBFGS.ExceptionWithIflag e)  {
                 System.err.println( "CRF: lbfgs failed.\n"+e );
                 if (e.iflag == -1) {
@@ -196,15 +211,26 @@ public class Trainer {
         }
         computeFunctionGradient(lambda,null,expFVals,fgen);
     }
+    protected double addPrior(double lambda[], double grad[], double logli) {
+        if (params.miscOptions.getProperty("prior", "gaussian").equalsIgnoreCase("exp")) {
+            for (int f = 0; f < lambda.length; f++) {
+                grad[f] = -1*params.invSigmaSquare;
+                logli -= (lambda[f]*params.invSigmaSquare);
+            }
+        } else {
+            for (int f = 0; f < lambda.length; f++) {
+                grad[f] = -1*lambda[f]*params.invSigmaSquare;
+                logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
+            }
+        }
+        return logli;
+    }
     protected double computeFunctionGradient(double lambda[], double grad[], double expFVals[], 
             FeatureGenerator fgenForExpValCompute) {    
         try {
             double logli = 0;
             if (grad != null) {
-                for (int f = 0; f < lambda.length; f++) {
-                    grad[f] = -1*lambda[f]*params.invSigmaSquare;
-                    logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;
-                }
+                logli = addPrior(lambda,grad,logli);
             }
             diter.startScan();
             initMDone=false;

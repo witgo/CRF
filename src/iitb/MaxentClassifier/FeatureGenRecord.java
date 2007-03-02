@@ -10,6 +10,7 @@ public class FeatureGenRecord implements FeatureGenerator {
     int numCols;
     int numLabels;
     DataRecord dataRecord;
+    public int addBias=0;
     class FeatureColumn implements Feature {
 	int colId;
 	int _y;
@@ -19,7 +20,7 @@ public class FeatureGenRecord implements FeatureGenerator {
 	    _y = f._y;
 	    val = f.val;
 	}
-	public int index() {return colId + _y*numCols;}
+	public int index() {return colId + _y*(numCols+addBias);}
 	public int y() {return _y;}
 	public int yprev() {return -1;}
 	public float value() {return val;}
@@ -32,7 +33,7 @@ public class FeatureGenRecord implements FeatureGenerator {
 	feature = new FeatureColumn();
 	featureToReturn = new FeatureColumn(); 
     }
-    public int numFeatures() {return numCols*numLabels;}
+    public int numFeatures() {return (numCols+addBias)*numLabels;}
     public void startScanFeaturesAt(DataSequence data, int pos) {
 	dataRecord = (DataRecord)data;
 	assert (pos == 0);
@@ -45,17 +46,20 @@ public class FeatureGenRecord implements FeatureGenerator {
     public Feature next() {
 	featureToReturn.copy(feature);
 	feature.colId++;
-	if (feature.colId >= numCols) {
+	if (feature.colId >= numCols+addBias) {
 	    feature.colId = 0;
 	    feature._y++;
 	}
-	featureToReturn.val = dataRecord.getColumn(featureToReturn.colId);
+	if (featureToReturn.colId == numCols)
+        featureToReturn.val = 1;
+    else
+        featureToReturn.val = dataRecord.getColumn(featureToReturn.colId);
 	return featureToReturn;
     }
     /* (non-Javadoc)
      * @see iitb.CRF.FeatureGenerator#featureName(int)
      */
     public String featureName(int featureIndex) {
-        return "ColumnId=" + (featureIndex % numCols) + " label="+(featureIndex/numCols);
+        return "ColumnId=" + (featureIndex % (numCols+addBias)) + " label="+(featureIndex/(numCols+addBias));
     }
 };

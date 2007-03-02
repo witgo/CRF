@@ -6,18 +6,18 @@ import iitb.CRF.*;
  *
  */ 
 
-class DataRecord implements DataSequence {
+public class DataRecord implements DataSequence {
     int label;
     float vals[];
     DataRecord (int ncols) {
 	vals = new float[ncols];
     }
-    DataRecord(DataRecord dr) {
+    public DataRecord(DataRecord dr) {
 	vals = new float[dr.vals.length];
 	for (int i = 0; i < vals.length; vals[i] = dr.vals[i],i++);
 	label = dr.label;
     }
-    DataRecord(float v[], int l) {
+    public DataRecord(float v[], int l) {
 	vals = v;
 	label = l;
     }

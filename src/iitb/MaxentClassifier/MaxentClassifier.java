@@ -15,32 +15,43 @@ import iitb.Utils.*;
 
 
 public class MaxentClassifier {
-    FeatureGenRecord featureGen;
-    CRF crfModel;
-    DataDesc dataDesc;
-    MaxentClassifier(Options opts) throws Exception {
+    protected FeatureGenRecord featureGen;
+    protected CRF crfModel;
+    protected DataDesc dataDesc;
+    protected Options opts;
+    public MaxentClassifier(Options opts) throws Exception {
 	dataDesc = new DataDesc(opts);
+    this.opts = opts;
 	// read all parameters
 	featureGen = new FeatureGenRecord(dataDesc.numColumns, dataDesc.numLabels);
-	crfModel = new CRF(dataDesc.numLabels,featureGen,opts);
+    if (opts.getProperty("class-prior")!=null)
+        featureGen.addBias = opts.getInt("class-prior");
     }
-    void train(String trainFile) throws IOException {
-	// read training data from the  given file.
-        double params[] = crfModel.train(new DataSet(FileData.read(trainFile,dataDesc)));
-        System.out.println("Trained model");
-        for (int i = 0; i < params.length; i++)
-            System.out.println(featureGen.featureName(i) + " " + params[i]);
+    protected void train(String trainFile) throws IOException {
+        train(FileData.read(trainFile,dataDesc));
+    }
+    public void train(Vector trainRecs) {
+        crfModel = new CRF(dataDesc.numLabels,featureGen,opts);
+        // read training data from the  given file.
+            double params[] = crfModel.train(new DataSet(trainRecs));
+            System.out.println("Trained model");
+            for (int i = 0; i < params.length; i++)
+                System.out.println(featureGen.featureName(i) + " " + params[i]);
     }
     void test(String testFile)  throws IOException {
-	FileData fData = new FileData();
-	fData.openForRead(testFile,dataDesc);
-	DataRecord dataRecord = new DataRecord(dataDesc.numColumns);
+        FileData fData = new FileData();
+        fData.openForRead(testFile,dataDesc);
+        test(fData.iterator(),false);
+    }
+    public void test(Iterator dataIter, boolean testOnly)  throws IOException {
 	int confMat[][] = new int[dataDesc.numLabels][dataDesc.numLabels];
-	while (fData.readNext(dataRecord)) {
+	while (dataIter.hasNext()) {
+        DataRecord dataRecord = (DataRecord) dataIter.next();
 	    int trueLabel = dataRecord.y();
 	    crfModel.apply(dataRecord);
 	    //	    System.out.println(trueLabel + " true:pred " + dataRecord.y());
 	    confMat[trueLabel][dataRecord.y()]++;
+        if (testOnly) dataRecord.set_y(0, trueLabel);
 	}
 	// output confusion matrix etc directly.
 	System.out.println("Confusion matrix ");
@@ -63,4 +74,5 @@ public class MaxentClassifier {
 	    e.printStackTrace();
 	}
     }
+    
 };

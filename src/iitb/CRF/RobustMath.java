@@ -7,13 +7,14 @@ import java.util.*;
 import cern.colt.function.*;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
     static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
-    
+
     static class LogExpCache {
         static int CUT_OFF = 6;
         static int NUM_FINE = 10000;
@@ -51,7 +52,7 @@ public class RobustMath {
             double retval = vmax + Math.log(Math.exp(vmin-vmax) + 1.0);
             //System.out.println((vmax-vmin) + " " + (retval-vmax));
             return retval;
-            */
+             */
         }
     }
     static class LogSumExp implements DoubleDoubleFunction {
@@ -79,7 +80,7 @@ public class RobustMath {
             return ((Double)logProbVector.first()).doubleValue();
         return RobustMath.LOG0;
     }
-    
+
     // matrix stuff for the older version..
     public static double logSumExp(DoubleMatrix1D logProb) {
         TreeSet logProbVector = new TreeSet();
@@ -94,17 +95,17 @@ public class RobustMath {
         }
     }
     public static double logMinusExp(double v1, double v2) throws Exception {
-		if (v1 - Double.MIN_VALUE < v2)
-		    return -1*MINUS_LOG_EPSILON;
-//			throw new Exception("Cannot take log of negative numbers");
-		double vmin = v2;
-		double vmax = v1;
-		if (vmax > vmin + MINUS_LOG_EPSILON) {
-			return vmax;
-		} else {
-			return vmax + Math.log(1.0 - Math.exp(vmin - vmax));
-		}
-	}
+        if (v1 - Double.MIN_VALUE < v2)
+            return -1*MINUS_LOG_EPSILON;
+//      throw new Exception("Cannot take log of negative numbers");
+        double vmin = v2;
+        double vmax = v1;
+        if (vmax > vmin + MINUS_LOG_EPSILON) {
+            return vmax;
+        } else {
+            return vmax + Math.log(1.0 - Math.exp(vmin - vmax));
+        }
+    }
     static class LogMult implements IntIntDoubleFunction {
         DoubleMatrix2D M;
         DoubleMatrix1D z;
@@ -145,14 +146,14 @@ public class RobustMath {
         logMult.y = y;
         logMult.cnt=0;
         M.forEachNonZero(logMult);
-//        System.out.println("Matrix "+M.size()+" "+M.columns()+ " "+logMult.cnt);
+//      System.out.println("Matrix "+M.size()+" "+M.columns()+ " "+logMult.cnt);
         return z;
     }
 
     public static DoubleMatrix1D logMult(DoubleMatrix2D M, DoubleMatrix1D y, DoubleMatrix1D z, double alpha, double beta, boolean transposeA, EdgeGenerator edgeGen) {
         // z = alpha * A * y + beta*z
         // in log domain this becomes: 
-        
+
         double lalpha = 0;
         if (alpha != 1)
             lalpha = Math.log(alpha);
@@ -192,8 +193,8 @@ public class RobustMath {
         }
         return z;
     }
-    
-    
+
+
     public static void main(String args[]) {
 //      double vals[] = new double[]{10.172079, 7.452882, 2.429751, 7.452882, 10.818797, 8.573773, 19.215824};
         /*double vals[] = new double[]{2.883626, 1.670196, 0.553112, 1.670196, -0.935964, 1.864568, 2.064754};
@@ -204,7 +205,7 @@ public class RobustMath {
             trueSum += Math.exp(vals[i]);
         }
         double sum = logSumExp(vec);
-	*/
+         */
         System.out.println(logSumExp(Double.parseDouble(args[0]), Double.parseDouble(args[1])));
     }
     /**
@@ -226,14 +227,23 @@ public class RobustMath {
     public static double log(float val) {
         return (Math.abs(val-1) < Double.MIN_VALUE)?0:Math.log(val);
     }
-    public static void logMatrixMult(DoubleMatrix2D A, DoubleMatrix2D B, DoubleMatrix1D ri) {
+    public static void logMatrixMult(DoubleMatrix2D result, DoubleMatrix2D A, DoubleMatrix2D B, DoubleMatrix1D ri, boolean noMatrixMult) {
         DoubleDoubleFunction sumFunc = new SumFunc();
-        DoubleMatrix2D tmp = A.copy();
-        for (int i = 0; i < B.columns(); i++) {
-            logMult(tmp, B.viewColumn(i), A.viewColumn(i), 1, 0, false);
+        if (noMatrixMult) 
+            result.assign(B);
+        else {
+            for (int i = 0; i < A.rows(); i++) {
+                for (int j = 0; j < B.columns(); j++) {
+                    double value = LOG0;
+                    for (int k = 0; k < B.rows(); k++) {
+                        value = logSumExp(value, A.get(i,k)+B.get(k, j));
+                    }
+                    result.set(i, j, value);
+                }
+            }
         }
         for (int i = 0; i < A.rows(); i++) {
-            A.viewRow(i).assign(ri, sumFunc);
+            result.viewRow(i).assign(ri, sumFunc);
         }
     }
 };

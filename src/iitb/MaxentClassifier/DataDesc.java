@@ -6,7 +6,7 @@ import iitb.Utils.*;
  *
  */ 
 
-class DataDesc {
+public class DataDesc {
     int numColumns;
     int numLabels = 2;
     String colSep = ",";
@@ -20,5 +20,11 @@ class DataDesc {
 	if (opts.getProperty("separator") != null) {
 	    colSep = opts.getString("separator");
 	}
+    }
+    public int getNumLabels() {
+        return numLabels;
+    }
+    public void setNumLabels(int numLabels) {
+        this.numLabels = numLabels;
     }
 };
