@@ -148,7 +148,7 @@ public class Trainer {
         tmp_Y = new DenseDoubleMatrix1D(numY);
     }
     
-    void doTrain() {
+    protected void doTrain() {
         double f, xtol = 1.0e-16; // machine precision
         int iprint[] = new int [2], iflag[] = new int[1];
         icall=0;
