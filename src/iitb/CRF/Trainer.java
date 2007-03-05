@@ -581,7 +581,7 @@ public class Trainer {
         lZx = RobustMath.logSumExp(alpha_Y);
         return thisSeqLogli;
     }
-    protected DoubleMatrix1D[] computeBetaArray(DataSequence dataSeq, double[] lambda2, FeatureGenerator featureGenerator) {
+    protected DoubleMatrix1D[] computeBetaArray(DataSequence dataSeq, double[] lambda, FeatureGenerator featureGenerator) {
         beta_Y[dataSeq.length()-1].assign(0);
         for (int i = dataSeq.length()-1; i > 0; i--) {
             // compute the Mi matrix

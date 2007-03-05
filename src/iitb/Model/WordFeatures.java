@@ -9,7 +9,7 @@ import java.io.*;
  */ 
 
 public class WordFeatures extends FeatureTypes {
-    int stateId;
+    protected int stateId;
     int statePos;
     Object token;
     int tokenId;
