@@ -117,6 +117,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             }
             return -1;
         }
+        public int getIndex(FeatureIdentifier fId) {return getId(fId);}
         public int add(FeatureImpl feature) {
             int newId = strToInt.size();
 //            strToInt.put(feature.identifier().clone(), new Integer(newId));
@@ -397,6 +398,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     public String featureName(int featureIndex) {
         return featureMap.getName(featureIndex);
     }
+    public int featureIndex(FeatureIdentifier fId) {return featureMap.getIndex(fId);}
     public int numStates() {
         return model.numStates();
     }
@@ -444,5 +446,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     
     public boolean fixedTransitionFeatures() {
         return _fixedTransitions;
+    }
+    // returns the label-independent featureId of the current feature
+    public int xFeatureIdCurrent() {
+        return currentFeatureType.labelIndependentId(featureToReturn);
     }
 };

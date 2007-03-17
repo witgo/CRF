@@ -13,12 +13,14 @@ public class WordFeatures extends FeatureTypes {
     int statePos;
     Object token;
     int tokenId;
-    WordsInTrain dict;
+    protected WordsInTrain dict;
     int _numWordStatePairs;
     public static int RARE_THRESHOLD=0;
+    protected int frequency_cutOff;
     public WordFeatures(FeatureGenImpl m, WordsInTrain d) {
 	super(m);
 	dict = d;
+    frequency_cutOff=RARE_THRESHOLD;
     }
     private void nextStateId() {       
 	stateId = dict.nextStateWithWord(token, stateId);
@@ -26,7 +28,7 @@ public class WordFeatures extends FeatureTypes {
     }
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 	stateId = -1;
-	if (dict.count(data.x(pos)) > RARE_THRESHOLD) {
+	if (dict.count(data.x(pos)) > frequency_cutOff) {
 	    token = (data.x(pos));
 	    tokenId = dict.getIndex(token);
 	    statePos = -1;

@@ -78,7 +78,7 @@ public class Trainer {
         doTrain();
     }
     
-    void setInitValue(double lambda[]) {
+    protected void setInitValue(double lambda[]) {
         if (params.miscOptions.getProperty("initValues") != null) {
             // starting values stored in a file where each line has (featureName, value) pair
             String fname = params.miscOptions.getProperty("initValues");
