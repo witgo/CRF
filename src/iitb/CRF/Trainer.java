@@ -217,7 +217,13 @@ public class Trainer {
                 grad[f] = -1*params.invSigmaSquare;
                 logli -= (lambda[f]*params.invSigmaSquare);
             }
-        } else {
+        } else if (params.miscOptions.getProperty("prior", "gaussian").equalsIgnoreCase("laplaceApprox")) {
+            for (int f = 0; f < lambda.length; f++) {
+                double approxL = Math.sqrt(lambda[f]*lambda[f]+1e-3);
+                grad[f] = -1*lambda[f]/approxL*params.invSigmaSquare;
+                logli -= params.invSigmaSquare*approxL; 
+            }
+        } else  {
             for (int f = 0; f < lambda.length; f++) {
                 grad[f] = -1*lambda[f]*params.invSigmaSquare;
                 logli -= ((lambda[f]*lambda[f])*params.invSigmaSquare)/2;

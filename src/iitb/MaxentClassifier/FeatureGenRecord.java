@@ -62,4 +62,7 @@ public class FeatureGenRecord implements FeatureGenerator {
     public String featureName(int featureIndex) {
         return "ColumnId=" + (featureIndex % (numCols+addBias)) + " label="+(featureIndex/(numCols+addBias));
     }
+    public int xFeatureIdCurrent() {
+        return feature.colId;
+    }
 };
