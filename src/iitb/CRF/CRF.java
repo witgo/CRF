@@ -119,12 +119,17 @@ public class CRF implements Serializable {
     public double[] train(DataIter trainData) {
         return train(trainData,null);
     }
+    public void setInitTrainWeights(double initLambda[]) {
+        lambda = new double[featureGenerator.numFeatures()];
+        params.miscOptions.setProperty("initValuesUseExisting", "true");
+        for (int i = 0; i < initLambda.length; lambda[i] = initLambda[i], i++);
+    }
     /**
      * Trains the model given the data
      * @return the learnt parameter value as an array
      */
     public double[] train(DataIter trainData, Evaluator evaluator) {
-        lambda = new double[featureGenerator.numFeatures()];	
+        if (lambda == null) lambda = new double[featureGenerator.numFeatures()];	
         trainer = getTrainer();
         trainer.train(this, histMgr.mapTrainData(trainData), lambda, evaluator);
         return lambda;

@@ -109,7 +109,10 @@ public class Trainer {
                 e.printStackTrace();
                 System.err.println("ERROR: in file initialization, using default init process");
             }
-        }
+        } else if (Boolean.parseBoolean(params.miscOptions.getProperty("initValuesUseExisting", "false"))) {
+            // use existing values of lambda from the model as starting point.
+            return;
+        } else
         for (int j = 0 ; j < lambda.length ; j ++) {
             lambda[j] = getInitValue();
         }
