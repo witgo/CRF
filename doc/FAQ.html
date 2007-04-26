@@ -58,5 +58,21 @@ matrix.
 	The code supports higher order markov models, although the performance is not as great.  The history size refers to the label sequence history.  The CRF part of the package does not care about the history in the input sequence --- that would only affect the feature generator that you use.
 The CRF package will use exactly those dependencies that you specify by the features.  Even in a first order markov model, you can choose independently for each label pair whether to add that as a dependency or not. Consult the Feature.java file; the yprev() function controls that.  When you move to higher order models the yprevArray() controls for each history position, what labels you want to depend on. 
 </p>
+
+<p>
+<b>
+Is there any support for feature selection?
+</b>
+<br>
+We have found that feature selection is equivalent to training with
+L1/L2 regularizer. This does not help in reducing the running time, but it
+addresses the accuracy issue quite well.  The latest version of the code
+when run with "-prior laplaceApprox" gives L1 regularization, the
+default is L2.  You can control the amount of feature selection by
+varying -invSigmaSquare.
+</br>
+</p>
+</p>
+
 </body>
 </html>
