@@ -4,6 +4,7 @@ import iitb.CRF.*;
 
 import java.util.*;
 import java.io.*;
+
 /**
  * The FeatureGenerator is an aggregator over all these different
  * feature types. You can inherit from the FeatureGenImpl class and
@@ -86,7 +87,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         return ((seq.y(cposEnd) == f.y()) 
                 && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev())));
     }
-    boolean featureCollectMode = false;
+    protected boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
         Hashtable strToInt = new Hashtable();
         FeatureIdentifier idToName[];
