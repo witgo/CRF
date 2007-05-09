@@ -58,7 +58,7 @@ public class Trainer {
     protected int icall;
     Evaluator evaluator = null;
     
-    FeatureGenCache featureGenCache;
+    protected FeatureGenCache featureGenCache;
     
     protected double norm(double ar[]) {
         double v = 0;
