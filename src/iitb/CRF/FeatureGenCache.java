@@ -24,6 +24,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 	protected boolean firstScan=true;
 	int dataIndex=-1;
 	int scanNum=0;
+	int dataIndexStart=0;
 	
 	public static class AllFeatureCache {
 	    Vector distinctFeatures;
@@ -251,6 +252,18 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 	    alloc(fgen,edgeFeaturesXIndependent);
 	    
 	}
+	public FeatureGenCache(FeatureGenCache sharedCache, int startDataIndex) {
+		assert (sharedCache.scanNum>0);
+		firstScan=false;
+		dataIndexStart = startDataIndex;
+		scanNum = sharedCache.scanNum;
+		fgen = sharedCache.fgen;
+		sfgen = sharedCache.sfgen;
+		featureCache = sharedCache.featureCache;
+		featureIds = sharedCache.featureIds;
+		perSegmentFeatureOffsets = sharedCache.perSegmentFeatureOffsets;
+		stats = sharedCache.stats;
+	}
     /**
      * @param fgen2
      * @param edgeFeaturesXIndependent
@@ -328,7 +341,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 	Stats stats = new Stats();
 
 	public void startDataScan() {
-		dataIndex = -1;
+		dataIndex = dataIndexStart-1;
 		scanNum++;
 		if (scanNum ==2) {
 		    firstScan = false;
@@ -357,6 +370,16 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     }
     public void nextDataIndex() {
 		dataIndex++;
+		if (!firstScan) {
+		    return;
+		}
+		if (dataIndex > 0) {
+		    cachePreviousDataSequence();
+		}
+		stats.clear();
+	}
+    public void setDataIndex(int dIndex) {
+		dataIndex = dIndex;
 		if (!firstScan) {
 		    return;
 		}
