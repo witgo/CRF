@@ -11,7 +11,7 @@ import java.util.*;
  */ 
 
 
-public class CrfParams implements Serializable {
+public class CrfParams extends Properties implements Serializable {
     /** initial value for all the lambda arrays */
     public double initValue = 0;
     /** penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
