@@ -325,7 +325,10 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
      * @param data
      * @return
      */
-    public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
+    public boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
+        return featureValidStatic(data, cposStart, cposEnd, featureToReturn, model, cacheEdgeFeatures);
+    }
+    public static boolean featureValidStatic(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
         if (((cposStart > 0) && (cposEnd < data.length()-1)) 
                 || (featureToReturn.y() >= model.numStates())
                 || (featureToReturn.yprev() >= model.numStates())

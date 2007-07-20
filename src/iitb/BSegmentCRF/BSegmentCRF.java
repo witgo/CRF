@@ -40,6 +40,9 @@ public class BSegmentCRF extends SegmentCRF {
         bfgen = fgen;
     }
     protected Trainer getTrainer() {
+        Trainer thisTrainer = dynamicallyLoadedTrainer();
+        if (thisTrainer != null)
+            return thisTrainer;
         return new BSegmentTrainer(params);
     }
     

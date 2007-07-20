@@ -7,6 +7,7 @@ package iitb.BSegmentCRF;
 import cern.colt.function.*;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import iitb.BSegmentCRF.BSegmentTrainer.MatrixWithRange;
 import iitb.CRF.*;
 import iitb.CRF.SegmentViterbi.SegmentationImpl;
 
@@ -32,6 +33,32 @@ public class BSegmentViterbi extends SparseViterbi {
         //System.out.println("Score for segment: "+ (i-segLength+1) + " " + i + " " + val);
         return val;
     }
+    private void adjustScore(DataSequence dataSeq, DoubleMatrix1D ri, MatrixWithRange openri, int i, int ell) {
+        Segmentation segmentation = (Segmentation)dataSeq;
+        int segNum = segmentation.getSegmentId(openri.start);
+        int segStart = segmentation.segmentStart(segNum);
+        for (int y = 0; y < numY; y++) {
+            ri.set(y, ri.get(y)+1);
+        }
+        if (segStart == openri.start) {
+            ri.set(dataSeq.y(segStart), ri.get(dataSeq.y(segStart))-1);
+        } else {
+            // because the previous segment ended wrongly..
+            for (int y = 0; y < numY; y++) {
+                ri.set(y, ri.get(y)+1);
+            }
+        }
+        // now see if there is a corr seg included in this segment.
+        if (openri.start+1 <= i) {
+            segNum = segmentation.getSegmentId(openri.start+1);
+            if (segmentation.segmentStart(segNum)==openri.start+1) {
+                for (int y = 0; y < numY; y++) {
+                    ri.set(y, ri.get(y)+1);
+                    openri.mat.set(y, openri.mat.get(y)+1);
+                } 
+            }
+        }
+    }
     FeatureStore fstore;
     BSegmentCRF bmodel;
     BSegmentTrainer.MatrixWithRange openRi;
@@ -40,18 +67,28 @@ public class BSegmentViterbi extends SparseViterbi {
     Context openContext[];
     int m; 
     int numY;
+    boolean lossAugmentedScore=false;
     
-    BSegmentViterbi(BSegmentCRF model, int numY, int bs) {
+    protected BSegmentViterbi(BSegmentCRF model, int numY, int bs) {
         super(model, bs);
         this.bmodel = model;        
         reuseM = model.params.reuseM;
         this.numY = numY;
     }
+    public BSegmentViterbi(BSegmentCRF model, int numY, int bs, boolean lossAugmentedScore) {
+        super(model, bs);
+        this.bmodel = model;        
+        reuseM = model.params.reuseM;
+        this.numY = numY;
+        this.lossAugmentedScore = lossAugmentedScore;
+    }
     protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
-        if ((openRi.end != i) || (openRi.start < i-ell+1))
+        if ((openRi.end != i) || (openRi.start < i-ell+1)) {
             openRi.init(i+1,i);
+        }
         while (openRi.start != i-ell+1) {
             fstore.decrementLeftB(Ri,openRi);
+            if (lossAugmentedScore) adjustScore(dataSeq,Ri,openRi, i,ell);
         }
         assert((openRi.start==i-ell+1) && (openRi.end == i));
         int ip = i-ell+1;
@@ -61,6 +98,7 @@ public class BSegmentViterbi extends SparseViterbi {
             }
         }
     }
+    
     class ApplyFunc implements IntIntDoubleFunction, IntDoubleFunction {
         DoubleMatrix1D matRi;
         Context prevContext;

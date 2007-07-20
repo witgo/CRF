@@ -90,7 +90,8 @@ public class BFeatureGenImpl extends FeatureGenImpl implements
         ((BFeatureTypes)currentFeatureType).next(bfeatureToReturn);
         featureToReturn.copy(bfeatureToReturn);
     }
-    public static boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
+    @Override
+    public boolean featureValid(DataSequence data, int cposStart, int cposEnd, FeatureImpl featureToReturn, Model model, boolean cacheEdgeFeatures) {
         return true;
     }
     /* (non-Javadoc)

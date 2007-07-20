@@ -54,4 +54,10 @@ public class Soln implements Serializable, Comparable {
     public int compareTo(Object s) {
 		return ((((Soln)this).score-((Soln)s).score)>0)?1:-1; 
 	}
+    @Override
+    public String toString() {
+        String str = "["+pos + ":" + prevPos()+":"+ label + "]";
+        if (prevSoln != null) str += (" "+prevSoln.toString());
+        return str;
+    }
 };

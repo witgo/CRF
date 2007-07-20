@@ -201,6 +201,7 @@ public class FeatureStore {
         this.lambda = lambda;
         allocateScratch(data.length());
         fgen.startScanFeaturesAt(data);
+        boolean featuresFired = false;
         while (fgen.hasNext()) {
             BFeature f = fgen.nextFeature();
             if (f.yprev() >= 0) {
@@ -208,9 +209,11 @@ public class FeatureStore {
             } else {
                 int type = (f.endOpen()?1:0) + (f.startOpen()?1:0)*2;
                 stateFeatures[type][f.end()-f.start()][f.start()].add(f,lambda);
+                featuresFired=true;
             }
         }
         allFeatureCache.edgeFeatures.doneOneRoundEdges();
+        assert(featuresFired);
     }
     void copy(FeatureStore fstore) {
         dataLen = fstore.dataLen;
@@ -442,8 +445,10 @@ public class FeatureStore {
      * @param add
      */
     private void addFeatures(FeatureGenCache.AllFeatureCache.Flist vector, DoubleMatrix1D mat, boolean add) {
-        if (vector.size()==0)
+        if (vector.size()==0) {
+            if (printFeatures) {System.out.println("No features");}
             return;
+        }
         DoubleMatrix1D precomputedMat = vector.mat;
         for (int y = mat.size()-1; y >= 0; y--) {
             double val = precomputedMat.get(y);
@@ -459,7 +464,7 @@ public class FeatureStore {
         if (printFeatures) {
             for (Iterator iter = vector.iterator(); iter.hasNext();) {
                 Feature feature = (Feature) iter.next();
-                System.out.println(feature);
+                System.out.println(bfgen.featureName(feature.index()));
             }
         }
     }
@@ -488,7 +493,7 @@ public class FeatureStore {
         if (ri_Y != null) {
             ri_Y.assign(openRi.mat);
             addFeatures(ri_Y,endExact, openRi.end,cond);
-            if (!openOnly) checkMatrix(ri_Y,openRi);
+            //if (!openOnly) checkMatrix(ri_Y,openRi);
         }
     }
     public void checkMatrix(DoubleMatrix1D ri_Y, MatrixWithRange openRi) {
@@ -519,7 +524,7 @@ public class FeatureStore {
             ri_Y.assign(openRi.mat);
             addFeatures(ri_Y,startExact, openRi.start, cond);
         }
-        if (!endOpen) checkMatrix(ri_Y,openRi);
+       // if (!endOpen) checkMatrix(ri_Y,openRi);
     }
     /**
      * @param leftB
@@ -612,7 +617,7 @@ public class FeatureStore {
         if (ri_Y != null) {
             ri_Y.assign(openRi.mat);
             addFeatures(ri_Y,endExact,openRi.end,cond);
-            checkMatrix(ri_Y,openRi);
+          //  checkMatrix(ri_Y,openRi);
         }
     }
 }
