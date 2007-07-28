@@ -18,7 +18,7 @@ public class FeatureGenUnion extends  Vector<FeatureGeneratorNested>  implements
     public String featureName(int featureIndex) {
         int numF=0;
         for (FeatureGenerator fgen : this) {
-            if (featureIndex < numF) {
+            if (featureIndex < numF+fgen.numFeatures()) {
                 return fgen.featureName(featureIndex-numF);
             }
             numF += fgen.numFeatures();

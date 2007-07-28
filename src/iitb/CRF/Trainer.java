@@ -651,4 +651,21 @@ public class Trainer {
         }
         return pr;
     }
+    public void addFeatureVector(DataSequence dataSeq, double[] grad) {
+        for (int i = 0; i < dataSeq.length(); i++) {
+            // find features that fire at this position..
+                featureGenerator.startScanFeaturesAt(dataSeq, i);
+                while (featureGenerator.hasNext()) { 
+                    Feature feature = featureGenerator.next();
+                    int f = feature.index();
+                    int yp = feature.y();
+                    int yprev = feature.yprev();
+                    float val = feature.value();
+                    
+                    if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
+                        grad[f] += val;
+                    }
+                }
+        }
+    }
 }

@@ -179,4 +179,12 @@ public class CRF implements Serializable {
         }
         return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,false, -1, null);
     }
+
+    public void score(DataSequence dataSeq, double[] featureVec) {
+        if (trainer==null) {
+            trainer = getTrainer();
+            trainer.init(this,null,lambda);
+        }
+        trainer.addFeatureVector(dataSeq,featureVec); 
+    }
 };
