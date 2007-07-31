@@ -89,7 +89,7 @@ public class WordsInTrain implements Serializable {
 	}
 	index.cnt++;
     }
-    private void addDictElem(Object x, int y, int nelems) {
+    protected void addDictElem(Object x, int y, int nelems) {
 	HEntry index = (HEntry)dictionary.get(x);
 	if (index == null) {
 	    index = new HEntry(dictionary.size(),nelems);
@@ -107,6 +107,15 @@ public class WordsInTrain implements Serializable {
 	    allTotal += cntsOverAllWords[i];
 	}
     }
+    protected void postProcess(int numStates){
+        cntsArray = new int[dictionary.size()][0];
+        for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
+            Object key = e.nextElement();
+            HEntry entry = (HEntry)dictionary.get(key);
+            cntsArray[entry.index] = entry.stateArray;
+        }   
+        setAggregateCnts(numStates);
+    }
     public void train(DataIter trainData, int numStates) {
 	for (trainData.startScan(); trainData.hasNext();) {
 	    DataSequence seq = trainData.next();
@@ -116,14 +125,9 @@ public class WordsInTrain implements Serializable {
 		}
 	    }
 	}
-	cntsArray = new int[dictionary.size()][0];
-	for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
-	    Object key = e.nextElement();
-	    HEntry entry = (HEntry)dictionary.get(key);
-	    cntsArray[entry.index] = entry.stateArray;
-	}	
-	setAggregateCnts(numStates);
+    postProcess(numStates);
     }
+	
     public void read(BufferedReader in, int numStates) throws IOException {
 	int dictLen = Integer.parseInt(in.readLine());
 	cntsArray = new int[dictLen][numStates];
