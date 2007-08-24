@@ -20,6 +20,7 @@ public abstract class FeatureTypes implements Serializable {
     private FeatureGenImpl fgen;
     public Model model;
     public boolean cache = false;
+    protected boolean disabled = false;
     public FeatureTypes(FeatureGenImpl fgen) {
         model = fgen.model;
         this.fgen = fgen;
@@ -105,6 +106,12 @@ public abstract class FeatureTypes implements Serializable {
         if(requiresTraining()) {
             iitb.Utils.LogMessage.issueWarning("WARNING : Class " + getClass().getName() + " does not implement the train(SegmentDataSequence, int, int) method. Calling train(DataSequence, int) instead. Please implement the trainDone() methods properly.");
         }
+    }
+    public void disable() {
+        disabled=true;
+    }
+    public String name() {
+        return getClass().getName();
     }
 };
 

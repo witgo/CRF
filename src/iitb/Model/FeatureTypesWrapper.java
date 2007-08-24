@@ -81,4 +81,7 @@ public class FeatureTypesWrapper extends FeatureTypes {
 	 public boolean needsCaching() {
 	        return single.needsCaching();
 	 }
+     public String name() {
+            return single.name()+"_"+getClass().getName();
+     }
 }
