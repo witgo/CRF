@@ -110,6 +110,9 @@ public abstract class FeatureTypes implements Serializable {
     public void disable() {
         disabled=true;
     }
+    public boolean isDisabled() {
+        return disabled;
+    }
     public String name() {
         return getClass().getName();
     }

@@ -42,7 +42,7 @@ public class WordFeatures extends FeatureTypes {
     }
     public void next(FeatureImpl f) {
         if (featureCollectMode())
-            setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,"W_"+token,f);
+            setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,name()+token,f);
         else
             setFeatureIdentifier(tokenId*model.numStates()+stateId,stateId,token,f); 
 	f.yend = stateId;
@@ -56,6 +56,10 @@ public class WordFeatures extends FeatureTypes {
 	public int maxFeatureId() {
 		return dict.dictionaryLength()*model.numStates();
 	}
+    @Override
+    public String name() {
+        return "W_";
+    }
 };
 
 
