@@ -56,7 +56,6 @@ public class WordFeatures extends FeatureTypes {
 	public int maxFeatureId() {
 		return dict.dictionaryLength()*model.numStates();
 	}
-    @Override
     public String name() {
         return "W_";
     }
