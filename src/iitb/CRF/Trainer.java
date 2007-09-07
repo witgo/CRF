@@ -70,9 +70,6 @@ public class Trainer {
     public Trainer(CrfParams p) {
         params = p; 
     }
-    public void train(CRF model, DataIter data, double[] l, Evaluator eval) {
-        train(model,data,l,eval,null);
-    }
     public void train(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
         init(model,data,l);
         evaluator = eval;
