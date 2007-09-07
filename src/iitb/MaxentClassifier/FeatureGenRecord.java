@@ -7,8 +7,8 @@ import iitb.CRF.*;
  */ 
 
 public class FeatureGenRecord implements FeatureGenerator {
-	int numCols;
-	int numLabels;
+	protected int numCols;
+	protected int numLabels;
 	DataRecord dataRecord;
 	public int addBias=0;
 	class FeatureColumn implements Feature {

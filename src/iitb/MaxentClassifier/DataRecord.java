@@ -26,5 +26,5 @@ public class DataRecord implements DataSequence {
     public int y(int i) {return label;}
     public Object x(int i) {return vals;}
     public void set_y(int i, int l) {label = l;}
-    float getColumn(int col) {return vals[col];}
+    public float getColumn(int col) {return vals[col];}
 };

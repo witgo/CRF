@@ -56,6 +56,7 @@ public class Trainer {
     protected CrfParams params;
     protected EdgeGenerator edgeGen;
     protected int icall;
+    protected float instanceWts[];
     Evaluator evaluator = null;
     
     protected FeatureGenCache featureGenCache;
@@ -70,8 +71,12 @@ public class Trainer {
         params = p; 
     }
     public void train(CRF model, DataIter data, double[] l, Evaluator eval) {
+        train(model,data,l,eval,null);
+    }
+    public void train(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
         init(model,data,l);
         evaluator = eval;
+        this.instanceWts = instanceWts;
         if (params.debugLvl > 0) {
             Util.printDbg("Number of features :" + lambda.length);	    
         }
@@ -506,21 +511,22 @@ public class Trainer {
                 ,onlyForwardPass, numRecord, ((grad != null)||(expFVals!=null))?fgenForExpVals:null);
         
         thisSeqLogli -= lZx;
+        float instanceWt = (float) ((instanceWts!=null)?instanceWts[numRecord]:1.0);
         // update grad.
         if (grad != null) {
             for (int f = 0; f < grad.length; f++) {
-                grad[f] -= RobustMath.exp(ExpF[f]-lZx);
+                grad[f] -= RobustMath.exp(ExpF[f]-lZx)*instanceWt;
             }
         }
         if (expFVals!=null) {
             for (int f = 0; f < expFVals.length; f++) {
-                expFVals[f] += RobustMath.exp(ExpF[f]-lZx);
+                expFVals[f] += RobustMath.exp(ExpF[f]-lZx)*instanceWt;
             }
         }
         if (params.debugLvl > 1) {
             System.out.println("Sequence "  + thisSeqLogli  + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
         }
-        return thisSeqLogli;
+        return thisSeqLogli * instanceWt;
     }
 
     protected double sumProductInner(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], 
