@@ -37,18 +37,18 @@ public class FeatureGenRecord implements FeatureGenerator {
 	public void startScanFeaturesAt(DataSequence data, int pos) {
 		dataRecord = (DataRecord)data;
 		assert (pos == 0);
-		feature.colId = 0;
+		feature.colId = firstColumnId();
 		feature._y = 0;
 	}
 	public boolean hasNext() {
 		return (feature.y() < numLabels);
 	}
-	protected int lastColumnIdp1() {return numCols;}
+	protected int lastColumnIdp1() {return numCols+addBias;}
 	protected int firstColumnId() {return 0;}
 	public Feature next() {
 		featureToReturn.copy(feature);
 		feature.colId++;
-		if (feature.colId >= lastColumnIdp1()+addBias) {
+		if (feature.colId >= lastColumnIdp1()) {
 			feature.colId = firstColumnId();
 			feature._y++;
 		}

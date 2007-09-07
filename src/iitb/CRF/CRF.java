@@ -117,19 +117,19 @@ public class CRF implements Serializable {
      * @return the learnt parameter value as an array
      */
     public double[] train(DataIter trainData) {
-        return train(trainData,null);
-    }
-    /**
-     * Trains the model given the data
-     * @return the learnt parameter value as an array
-     */
-    public double[] train(DataIter trainData, float instanceWts[]) {
-        return train(trainData,null,instanceWts);
+        return train(trainData,null,null);
     }
     public void setInitTrainWeights(double initLambda[]) {
         lambda = new double[featureGenerator.numFeatures()];
         params.miscOptions.setProperty("initValuesUseExisting", "true");
         for (int i = 0; i < initLambda.length; lambda[i] = initLambda[i], i++);
+    }
+    /**
+     * Trains the model given the data
+     * @return the learnt parameter value as an array
+     */
+    public double[] train(DataIter trainData, Evaluator evaluator) {
+        return train(trainData,evaluator,null);
     }
     /**
      * Trains the model given the data
