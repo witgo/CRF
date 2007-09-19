@@ -70,12 +70,24 @@ public class Trainer {
     public Trainer(CrfParams p) {
         params = p; 
     }
+    public void train(CRF model, DataIter data, double[] l, Evaluator eval) {
+        trainInternal(model,data,l,eval,null);
+    }
     public void train(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
+        if (instanceWts==null) {
+            // this is to ensure backward compatibility with trainers who might have overridden the above function.
+            train(model,data,l,eval);
+            return;
+        }
+        trainInternal(model,data,l,eval,instanceWts);
+    }
+    
+    private void trainInternal(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
         init(model,data,l);
         evaluator = eval;
         this.instanceWts = instanceWts;
         if (params.debugLvl > 0) {
-            Util.printDbg("Number of features :" + lambda.length);	    
+            Util.printDbg("Number of features :" + lambda.length);      
         }
         doTrain();
     }
