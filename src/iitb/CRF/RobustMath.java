@@ -89,6 +89,13 @@ public class RobustMath {
                 addNoDups(logProbVector,logProb.getQuick(lpx));
         return logSumExp(logProbVector);
     }
+    public static double logSumExp(double[] ds) {
+        TreeSet logProbVector = new TreeSet();
+        for ( int lpx = 0; lpx < ds.length; lpx++ )
+            if (ds[lpx] != RobustMath.LOG0)
+                addNoDups(logProbVector,ds[lpx]);
+        return logSumExp(logProbVector);
+    }
     static void logSumExp(DoubleMatrix1D v1, DoubleMatrix1D v2) {
         for (int i = 0; i < v1.size(); i++) {
             v1.set(i,logSumExp(v1.get(i), v2.get(i)));
@@ -246,4 +253,5 @@ public class RobustMath {
             result.viewRow(i).assign(ri, sumFunc);
         }
     }
+   
 };
