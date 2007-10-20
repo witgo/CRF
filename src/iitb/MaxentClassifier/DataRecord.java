@@ -1,4 +1,6 @@
 package iitb.MaxentClassifier;
+import java.io.Serializable;
+
 import iitb.CRF.*;
 /**
  *
@@ -6,10 +8,10 @@ import iitb.CRF.*;
  *
  */ 
 
-public class DataRecord implements DataSequence {
+public class DataRecord implements DataSequence, Serializable {
     int label;
     float vals[];
-    DataRecord (int ncols) {
+    public DataRecord (int ncols) {
 	vals = new float[ncols];
     }
     public DataRecord(DataRecord dr) {
@@ -27,4 +29,13 @@ public class DataRecord implements DataSequence {
     public Object x(int i) {return vals;}
     public void set_y(int i, int l) {label = l;}
     public float getColumn(int col) {return vals[col];}
+    public void setColumn(int col, float val) {vals[col]=val;}
+	public String toString() {
+		String str="";
+		for (int i = 0; i < vals.length; i++) {
+			str += (vals[i] + " ");
+		}
+		str += label;
+		return str;
+	}
 };

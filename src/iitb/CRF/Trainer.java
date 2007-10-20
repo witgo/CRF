@@ -514,17 +514,28 @@ public class Trainer {
     }
     protected double sumProductLL(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], 
             double grad[], double expFVals[], boolean onlyForwardPass, int numRecord, FeatureGenerator fgenForExpVals) {
+    	
+    	float instanceWt = (float) ((instanceWts!=null)?instanceWts[numRecord]:1);
+    	
         for (int f = 0; f < ExpF.length; f++)
             ExpF[f] = RobustMath.LOG0;
-        double thisSeqLogli = sumProductInner(dataSeq,featureGenerator,lambda,grad
+        
+        double gradThisInstance[] =grad;
+        if ((instanceWt != 1) && (grad != null)) {
+        	gradThisInstance = new double[grad.length];
+        }
+        double thisSeqLogli = sumProductInner(dataSeq,featureGenerator,lambda,gradThisInstance
                 ,onlyForwardPass, numRecord, ((grad != null)||(expFVals!=null))?fgenForExpVals:null);
         
         thisSeqLogli -= lZx;
-        float instanceWt = (float) ((instanceWts!=null)?instanceWts[numRecord]:1.0);
+        
         // update grad.
         if (grad != null) {
             for (int f = 0; f < grad.length; f++) {
                 grad[f] -= RobustMath.exp(ExpF[f]-lZx)*instanceWt;
+                if (gradThisInstance != grad) {
+                	grad[f] += gradThisInstance[f]*instanceWt;
+                }
             }
         }
         if (expFVals!=null) {

@@ -14,12 +14,12 @@ public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
     static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
-
+    public static boolean useCache = true;
     static class LogExpCache {
         static int CUT_OFF = 6;
         static int NUM_FINE = 10000;
         static int NUM_COARSE = 1000;
-        static boolean useCache = true;
+        
         static double vals[] = new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+1];
         static {
             for(int i = vals.length-1; i >= 0; vals[i--]=-1);
