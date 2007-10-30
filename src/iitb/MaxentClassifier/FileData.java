@@ -12,7 +12,7 @@ import java.util.*;
 public class FileData {
     BufferedReader inpStream;
     DataDesc dataDescriptor;
-    void openForRead(String fileName, DataDesc data) throws IOException {
+    public void openForRead(String fileName, DataDesc data) throws IOException {
 	 inpStream=new BufferedReader(new FileReader(fileName));
 	 dataDescriptor = data;
     }

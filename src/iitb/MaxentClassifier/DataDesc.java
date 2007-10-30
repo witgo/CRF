@@ -7,10 +7,10 @@ import iitb.Utils.*;
  */ 
 
 public class DataDesc {
-    int numColumns;
+    public int numColumns;
     int numLabels = 2;
     String colSep = ",";
-    DataDesc(Options opts) throws ConfigException {
+    public DataDesc(Options opts) throws ConfigException {
 	if (opts.getProperty("numLabels") != null) {
 	    numLabels = opts.getInt("numLabels");
 	}
