@@ -94,6 +94,21 @@ public class GenericModel extends Model {
             edgeStart[1] = 0;
             edgeStart[2] = 2;
             edgeStart[3] = 4;
+        } else if (spec.equals("BI")){
+            // there is a start state with a transition to an I state. 
+            // start state can also be the end state to allow for one token labels.
+            _numStates = 2;
+            _edges = new Edge[2];
+            _edges[0] = new Edge(0,1);
+            _edges[1] = new Edge(1,1);
+            startStates = new int[1];
+            startStates[0] = 0;
+            endStates = new int[2];
+            endStates[0] = 0;
+            endStates[1] = 1;
+            edgeStart = new int[_numStates];
+            edgeStart[0] = 0;
+            edgeStart[1] = 1;
         } else {
             throw new Exception("Unknown graph type: " + spec); 
         }

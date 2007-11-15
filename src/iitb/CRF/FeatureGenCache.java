@@ -6,8 +6,15 @@ package iitb.CRF;
 
 /**
  * @author sunita
- *
+ *   
+ *   For each distinct feature-id there is a IntHashArray of variants of 
+ *   the values and labels of the feature seen throughout the data.  This list is a vector of
+ *   variantIds.  There is hash-map from variantIds to FeatureImpl.
+ *   
+ *   TODO: keeping vector of featureIds implies that insertion is quadratic--- need to make this efficient.
  */
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -36,123 +43,145 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 		class FeatureImpl implements Feature {
 			int _index;
 			int _y;
-			int _yprev;
 			float _value;
-			void init(int _index, int _y, int _yprev, float _value) {
+			void init(int _index, int _y, float _value) {
 				this._index = _index;
 				this._y = _y;
-				this._yprev = _yprev;
 				this._value = _value;
 			}
 			void copy(Feature f) {
 			    this._index = f.index();
 				this._y = f.y();
-				this._yprev = f.yprev();
 				this._value = f.value();
 			}
-			/**
-			 * 
-			 */
-			public FeatureImpl() {
-				super();
-			}
-			/**
-	         * @param f
-	         */
 	        public FeatureImpl(Feature f) {
-	            copy(f);
+	            if (f != null) {
+                    copy(f);
+                }
 	        }
-	        /* (non-Javadoc)
-			 * @see iitb.CRF.Feature#index()
-			 */
 			public int index() {
 				return _index;
 			}
-			
-			/* (non-Javadoc)
-			 * @see iitb.CRF.Feature#y()
-			 */
 			public int y() {
 				return _y;
 			}
-			
-			/* (non-Javadoc)
-			 * @see iitb.CRF.Feature#yprev()
-			 */
 			public int yprev() {
-				return _yprev;
+				return -1;
 			}
-			
-			/* (non-Javadoc)
-			 * @see iitb.CRF.Feature#value()
-			 */
 			public float value() {
 				return _value;
 			}
-			
-			/* (non-Javadoc)
-			 * @see iitb.CRF.Feature#yprevArray()
-			 */
 			public int[] yprevArray() {
 				return null;
 			}
 	        public boolean equals(Object obj) {
-	            Feature feature = (Feature)obj;
-	            return ((_y==feature.y()) 
-	                    && (_yprev==feature.yprev()) 
-	                    && (Math.abs(_value-feature.value()) < Float.MIN_VALUE));
+	            return (allButValueEqual(obj) 
+	                    && (Math.abs(_value-((Feature)obj).value()) < Float.MIN_VALUE));
 	        }
+            public boolean allButValueEqual(Object obj) {
+                if (!(obj instanceof Feature))
+                    return false;
+                Feature feature = (Feature)obj;
+                return (_y==feature.y()); 
+            }
+            public int add(Feature f){return index();}
 		}
+        class FeatureImplWithYPrev extends FeatureImpl {
+            public FeatureImplWithYPrev(Feature f) {
+                super(f);
+                _yprev=f.yprev();
+            }
+            int _yprev;
+            void init(int _index, int _y, int yprev, float _value) {
+                super.init(_index, _y, _value);
+                this._yprev=yprev;
+                
+            }
+            void copy(Feature f) {
+                super.copy(f);
+                _yprev=f.yprev();
+            }
+            public boolean allButValueEqual(Object obj) {
+                return (super.allButValueEqual(obj) && (_yprev==((Feature)obj).yprev())); 
+            }
+            public int yprev() {
+                return _yprev;
+            }
+        }
 		class FeatureCache extends FeatureImpl {
-		    TIntArrayList featureVariantIds = null;
-		    FeatureCache() {_y=-1;}
+		    Hashtable<FeatureImpl,Integer> featureVariantIds = null;
+		    FeatureCache(Feature f) {super(f);}
 	        /**
 	         * @param f
 	         * @return
 	         */
 	        public int add(Feature f) {
-	            if (_y==-1) {
-	                copy(f);
-	                return f.index();
-	            }
 	            if (equals(f)) {
 	                return f.index();
 	            }
 	            if (featureVariantIds == null) {
-	                featureVariantIds = new TIntArrayList();
+	                featureVariantIds = new Hashtable<FeatureImpl,Integer>();
 	            }
-	            int variantId = findFeatureInVariantList(f);
-	            if (variantId < 0) {
+                //Object diffObject = createDiff(f);
+                FeatureImpl diffObject = new FeatureImpl(f);
+                int variantId;
+                if (featureVariantIds.containsKey(diffObject))
+                    variantId = featureVariantIds.get(diffObject); //findFeatureInVariantList(f);
+                else {
 	                variantId = featureVariants.size();
-	                featureVariantIds.add(variantId);
-	                featureVariants.add(new FeatureImpl(f));
+	                featureVariantIds.put(diffObject,variantId);
+	                featureVariants.add(diffObject);
 	            }
 	            return -1*variantId-1;
 	        }
-	        /**
-	         * @param f
-	         * @return
-	         */
-	        private int findFeatureInVariantList(Feature f) {
-	            for (int i = featureVariantIds.size()-1; i >= 0; i--) {
-	                int variantId = featureVariantIds.get(i);
-	                if (featureVariants.get(variantId).equals(f))
-	                    return variantId;
-	            }
-	            return -1;
-	        }
-		}
+        }
+        class FeatureCacheWithYPrev extends FeatureImplWithYPrev {
+            Hashtable<FeatureImplWithYPrev,Integer> featureVariantIds = null;
+            public FeatureCacheWithYPrev(Feature f) {super(f);}
+            /**
+             * @param f
+             * @return
+             */
+            public int add(Feature f) {
+                if (equals(f)) {
+                    return f.index();
+                }
+                if (featureVariantIds == null) {
+                    featureVariantIds = new Hashtable<FeatureImplWithYPrev,Integer>();
+                }
+                //Object diffObject = createDiff(f);
+                FeatureImplWithYPrev diffObject = new FeatureImplWithYPrev(f);
+                int variantId;
+                if (featureVariantIds.containsKey(diffObject))
+                    variantId = featureVariantIds.get(diffObject); //findFeatureInVariantList(f);
+                else {
+                    variantId = featureVariants.size();
+                    featureVariantIds.put(diffObject,variantId);
+                    featureVariants.add(diffObject);
+                }
+                return -1*variantId-1;
+            }
+        }
+        
 		public AllFeatureCache(boolean edgeFeaturesXIndependent) {
 		    this.edgeFeaturesXIndependent = edgeFeaturesXIndependent;
 		    distinctFeatures = new Vector();
 		    featureVariants = new Vector();
 		}
-		public int add(Feature f) {
+        public int add(Feature f) {
             int numAdd = f.index()+1-distinctFeatures.size();
             for (int i = 0; i < numAdd; i++) {
-                distinctFeatures.add(new FeatureCache());
+                distinctFeatures.add(null);
             }
-            return ((FeatureCache)(distinctFeatures.get(f.index()))).add(f);
+            if (distinctFeatures.get(f.index())==null) {
+                if (f.yprev() >= 0)
+                    distinctFeatures.setElementAt(new FeatureCacheWithYPrev(f),f.index());
+                else 
+                    distinctFeatures.setElementAt(new FeatureCache(f),f.index());
+                return f.index();
+            } else {
+                return ((FeatureImpl)(distinctFeatures.get(f.index()))).add(f);
+            }
         }
 		
 		public class EdgeFeatures {

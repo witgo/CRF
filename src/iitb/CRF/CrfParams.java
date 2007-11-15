@@ -19,7 +19,7 @@ public class CrfParams extends Properties implements Serializable {
     */
     public double invSigmaSquare = 0.01;
     /** Maximum number of iterations over the training data during training */
-    public int maxIters = 100;
+    public int maxIters = 300;
     /** Convergence criteria for finding optimum lambda using BFGS */
     public double epsForConvergence = 0.001;
     /** The number of corrections used in the BFGS update. */

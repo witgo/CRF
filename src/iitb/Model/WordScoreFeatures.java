@@ -42,7 +42,7 @@ public class WordScoreFeatures extends FeatureTypes {
     }
     public void next(FeatureImpl f) {
 	if (featureCollectMode())
-        setFeatureIdentifier(stateId*numScoreType+scoreType,stateId,"S_"+scoreType,f);
+        setFeatureIdentifier(stateId*numScoreType+scoreType,stateId,"WS_"+scoreType,f);
     else
         setFeatureIdentifier(stateId*numScoreType+scoreType,stateId,null,f);
 	f.yend = stateId;

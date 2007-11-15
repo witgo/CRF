@@ -14,7 +14,7 @@ public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
     static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
-    public static boolean useCache = true;
+    public static boolean useCache = false;
     static class LogExpCache {
         static int CUT_OFF = 6;
         static int NUM_FINE = 10000;
