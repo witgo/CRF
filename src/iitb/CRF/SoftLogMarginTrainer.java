@@ -44,6 +44,7 @@ public class SoftLogMarginTrainer extends Trainer {
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
             
+            betaLoss[i-1].assign(RobustMath.LOG0);
             int ycorr = dataSeq.y(i);
             for (int yprev=0; yprev < numY; yprev++) {
                 betaLoss[i-1].set(yprev,beta_Y[i].get(ycorr)+Ri_Y.get(ycorr)+Mi_YY.get(yprev,ycorr));
