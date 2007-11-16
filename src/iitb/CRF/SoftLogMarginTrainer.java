@@ -17,6 +17,7 @@ public class SoftLogMarginTrainer extends Trainer {
     DoubleMatrix1D betaLoss[]= new DenseDoubleMatrix1D[0];
     public SoftLogMarginTrainer(CrfParams p) {
         super(p);
+        logProcessing=true;
     }
     @Override
     protected double sumProductInner(DataSequence dataSeq, FeatureGenerator featureGenerator, double[] lambda, double[] grad, 
@@ -34,38 +35,8 @@ public class SoftLogMarginTrainer extends Trainer {
                 alphas[i] = new DenseDoubleMatrix1D(numY);
             }
         }
-        for (int i = 0; i < dataSeq.length(); i++) {
-            // compute the Mi matrix
-            initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-            assert(Ri_Y.get(dataSeq.y(i))==0);
-            if (i > 0) {
-                tmp_Y.assign(alphas[i-1]);
-                RobustMath.logMult(Mi_YY, tmp_Y, alphas[i],1,0,true,edgeGen);
-                alphas[i].assign(Ri_Y,sumFunc); 
-            } else {
-                alphas[i].assign(Ri_Y);
-            }
-            if (i > 0) {
-                tmp_Y.assign(alphaLoss[i-1]);
-                RobustMath.logMult(Mi_YY, tmp_Y, alphaLoss[i],1,0,true,edgeGen);
-                alphaLoss[i].assign(Ri_Y,sumFunc);
-            } else {
-                alphaLoss[i].assign(Ri_Y);
-            }
-            int ycorr = dataSeq.y(i);
-            alphaLoss[i].set(ycorr, RobustMath.logSumExp(alphaLoss[i].get(ycorr),alphas[i].get(ycorr)));
-        }
-        double logZx = RobustMath.logSumExp(alphas[dataSeq.length()-1]);
-        double sumExpFDiff=RobustMath.logSumExp(alphaLoss[dataSeq.length()]);
-        double logZ=0;
-        try {
-            logZ = RobustMath.logMinusExp(dataSeq.length()*logZx,sumExpFDiff);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
         beta_Y[dataSeq.length()-1].assign(0);
-        betaLoss[dataSeq.length()-1].assign(0);
+        betaLoss[dataSeq.length()-1].assign(RobustMath.LOG0);
         for (int i = dataSeq.length()-1; i > 0; i--) {
             // compute the Mi matrix
             initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
@@ -73,18 +44,55 @@ public class SoftLogMarginTrainer extends Trainer {
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false,edgeGen);
             
-            tmp_Y.assign(betaLoss[i]);
-            tmp_Y.assign(Ri_Y,sumFunc);
-            RobustMath.logMult(Mi_YY, tmp_Y, betaLoss[i-1],1,0,false,edgeGen);
-            
             int ycorr = dataSeq.y(i);
             for (int yprev=0; yprev < numY; yprev++) {
-                betaLoss[i-1].set(yprev,RobustMath.logSumExp(betaLoss[i-1].get(yprev)
-                        ,beta_Y[i].get(ycorr)+Ri_Y.get(ycorr)+Mi_YY.get(yprev,ycorr)));
+                betaLoss[i-1].set(yprev,beta_Y[i].get(ycorr)+Ri_Y.get(ycorr)+Mi_YY.get(yprev,ycorr));
             }
+            
+            tmp_Y.assign(betaLoss[i]);
+            tmp_Y.assign(Ri_Y,sumFunc);
+            RobustMath.logMult(Mi_YY, tmp_Y, betaLoss[i-1],1,1,false,edgeGen);
         }
+        double betaLogZ=0;
+        double logZ=0;
+        double obj = 0;
         for (int i = 0; i < dataSeq.length(); i++) {
-            computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            // compute the Mi matrix
+            initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            if (i > 0) {
+                tmp_Y.assign(alphas[i-1]);
+                RobustMath.logMult(Mi_YY, tmp_Y, alphas[i],1,0,true,edgeGen);
+                alphas[i].assign(Ri_Y,sumFunc); 
+            } else {
+                alphas[i].assign(Ri_Y);
+                
+                tmp_Y.assign(beta_Y[0]);
+                tmp_Y.assign(Ri_Y, sumFunc);
+                double t1 = RobustMath.logSumExp(tmp_Y)+Math.log(dataSeq.length());
+                
+                tmp_Y.assign(betaLoss[i]);
+                tmp_Y.assign(Ri_Y,sumFunc);
+                int ycorr=dataSeq.y(0);
+                tmp_Y.set(ycorr, RobustMath.logSumExp(tmp_Y.get(ycorr)
+                        ,beta_Y[0].get(ycorr)+Ri_Y.get(ycorr)));
+                double t2= RobustMath.logSumExp(tmp_Y);
+                try {
+                    betaLogZ = RobustMath.logMinusExp(t1,t2);
+                    logZ=betaLogZ;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (i > 0) {
+                tmp_Y.assign(alphaLoss[i-1]);
+                RobustMath.logMult(Mi_YY, tmp_Y, alphaLoss[i],1,0,true,edgeGen);
+                alphaLoss[i].assign(Ri_Y,sumFunc);
+            } else {
+                alphaLoss[i].assign(RobustMath.LOG0);
+            }
+            int ycorr = dataSeq.y(i);
+            alphaLoss[i].set(ycorr, RobustMath.logSumExp(alphaLoss[i].get(ycorr),alphas[i].get(ycorr)));
+            
             // find features that fire at this position..
             fgenForExpVals.startScanFeaturesAt(dataSeq, i);
             while (fgenForExpVals.hasNext()) { 
@@ -95,35 +103,32 @@ public class SoftLogMarginTrainer extends Trainer {
                 float val = feature.value();
                 if (Math.abs(val) < Double.MIN_VALUE) continue;
                 if ((dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
-                    val *= -1;
+                    grad[f] += val;
+                    obj += val*lambda[f];
                 }
+                double logpr=beta_Y[i].get(yp)-logZ;
                 if (yprev < 0) {
-                    double logpr = alphas[i].get(yp) + beta_Y[i].get(yp)-logZ;
-                    grad[f] += dataSeq.length()*val*Math.exp(logpr);
-                    grad[f] -= val*Math.exp(alphaLoss[i].get(yp)+betaLoss[i].get(yp)-logZ);
+                        logpr += alphas[i].get(yp);
+                        grad[f] += val*(Math.exp(alphaLoss[i].get(yp)+beta_Y[i].get(yp)-logZ)+Math.exp(alphas[i].get(yp)+betaLoss[i].get(yp)-logZ));
                 } else {
-                    double logpr = alphas[i-1].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+beta_Y[i].get(yp)-logZ;
-                    grad[f] += dataSeq.length()*val*Math.exp(logpr);
-                    grad[f] -= val*Math.exp(alphaLoss[i-1].get(yprev)+betaLoss[i].get(yp)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)-logZ);
+                        logpr += alphas[i-1].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp);
+                        grad[f] += val*(Math.exp(alphaLoss[i-1].get(yprev)+beta_Y[i].get(yp)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)-logZ)
+                                +Math.exp(alphas[i-1].get(yprev)+betaLoss[i].get(yp)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)-logZ));
+                        if (yp==dataSeq.y(i)) {
+                            grad[f] += val*Math.exp(alphas[i-1].get(yprev)+beta_Y[i].get(yp)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)-logZ);
+                        }
                 }
+                grad[f] -= val*Math.exp(logpr)*dataSeq.length();
             }
         }
-        return logZ;
-    }
-    
-    
-    @Override
-    protected boolean computeLogMiTrainMode(FeatureGenerator featureGenerator, double[] lambda, DataSequence dataSeq, int i, DoubleMatrix2D mi_YY, DoubleMatrix1D ri_Y, boolean b, boolean reuseM, boolean initMDone) {
-        boolean initDoneNow = super.computeLogMiTrainMode(featureGenerator, lambda, dataSeq, i, Mi_YY, Ri_Y, b, reuseM, initMDone);
-        for (int y = 0; y < numY; y++) {
-            Ri_Y.set(y, Ri_Y.get(y)-Ri_Y.get(dataSeq.y(i)));
-            if (!reuseM || (!initMDone && initDoneNow)) {
-                assert(i>0);
-                for (int yp = 0; yp < numY; yp++) {
-                    Mi_YY.set(yp, y, Mi_YY.get(yp,y)-Mi_YY.get(dataSeq.y(i-1), dataSeq.y(i)));
-                }
-            }
+        double t1 = RobustMath.logSumExp(alphas[dataSeq.length()-1])+Math.log(dataSeq.length());
+        double t2= RobustMath.logSumExp(alphaLoss[dataSeq.length()-1]);
+        try {
+            logZ = RobustMath.logMinusExp(t1,t2);
+            assert(Math.abs(logZ-betaLogZ)< 1e-2);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return initDoneNow;
+        return obj-logZ;
     }
 }

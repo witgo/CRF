@@ -631,7 +631,7 @@ public class Trainer {
             DataSequence dataSeq, int i, 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, boolean takeExp, boolean reuseM, boolean initMDone) {
-        return computeLogMi(featureGen,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+        return computeLogMi(featureGen,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone) || initMDone;
     }
     static double log(double val) {
         try {
