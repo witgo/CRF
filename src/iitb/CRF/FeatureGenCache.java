@@ -74,17 +74,28 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 			public int[] yprevArray() {
 				return null;
 			}
-	        public boolean equals(Object obj) {
-	            return (allButValueEqual(obj) 
-	                    && (Math.abs(_value-((Feature)obj).value()) < Float.MIN_VALUE));
-	        }
             public boolean allButValueEqual(Object obj) {
-                if (!(obj instanceof Feature))
-                    return false;
                 Feature feature = (Feature)obj;
                 return (_y==feature.y()); 
             }
             public int add(Feature f){return index();}
+			@Override
+			public int hashCode() {
+				final int PRIME = 31;
+				int result = 1;
+				result = PRIME * result + Float.floatToIntBits(_value);
+				result = PRIME * result + _y;
+				return result;
+			}
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				return (allButValueEqual(obj) 
+	                    && (Math.abs(_value-((Feature)obj).value()) < Float.MIN_VALUE));
+			}
 		}
         class FeatureImplWithYPrev extends FeatureImpl {
             public FeatureImplWithYPrev(Feature f) {
@@ -107,6 +118,15 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             public int yprev() {
                 return _yprev;
             }
+            @Override
+			public int hashCode() {
+				final int PRIME = 31;
+				int result = 1;
+				result = PRIME * result + Float.floatToIntBits(_value);
+				result = PRIME * result + _y;
+				result = PRIME * result + _yprev;
+				return result;
+			}
         }
 		class FeatureCache extends FeatureImpl {
 		    Hashtable<FeatureImpl,Integer> featureVariantIds = null;
@@ -376,6 +396,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 		    firstScan = false;
 		        // cache the last data item.
 		        cachePreviousDataSequence();
+		        System.out.println("First scan done..distinct features "+(featureCache.featureVariants.size()+featureCache.distinctFeatures.size()));
 		}
 	}
 
