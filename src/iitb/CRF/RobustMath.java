@@ -13,16 +13,32 @@ import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
     public static double LOG2 = 0.69314718055;
+    static final double MINUS_LOG_MINVAL=-1*Math.log(Double.MIN_VALUE);
     static final double MINUS_LOG_EPSILON = 30; //-1*Math.log(Double.MIN_VALUE);
-    public static boolean useCache = false;
+    public static boolean useCache = true;
+    
+    public static double maxError=Double.NEGATIVE_INFINITY;
+    public static double maxErrorAtVal = 0;
+    public static int numInvoke=0;
     static class LogExpCache {
-        static int CUT_OFF = 6;
-        static int NUM_FINE = 10000;
-        static int NUM_COARSE = 1000;
-        
-        static double vals[] = new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+1];
+        static int CUT_OFF = 7;
+        static int NUM_FINE = 100000;
+        static int NUM_COARSE = 5000;
+        static double vals[] = new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+2];
         static {
             for(int i = vals.length-1; i >= 0; vals[i--]=-1);
+        }
+        static double lookupAddErr(double val) {
+            numInvoke++;
+            double retval = lookupAdd(val);
+            double actual = Math.log(Math.exp(-1*val) + 1.0);
+            double err = Math.abs(retval-actual);
+            if (err > maxError) {
+                maxError=err;
+                maxErrorAtVal=val;
+                System.out.println("MaxError " + maxError + " "+val + " "+numInvoke);
+            }
+            return retval;
         }
         static double lookupAdd(double val) {
             if (!useCache)
@@ -34,9 +50,41 @@ public class RobustMath {
             } else {
                 index = NUM_FINE*CUT_OFF + (int)Math.rint((val-CUT_OFF)*NUM_COARSE);
             }
-            if (vals[index] < 0) 
+            if (vals[index] < 0) {
                 vals[index] = Math.log(Math.exp(-1*val) + 1.0);
+            }
             return vals[index];
+        }
+        
+        //
+        // Trial code for linear interpolation-based caching of values...that did not work
+        static double endpts[]=new double[2];
+        static double cvals[] = null;//new double[CUT_OFF*NUM_FINE+((int)MINUS_LOG_EPSILON-CUT_OFF)*NUM_COARSE+2];
+        static double lookupAddWorse(double val) {
+            if (!useCache)
+                return Math.log(Math.exp(-1*val) + 1.0);
+            int index = 0;
+            //assert ((val < MINUS_LOG_EPSILON) && (val > 0));
+            if (val < CUT_OFF) {
+                index = (int)Math.floor(val*NUM_FINE);
+            } else {
+                index = NUM_FINE*CUT_OFF + (int)Math.floor((val-CUT_OFF)*NUM_COARSE);
+            }
+            for (int k = 0; k < 2; k++) {
+                double vi=val;
+                int i1=index+k;
+                if (i1 < NUM_FINE*CUT_OFF) 
+                    vi = i1/(double)NUM_FINE;
+                else
+                    vi = CUT_OFF + (i1-NUM_FINE*CUT_OFF)/(double)NUM_COARSE;
+                endpts[k]=vi;
+                if (cvals[i1] <= 0)
+                    cvals[i1] = Math.log(Math.exp(-1*vi) + 1.0);
+            }
+            double a = (val-endpts[0])/(endpts[1]-endpts[0]);
+            double retval = cvals[index]*a+cvals[index+1]*(1-a);
+            System.out.println((retval-Math.log(Math.exp(-1*val) + 1.0))+ " "+(lookupAdd(val)-Math.log(Math.exp(-1*val) + 1.0)));
+            return retval;
         }
     };
     public static double logSumExp(double v1, double v2) {
@@ -101,13 +149,13 @@ public class RobustMath {
             v1.set(i,logSumExp(v1.get(i), v2.get(i)));
         }
     }
-    public static double logMinusExp(double v1, double v2) throws Exception {
+    public static double logMinusExp(double v1, double v2)  {
         if (v1 - Double.MIN_VALUE < v2)
-            return -1*MINUS_LOG_EPSILON;
+            return -1*MINUS_LOG_MINVAL;
 //      throw new Exception("Cannot take log of negative numbers");
         double vmin = v2;
         double vmax = v1;
-        if (vmax > vmin + MINUS_LOG_EPSILON) {
+        if (vmax > vmin + MINUS_LOG_MINVAL) {
             return vmax;
         } else {
             return vmax + Math.log(1.0 - Math.exp(vmin - vmax));

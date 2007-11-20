@@ -22,6 +22,8 @@ public class GenericModel extends Model {
         super(1);
         name = spec;
         myLabel = thisLabel;
+        if (spec.equals("naive"))
+            spec="1-chain";
         if (spec.endsWith("-chain") || spec.endsWith("-long")) {
             StringTokenizer tok = new StringTokenizer(spec,"-");
             int len = Integer.parseInt(tok.nextToken());
