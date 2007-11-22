@@ -88,7 +88,7 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
 			for (segEnd=segStart; segEnd < dataLen; segEnd++) {
 				if (label(dataSeq.y(segStart)) != label(dataSeq.y(segEnd))) {
 				    segEnd -= 1;
-				    System.out.println("WARNING: label ending in a state not marked as a End-state");
+				    //System.out.println("WARNING: label ending in a state not marked as a End-state");
 				    break;
 				}
 				if (isEndState(dataSeq.y(segEnd))) {
