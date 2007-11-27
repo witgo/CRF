@@ -28,7 +28,7 @@ public class SegmentViterbi extends SparseViterbi {
             public int label;
             public int prevLabel;
             public boolean execute(int arg0) {
-                return !disallowedPairs.conflictingPair(label,arg0,(arg0==prevLabel));
+                return !disallowedPairs.conflictingPair(label,arg0,prevLabel);
             }
         }
         protected Intersects intersectTest = new Intersects();
@@ -50,7 +50,7 @@ public class SegmentViterbi extends SparseViterbi {
         public boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
-             if (disallowedPairs.conflictingPair(label,prevLabel,true))
+             if (disallowedPairs.conflictingPair(label,prevLabel,-1))
                  return false;
              intersectTest.label = label;
              intersectTest.prevLabel = prevLabel;
@@ -228,7 +228,7 @@ public class SegmentViterbi extends SparseViterbi {
     	if ((labelConstraints != null) && labelConstraints.conflicting(data.y(i))) {
     		for (int segStart = 0; segStart < i-ell+1; segStart = data.getSegmentEnd(segStart)+1) {
     			int segEnd = data.getSegmentEnd(segStart);
-    			if (labelConstraints.disallowedPairs.conflictingPair(data.y(i),data.y(segStart),segEnd==i-ell))
+    			if (labelConstraints.disallowedPairs.conflictingPair(data.y(i),data.y(segStart),(segEnd==i-ell)?-1:0))  // TODO: 0 here is not correct. 
     				return RobustMath.LOG0;
     		}
     	}
