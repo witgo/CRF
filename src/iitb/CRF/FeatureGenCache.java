@@ -13,6 +13,7 @@ package iitb.CRF;
  *   
  *   TODO: keeping vector of featureIds implies that insertion is quadratic--- need to make this efficient.
  */
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.util.Vector;
 import cern.colt.matrix.DoubleMatrix1D;
 import gnu.trove.TIntArrayList;
 import gnu.trove.TIntObjectHashMap;
+import gnu.trove.TObjectProcedure;
 
 public class FeatureGenCache implements FeatureGeneratorNested {
 	private static final long serialVersionUID = 1L;
@@ -204,6 +206,35 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             }
         }
 		
+        
+        public class EdgeFeaturesTest extends EdgeFeatures {
+            FeatureVector testEdgeFeatureIds[];
+            EdgeFeaturesTest() {
+                super();
+                testEdgeFeatureIds = new FeatureVector[4];
+                for (int i = 0; i < 4; testEdgeFeatureIds[i] = new FeatureVector(),i++);
+            }
+            public void addEdgeFeature(int edgeId, int prevPos, int pos, int dataLen) {
+                super.addEdgeFeature(edgeId, prevPos, pos, dataLen);
+                int edgeType = getEdgeType(prevPos,pos, dataLen);
+                if (edgeTypeCached[edgeType]) {
+                    assert(edgeFeatureIds[edgeType].contains(edgeId));
+                    testEdgeFeatureIds[edgeType].add(edgeId);
+                    return;
+                }
+            }
+            public void doneOneRoundEdges() {
+                super.doneOneRoundEdges();
+                for (int i = 0; i < 4; i++) {
+                    if (testEdgeFeatureIds[i].size() > 0) {
+                        //System.out.println("Edge features "+i + " size "+ testEdgeFeatureIds[i].size());
+                        assert(testEdgeFeatureIds[i].equals(edgeFeatureIds[i]));
+                        testEdgeFeatureIds[i].clear();
+                    }
+                }
+            }
+        }
+        
 		public class EdgeFeatures {
 		    FeatureVector edgeFeatureIds[];
 		    boolean edgeTypeCached[];
@@ -217,8 +248,9 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 		    }
 		    public void addEdgeFeature(int edgeId, int prevPos, int pos, int dataLen) {
 		        int edgeType = getEdgeType(prevPos,pos, dataLen);
-		        if (edgeTypeCached[edgeType])
+		        if (edgeTypeCached[edgeType]) {
 		            return;
+                }
 		        edgeFeatureIds[edgeType].add(edgeId);
 		    }
 		    public FeatureVector getEdgeIds(int prevPos, int pos, int dataLen) {
@@ -335,12 +367,24 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 		int pos, prevPos;
 		int thisSegmentOffsets[];
         TIntObjectHashMap segmentFeatureOffsets;
+        BitSet seenSegments = new BitSet();
+        boolean cacheThis;
         boolean cacheEdgeFeatures = false;
+        class InitProc implements TObjectProcedure {
+            public boolean execute(Object arg0) {
+                int vals[] = (int[])arg0;
+                vals[0]=0; vals[1]=-1;
+                return true;
+            }
+        }
+        InitProc initProc = new InitProc();
         Stats() {
             segmentFeatureOffsets = new TIntObjectHashMap();
         }
         public void clear() {
             maxSegSize = 1;
+            segmentFeatureOffsets.forEachValue(initProc);
+            seenSegments.clear();
         }
         int getKey(int prevPos, int pos) {
             return pos*dataLen+pos-prevPos-1;
@@ -353,18 +397,24 @@ public class FeatureGenCache implements FeatureGeneratorNested {
          * @param pos
          * @param prevPos
          */
-        public void initSegment(DataSequence data, int prevPos, int pos) {
+        public boolean initSegment(DataSequence data, int prevPos, int pos) {
             dataLen = data.length();
 			maxSegSize = Math.max(maxSegSize, pos-prevPos);
 			this.pos = pos;
 			this.prevPos = prevPos;
+            cacheThis=true;
 			thisSegmentOffsets = (int[]) segmentFeatureOffsets.get(getKey(prevPos,pos));
 			if (thisSegmentOffsets==null) {
 			    thisSegmentOffsets = new int[2];
 			    segmentFeatureOffsets.put(getKey(prevPos,pos),thisSegmentOffsets);
 			}
-			thisSegmentOffsets[0] = thisSegmentOffsets[1] = featureIds.size();
-			featureCache.edgeFeatures.doneOneRoundEdges();
+            if (!seenSegments.get(getKey(prevPos,pos))) {
+                thisSegmentOffsets[0] = thisSegmentOffsets[1] = featureIds.size();
+            } else {
+                cacheThis=false;
+            }
+            seenSegments.set(getKey(prevPos,pos));
+            return cacheThis;
 			/*
 			if (cacheEdgeFeatures) {
 			    // features already cached in previous segment.
@@ -379,12 +429,20 @@ public class FeatureGenCache implements FeatureGeneratorNested {
          * @param f
          */
         public void add(Feature f) {
+            if (!cacheThis) {
+                // segment has already been seen before and cached.
+                return;
+            }
             if (featureCache.edgeFeaturesXIndependent && (f.yprev() >= 0)) {
                 featureCache.edgeFeatures.addEdgeFeature(featureCache.add(f),prevPos, pos,dataLen);
                 return;
             }
             featureIds.add(featureCache.add(f));
             thisSegmentOffsets[1]++;
+        }
+        public boolean checkFeaturesEnd(boolean hasNextFeature) {
+            if (!hasNextFeature) featureCache.edgeFeatures.doneOneRoundEdges();
+            return hasNextFeature;
         }
 	}
 	Stats stats = new Stats();
@@ -410,7 +468,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 			for (int l = 0; (l < stats.maxSegSize) && (p-l >= 0); l++) {
 			    int offsets[] = stats.getStartEndOffsets(p-l-1,p);
 			        featureOffsets[p][l][0] = (offsets==null)?0:offsets[0];
-			        featureOffsets[p][l][1] = (offsets==null)?0:offsets[1];
+			        featureOffsets[p][l][1] = (offsets==null)?-1:offsets[1];
 			}
 		}
 		perSegmentFeatureOffsets.add(featureOffsets);
@@ -459,7 +517,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             int[][] tfeatures[] = (int[][][]) perSegmentFeatureOffsets.get(getDataIndex(data));
             currentFeatureOffset = tfeatures[pos][pos-prevPos-1][0];
             featureOffsetEnd = tfeatures[pos][pos-prevPos-1][1];
-            
+            assert(featureOffsetEnd >= currentFeatureOffset);
             edgeFeatureId = -1;
             if ((prevPos >= 0) && (featureCache.edgeFeaturesXIndependent)) {
                 edgeFeatureIds = featureCache.edgeFeatures.getEdgeIds(prevPos,pos,data.length());
@@ -488,7 +546,8 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 	 */
 	public void startScanFeaturesAt(DataSequence data, int prevPos, int pos, boolean nested) {
 		if (firstScan) {
-			stats.initSegment(data,prevPos,pos);
+            boolean cached = stats.initSegment(data,prevPos,pos);
+			//assert(!nested || !cached);
 			if (nested) 
 				fgen.startScanFeaturesAt(data,prevPos,pos);
 			else 
@@ -501,7 +560,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 	 * @see iitb.CRF.FeatureGenerator#hasNext()
 	 */
 	public boolean hasNext() {
-		return (firstScan)?sfgen.hasNext():cursor.hasNext();
+		return (firstScan)?stats.checkFeaturesEnd(sfgen.hasNext()):cursor.hasNext();
 	}
 	/* (non-Javadoc)
 	 * @see iitb.CRF.FeatureGenerator#next()
