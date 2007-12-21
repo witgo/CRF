@@ -72,7 +72,7 @@ public class GenericModel extends Model {
             _edges[e++] = new Edge(_numStates-2, _numStates-2);
             assert (e == _edges.length);
             assert (node == _numStates);
-        } else if (spec.equals("boundary")) {
+        } else if (spec.equals("boundary") || (spec.equals("BCEU"))) {
             // this implements a model where each label is either of a
             // Unique word (state 0) or broken into a Start state
             // (state 1) with a single token, Continuation state
@@ -96,7 +96,24 @@ public class GenericModel extends Model {
             edgeStart[1] = 0;
             edgeStart[2] = 2;
             edgeStart[3] = 4;
-        } else if (spec.equals("BI")){
+        } else if (spec.equals("BCE")) {
+            // only "U" state missing, so "B" can also be an ending state.
+            _numStates = 3;
+            _edges = new Edge[4];
+            _edges[0] = new Edge(0,1);
+            _edges[1] = new Edge(0,2);
+            _edges[2] = new Edge(1,1);
+            _edges[3] = new Edge(1,2);
+            startStates = new int[1];
+            startStates[0] = 0;
+            endStates = new int[2];
+            endStates[0] = 0;
+            endStates[1] = 2;
+            edgeStart = new int[_numStates];
+            edgeStart[0] = 0;
+            edgeStart[1] = 2;
+            edgeStart[2] = 4;
+        }else if (spec.equals("BI")){
             // there is a start state with a transition to an I state. 
             // start state can also be the end state to allow for one token labels.
             _numStates = 2;

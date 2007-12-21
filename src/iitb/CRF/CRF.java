@@ -53,7 +53,7 @@ public class CRF implements Serializable {
         edgeGen = histMgr.getEdgeGenerator();
         viterbi = getViterbi(1);
     }
-    
+    public FeatureGenerator getFeatureGenerator() {return featureGenerator;}
     /*
      * useful for resetting Viterbi options after loading a saved model.
      */

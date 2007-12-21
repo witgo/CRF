@@ -19,7 +19,7 @@ public class Soln implements Serializable, Comparable {
     public int pos;
     
     public Soln(int id, int p) {label = id;pos = p;}
-    void clear() {
+    public void clear() {
         score=-1*Float.MAX_VALUE;
         prevSoln=null;
     }
@@ -60,4 +60,13 @@ public class Soln implements Serializable, Comparable {
         if (prevSoln != null) str += (" "+prevSoln.toString());
         return str;
     }
+    public boolean equalsRecursive(Soln s) {
+        if (s==null) return false;
+        if ((label != s.label) || (pos != s.pos))
+            return false;
+        if (prevSoln==s.prevSoln) return true;
+        if (prevSoln==null) return false;
+        return prevSoln.equalsRecursive(s.prevSoln);
+    }
+    
 };

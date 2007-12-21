@@ -146,7 +146,7 @@ public class Viterbi implements Serializable {
     }
 
     public double viterbiSearchBackward(DataSequence dataSeq, double lambda[], DoubleMatrix2D Mis[], DoubleMatrix1D Ris[], boolean calcCorrectScore) {
-        if (Mi == null) {
+        if ((Mi == null)||(winningLabel==null)) {
             allocateScratch(model.numY);
         }
         if ((winningLabel[0] == null) || (winningLabel[0].length < dataSeq.length())) {
@@ -231,7 +231,7 @@ public class Viterbi implements Serializable {
     }
     
     public double viterbiSearch(DataSequence dataSeq, double lambda[], boolean calcCorrectScore) {
-        if (Mi == null) {
+        if ((Mi == null)||(winningLabel==null)) {
             allocateScratch(model.numY);
         }
         if ((winningLabel[0] == null) || (winningLabel[0].length < dataSeq.length())) {

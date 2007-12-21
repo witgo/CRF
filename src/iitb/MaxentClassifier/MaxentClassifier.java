@@ -24,6 +24,7 @@ public class MaxentClassifier {
     this.opts = opts;
 	// read all parameters
 	featureGen = new FeatureGenRecord(dataDesc.numColumns, dataDesc.numLabels);
+    featureGen.addBias=1;
     if (opts.getProperty("class-prior")!=null)
         featureGen.addBias = opts.getInt("class-prior");
     }

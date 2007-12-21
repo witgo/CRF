@@ -115,7 +115,7 @@ public class SegmentViterbi extends SparseViterbi {
 
     LabelConstraints labelConstraints=null;
     public class SolnWithLabelsOnPath extends Soln {
-        void clear() {
+        public void clear() {
             super.clear();
             labelsOnPath.clear();
         }

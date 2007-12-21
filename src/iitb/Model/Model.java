@@ -91,13 +91,15 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
 				    //System.out.println("WARNING: label ending in a state not marked as a End-state");
 				    break;
 				}
-				if (isEndState(dataSeq.y(segEnd))) {
+				if (isEndState(dataSeq.y(segEnd)) && ((segEnd == dataLen-1) || isStartState(dataSeq.y(segEnd+1)))) {
 					break;
 				}				    
 			}
 			if (segEnd == dataLen) {
-				System.out.println("WARNING: End state not found until the last position");
-				System.out.println(dataSeq);
+				if (!isEndState(dataSeq.y(dataLen-1))) {
+                    System.out.println("WARNING: End state not found until the last position");
+                    System.out.println(dataSeq);
+                }
 				segEnd = dataLen-1;
 			}
 			dataSeq.setSegment(segStart,segEnd,label(dataSeq.y(segStart)	));
