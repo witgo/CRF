@@ -75,7 +75,7 @@ public class NestedModel extends Model {
 	public int numStates() {return _numStates;}
 	public int numEdges() {return _numEdges;}
     public int firstStartStateId(int label) {return nodeOffsets[label]+inner[label].startState(0);}
-    public int lastEndStateId(int label) {return nodeOffsets[label]+inner[label].endState(numEndStates()-1);}
+    public int lastEndStateId(int label) {return nodeOffsets[label]+inner[label].endState(inner[label].numEndStates()-1);}
 	public int label(int stateNum) {
 		assert (stateNum >= 0) && (stateNum < numStates());
 		// TODO -- convert to binary scan.
