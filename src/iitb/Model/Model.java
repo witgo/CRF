@@ -45,7 +45,7 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     public abstract void stateMappings(DataSequence data, int len, int start) throws Exception;
     public int stateMappingGivenLength(int label, int len, int posFromStart) throws Exception {return label;}
     public int firstStartStateId(int label) {return label;}
-    public int firstEndStateId(int label) {return label;}
+    public int lastEndStateId(int label) {return label;}
     public void printGraph() {
 	System.out.println("Numnodes = " + numStates() + " NumEdges " + numEdges());
 	EdgeIterator iter = edgeIterator();
