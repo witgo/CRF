@@ -132,13 +132,22 @@ public class CRF implements Serializable {
         return train(trainData,evaluator,null);
     }
     /**
-     * Trains the model given the data
+     * Trains the model given the data with weighted instances.
      * @return the learnt parameter value as an array
      */
     public double[] train(DataIter trainData, Evaluator evaluator, float instanceWts[]) {
         if (lambda == null) lambda = new double[featureGenerator.numFeatures()];	
         trainer = getTrainer();
         trainer.train(this, histMgr.mapTrainData(trainData), lambda, evaluator, instanceWts);
+        return lambda;
+    }
+    /** 
+     * Same as above except that there is a misclassification cost associated with label pairs.
+     */
+    public double[] train(DataIter trainData, Evaluator evaluator, float instanceWts[], float misClassCosts[][]) {
+        if (lambda == null) lambda = new double[featureGenerator.numFeatures()];    
+        trainer = getTrainer();
+        trainer.train(this, histMgr.mapTrainData(trainData), lambda, evaluator, instanceWts, misClassCosts);
         return lambda;
     }
     public double[] learntWeights() {

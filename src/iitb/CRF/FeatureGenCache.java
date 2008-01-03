@@ -21,84 +21,109 @@ import java.util.Vector;
 
 import cern.colt.matrix.DoubleMatrix1D;
 import gnu.trove.TIntArrayList;
+import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
 import gnu.trove.TObjectProcedure;
 
 public class FeatureGenCache implements FeatureGeneratorNested {
-	private static final long serialVersionUID = 1L;
-	FeatureGeneratorNested fgen;
-	FeatureGenerator sfgen;
-	TIntArrayList featureIds = new TIntArrayList();
-	Vector perSegmentFeatureOffsets = new Vector();
-	protected boolean firstScan=true;
-	int dataIndex=-1;
-	int scanNum=0;
-	int dataIndexStart=0;
-	
-	public static class AllFeatureCache {
-	    Vector distinctFeatures;
-		Vector featureVariants;
-//		public FeatureVector edgeFeatureIds = new FeatureVector();
-		public EdgeFeatures edgeFeatures = new EdgeFeatures();
-		public boolean edgeFeaturesXIndependent = false;
-		//public boolean cacheEdgeFeaturesDone = false;
-		class FeatureImpl implements Feature {
-			int _index;
-			int _y;
-			float _value;
-			void init(int _index, int _y, float _value) {
-				this._index = _index;
-				this._y = _y;
-				this._value = _value;
-			}
-			void copy(Feature f) {
-			    this._index = f.index();
-				this._y = f.y();
-				this._value = f.value();
-			}
-	        public FeatureImpl(Feature f) {
-	            if (f != null) {
+    private static final long serialVersionUID = 1L;
+    FeatureGeneratorNested fgen;
+    FeatureGenerator sfgen;
+    TIntArrayList featureIds = new TIntArrayList();
+    Vector perSegmentFeatureOffsets = new Vector();
+    protected boolean firstScan=true;
+    int dataIndex=-1;
+    int scanNum=0;
+    int dataIndexStart=0;
+    static class DBKeysToIndexMap extends Hashtable<Integer,Integer> {
+        int prevId=-1;
+        Integer pos;
+        public int getDataIndex(DataSequence data) {
+            int id = ((KeyedDataSequence)data).getKey();
+            if (prevId==id)
+                return pos;
+            prevId = id;
+            pos = get(id);
+            if (pos==null) {
+                return -1;
+            }
+            return pos;
+        }
+        public DBKeysToIndexMap(DataIter dataIter) {
+            int pos = 0;
+            for (dataIter.startScan(); dataIter.hasNext();pos++) {
+                DataSequence data = dataIter.next();
+                assert(getDataIndex(data)==-1);
+                put(((KeyedDataSequence)data).getKey(),pos);
+            }
+        }
+    } 
+    DBKeysToIndexMap dbKeyToIndexMap=null;
+
+    public static class AllFeatureCache {
+        Vector distinctFeatures;
+        Vector featureVariants;
+//      public FeatureVector edgeFeatureIds = new FeatureVector();
+        public EdgeFeatures edgeFeatures = new EdgeFeatures();
+        public boolean edgeFeaturesXIndependent = false;
+        //public boolean cacheEdgeFeaturesDone = false;
+        class FeatureImpl implements Feature {
+            int _index;
+            int _y;
+            float _value;
+            void init(int _index, int _y, float _value) {
+                this._index = _index;
+                this._y = _y;
+                this._value = _value;
+            }
+            void copy(Feature f) {
+                this._index = f.index();
+                this._y = f.y();
+                this._value = f.value();
+            }
+            public FeatureImpl(Feature f) {
+                if (f != null) {
                     copy(f);
                 }
-	        }
-			public int index() {
-				return _index;
-			}
-			public int y() {
-				return _y;
-			}
-			public int yprev() {
-				return -1;
-			}
-			public float value() {
-				return _value;
-			}
-			public int[] yprevArray() {
-				return null;
-			}
+            }
+            public int index() {
+                return _index;
+            }
+            public int y() {
+                return _y;
+            }
+            public int yprev() {
+                return -1;
+            }
+            public float value() {
+                return _value;
+            }
+            public int[] yprevArray() {
+                return null;
+            }
             public boolean allButValueEqual(Object obj) {
                 Feature feature = (Feature)obj;
                 return (_y==feature.y()); 
             }
             public int add(Feature f){return index();}
-			@Override
-			public int hashCode() {
-				final int PRIME = 31;
-				int result = 1;
-				result = PRIME * result + Float.floatToIntBits(_value);
-				result = PRIME * result + _y;
-				return result;
-			}
-			@Override
-			public boolean equals(Object obj) {
-				if (this == obj)
-					return true;
-				if (obj == null)
-					return false;
-				return (allButValueEqual(obj) 
-	                    && (Math.abs(_value-((Feature)obj).value()) < Float.MIN_VALUE));
-			}
-		}
+            @Override
+            public int hashCode() {
+                final int PRIME = 31;
+                int result = 1;
+                result = PRIME * result + Float.floatToIntBits(_value);
+                result = PRIME * result + _y;
+                return result;
+            }
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj)
+                    return true;
+                if (obj == null)
+                    return false;
+                return (allButValueEqual(obj) 
+                        && (Math.abs(_value-((Feature)obj).value()) < Float.MIN_VALUE));
+            }
+        }
         class FeatureImplWithYPrev extends FeatureImpl {
             public FeatureImplWithYPrev(Feature f) {
                 super(f);
@@ -108,7 +133,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             void init(int _index, int _y, int yprev, float _value) {
                 super.init(_index, _y, _value);
                 this._yprev=yprev;
-                
+
             }
             void copy(Feature f) {
                 super.copy(f);
@@ -121,41 +146,41 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 return _yprev;
             }
             @Override
-			public int hashCode() {
-				final int PRIME = 31;
-				int result = 1;
-				result = PRIME * result + Float.floatToIntBits(_value);
-				result = PRIME * result + _y;
-				result = PRIME * result + _yprev;
-				return result;
-			}
+            public int hashCode() {
+                final int PRIME = 31;
+                int result = 1;
+                result = PRIME * result + Float.floatToIntBits(_value);
+                result = PRIME * result + _y;
+                result = PRIME * result + _yprev;
+                return result;
+            }
         }
-		class FeatureCache extends FeatureImpl {
-		    Hashtable<FeatureImpl,Integer> featureVariantIds = null;
-		    FeatureCache(Feature f) {super(f);}
-	        /**
-	         * @param f
-	         * @return
-	         */
-	        public int add(Feature f) {
-	            if (equals(f)) {
-	                return f.index();
-	            }
-	            if (featureVariantIds == null) {
-	                featureVariantIds = new Hashtable<FeatureImpl,Integer>();
-	            }
+        class FeatureCache extends FeatureImpl {
+            Hashtable<FeatureImpl,Integer> featureVariantIds = null;
+            FeatureCache(Feature f) {super(f);}
+            /**
+             * @param f
+             * @return
+             */
+            public int add(Feature f) {
+                if (equals(f)) {
+                    return f.index();
+                }
+                if (featureVariantIds == null) {
+                    featureVariantIds = new Hashtable<FeatureImpl,Integer>();
+                }
                 //Object diffObject = createDiff(f);
                 FeatureImpl diffObject = new FeatureImpl(f);
                 int variantId;
                 if (featureVariantIds.containsKey(diffObject))
                     variantId = featureVariantIds.get(diffObject); //findFeatureInVariantList(f);
                 else {
-	                variantId = featureVariants.size();
-	                featureVariantIds.put(diffObject,variantId);
-	                featureVariants.add(diffObject);
-	            }
-	            return -1*variantId-1;
-	        }
+                    variantId = featureVariants.size();
+                    featureVariantIds.put(diffObject,variantId);
+                    featureVariants.add(diffObject);
+                }
+                return -1*variantId-1;
+            }
         }
         class FeatureCacheWithYPrev extends FeatureImplWithYPrev {
             Hashtable<FeatureImplWithYPrev,Integer> featureVariantIds = null;
@@ -184,12 +209,12 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 return -1*variantId-1;
             }
         }
-        
-		public AllFeatureCache(boolean edgeFeaturesXIndependent) {
-		    this.edgeFeaturesXIndependent = edgeFeaturesXIndependent;
-		    distinctFeatures = new Vector();
-		    featureVariants = new Vector();
-		}
+
+        public AllFeatureCache(boolean edgeFeaturesXIndependent) {
+            this.edgeFeaturesXIndependent = edgeFeaturesXIndependent;
+            distinctFeatures = new Vector();
+            featureVariants = new Vector();
+        }
         public int add(Feature f) {
             int numAdd = f.index()+1-distinctFeatures.size();
             for (int i = 0; i < numAdd; i++) {
@@ -205,8 +230,8 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 return ((FeatureImpl)(distinctFeatures.get(f.index()))).add(f);
             }
         }
-		
-        
+
+
         public class EdgeFeaturesTest extends EdgeFeatures {
             FeatureVector testEdgeFeatureIds[];
             EdgeFeaturesTest() {
@@ -234,36 +259,36 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 }
             }
         }
-        
-		public class EdgeFeatures {
-		    FeatureVector edgeFeatureIds[];
-		    boolean edgeTypeCached[];
-		    EdgeFeatures() {
-		        edgeFeatureIds = new FeatureVector[4];
-		        edgeTypeCached = new boolean[4];
-			    for (int i = 0; i < 4; edgeFeatureIds[i] = new FeatureVector(), edgeTypeCached[i++]=false);
-		    }
-		    int getEdgeType(int prevPos, int pos, int dataLen) {
-		        return  2*((prevPos == 0)?1:0) + ((dataLen == pos+1)?1:0);
-		    }
-		    public void addEdgeFeature(int edgeId, int prevPos, int pos, int dataLen) {
-		        int edgeType = getEdgeType(prevPos,pos, dataLen);
-		        if (edgeTypeCached[edgeType]) {
-		            return;
+
+        public class EdgeFeatures {
+            FeatureVector edgeFeatureIds[];
+            boolean edgeTypeCached[];
+            EdgeFeatures() {
+                edgeFeatureIds = new FeatureVector[4];
+                edgeTypeCached = new boolean[4];
+                for (int i = 0; i < 4; edgeFeatureIds[i] = new FeatureVector(), edgeTypeCached[i++]=false);
+            }
+            int getEdgeType(int prevPos, int pos, int dataLen) {
+                return  2*((prevPos == 0)?1:0) + ((dataLen == pos+1)?1:0);
+            }
+            public void addEdgeFeature(int edgeId, int prevPos, int pos, int dataLen) {
+                int edgeType = getEdgeType(prevPos,pos, dataLen);
+                if (edgeTypeCached[edgeType]) {
+                    return;
                 }
-		        edgeFeatureIds[edgeType].add(edgeId);
-		    }
-		    public FeatureVector getEdgeIds(int prevPos, int pos, int dataLen) {
-		        return edgeFeatureIds[getEdgeType(prevPos, pos,dataLen)];
-		    }
-		    public void doneOneRoundEdges() {
-		        for (int i = 0; i < 4; i++) {
-		            if (edgeFeatureIds[i].size() > 0) {
-		                edgeTypeCached[i] = true;
-		        	}
-		        }
-		    }
-		}
+                edgeFeatureIds[edgeType].add(edgeId);
+            }
+            public FeatureVector getEdgeIds(int prevPos, int pos, int dataLen) {
+                return edgeFeatureIds[getEdgeType(prevPos, pos,dataLen)];
+            }
+            public void doneOneRoundEdges() {
+                for (int i = 0; i < 4; i++) {
+                    if (edgeFeatureIds[i].size() > 0) {
+                        edgeTypeCached[i] = true;
+                    }
+                }
+            }
+        }
         public Feature get(int featureId) {
             if (featureId >= 0) {
                 return (Feature) distinctFeatures.get(featureId); // distinctFeatures[featureId];
@@ -326,46 +351,46 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         }
         public FeatureVector newFeatureVector() {return new FeatureVector();}
         public Flist newFlist(int numLabels) {return new Flist(numLabels);}
-	}
-	AllFeatureCache featureCache;
-	
-	public FeatureGenCache(FeatureGeneratorNested fgen, boolean edgeFeaturesXIndependent) {
-	    alloc(fgen,edgeFeaturesXIndependent);
-	    
-	}
-	public FeatureGenCache(FeatureGenCache sharedCache, int startDataIndex) {
-		assert (sharedCache.scanNum>0);
-		firstScan=false;
-		dataIndexStart = startDataIndex;
-		scanNum = sharedCache.scanNum;
-		fgen = sharedCache.fgen;
-		sfgen = sharedCache.sfgen;
-		featureCache = sharedCache.featureCache;
-		featureIds = sharedCache.featureIds;
-		perSegmentFeatureOffsets = sharedCache.perSegmentFeatureOffsets;
-		stats = sharedCache.stats;
-	}
+    }
+    AllFeatureCache featureCache;
+
+    public FeatureGenCache(FeatureGeneratorNested fgen, boolean edgeFeaturesXIndependent) {
+        alloc(fgen,edgeFeaturesXIndependent);
+
+    }
+    public FeatureGenCache(FeatureGenCache sharedCache, int startDataIndex) {
+        assert (sharedCache.scanNum>0);
+        firstScan=false;
+        dataIndexStart = startDataIndex;
+        scanNum = sharedCache.scanNum;
+        fgen = sharedCache.fgen;
+        sfgen = sharedCache.sfgen;
+        featureCache = sharedCache.featureCache;
+        featureIds = sharedCache.featureIds;
+        perSegmentFeatureOffsets = sharedCache.perSegmentFeatureOffsets;
+        stats = sharedCache.stats;
+    }
     /**
      * @param fgen2
      * @param edgeFeaturesXIndependent
      */
     private void alloc(FeatureGenerator fgen, boolean edgeFeaturesXIndependent) {
         this.sfgen = fgen;
-		if (sfgen instanceof FeatureGeneratorNested)
-			this.fgen = ((FeatureGeneratorNested)sfgen);
-		else 
-		    this.fgen = null;
-		featureCache = new AllFeatureCache(edgeFeaturesXIndependent);
+        if (sfgen instanceof FeatureGeneratorNested)
+            this.fgen = ((FeatureGeneratorNested)sfgen);
+        else 
+            this.fgen = null;
+        featureCache = new AllFeatureCache(edgeFeaturesXIndependent);
     }
     public FeatureGenCache(FeatureGenerator fgen, boolean edgeFeaturesXIndependent) {
         alloc(fgen,edgeFeaturesXIndependent);
-	}
-	// for each distinct feature-id this stores all various forms of the features.
-	class Stats {
-		int dataLen;
-		int maxSegSize;
-		int pos, prevPos;
-		int thisSegmentOffsets[];
+    }
+    // for each distinct feature-id this stores all various forms of the features.
+    class Stats {
+        int dataLen;
+        int maxSegSize;
+        int pos, prevPos;
+        int thisSegmentOffsets[];
         TIntObjectHashMap segmentFeatureOffsets;
         BitSet seenSegments = new BitSet();
         boolean cacheThis;
@@ -399,15 +424,15 @@ public class FeatureGenCache implements FeatureGeneratorNested {
          */
         public boolean initSegment(DataSequence data, int prevPos, int pos) {
             dataLen = data.length();
-			maxSegSize = Math.max(maxSegSize, pos-prevPos);
-			this.pos = pos;
-			this.prevPos = prevPos;
+            maxSegSize = Math.max(maxSegSize, pos-prevPos);
+            this.pos = pos;
+            this.prevPos = prevPos;
             cacheThis=true;
-			thisSegmentOffsets = (int[]) segmentFeatureOffsets.get(getKey(prevPos,pos));
-			if (thisSegmentOffsets==null) {
-			    thisSegmentOffsets = new int[2];
-			    segmentFeatureOffsets.put(getKey(prevPos,pos),thisSegmentOffsets);
-			}
+            thisSegmentOffsets = (int[]) segmentFeatureOffsets.get(getKey(prevPos,pos));
+            if (thisSegmentOffsets==null) {
+                thisSegmentOffsets = new int[2];
+                segmentFeatureOffsets.put(getKey(prevPos,pos),thisSegmentOffsets);
+            }
             if (!seenSegments.get(getKey(prevPos,pos))) {
                 thisSegmentOffsets[0] = thisSegmentOffsets[1] = featureIds.size();
             } else {
@@ -415,7 +440,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             }
             seenSegments.set(getKey(prevPos,pos));
             return cacheThis;
-			/*
+            /*
 			if (cacheEdgeFeatures) {
 			    // features already cached in previous segment.
 			    cacheEdgeFeatures = false;
@@ -423,7 +448,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 			} else if ((prevPos >= 0) && !featureCache.cacheEdgeFeaturesDone) {
 			    cacheEdgeFeatures = true;
 			}
-			*/
+             */
         }
         /**
          * @param f
@@ -444,58 +469,66 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             if (!hasNextFeature) featureCache.edgeFeatures.doneOneRoundEdges();
             return hasNextFeature;
         }
-	}
-	Stats stats = new Stats();
+    }
+    Stats stats = new Stats();
 
-	public void startDataScan() {
-		dataIndex = dataIndexStart-1;
-		scanNum++;
-		if (scanNum ==2) {
-		    firstScan = false;
-		        // cache the last data item.
-		        cachePreviousDataSequence();
-		        System.out.println("First scan done..distinct features "+(featureCache.featureVariants.size()+featureCache.distinctFeatures.size()));
-		}
-	}
+    public void setDataKeys(DataIter dataIter) {
+        dataIter.startScan();
+        if (dataIter.hasNext()) {
+            DataSequence data = dataIter.next();
+            if (data instanceof KeyedDataSequence)
+                dbKeyToIndexMap = new DBKeysToIndexMap(dataIter);
+        }
+    }
+    public void startDataScan() {
+        dataIndex = dataIndexStart-1;
+        scanNum++;
+        if (scanNum ==2) {
+            firstScan = false;
+            // cache the last data item.
+            cachePreviousDataSequence();
+            System.out.println("First scan done..distinct features "+(featureCache.featureVariants.size()+featureCache.distinctFeatures.size()));
+        }
+    }
 
-	/**
+    /**
      * 
      */
     private void cachePreviousDataSequence() {
-		int dataLen = stats.dataLen;
-		int[][] featureOffsets[] = new int[dataLen][stats.maxSegSize][2];
-		for (int p = 0; p < dataLen; p++) {
-			for (int l = 0; (l < stats.maxSegSize) && (p-l >= 0); l++) {
-			    int offsets[] = stats.getStartEndOffsets(p-l-1,p);
-			        featureOffsets[p][l][0] = (offsets==null)?0:offsets[0];
-			        featureOffsets[p][l][1] = (offsets==null)?-1:offsets[1];
-			}
-		}
-		perSegmentFeatureOffsets.add(featureOffsets);
+        int dataLen = stats.dataLen;
+        int[][] featureOffsets[] = new int[dataLen][stats.maxSegSize][2];
+        for (int p = 0; p < dataLen; p++) {
+            for (int l = 0; (l < stats.maxSegSize) && (p-l >= 0); l++) {
+                int offsets[] = stats.getStartEndOffsets(p-l-1,p);
+                featureOffsets[p][l][0] = (offsets==null)?0:offsets[0];
+                featureOffsets[p][l][1] = (offsets==null)?-1:offsets[1];
+            }
+        }
+        perSegmentFeatureOffsets.add(featureOffsets);
     }
     protected void cacheFeature(Feature f)  {
         stats.add(f);
     }
     public void nextDataIndex() {
-		dataIndex++;
-		if (!firstScan) {
-		    return;
-		}
-		if (dataIndex > 0) {
-		    cachePreviousDataSequence();
-		}
-		stats.clear();
-	}
+        dataIndex++;
+        if (!firstScan) {
+            return;
+        }
+        if (dataIndex > 0) {
+            cachePreviousDataSequence();
+        }
+        stats.clear();
+    }
     public void setDataIndex(int dIndex) {
-		dataIndex = dIndex;
-		if (!firstScan) {
-		    return;
-		}
-		if (dataIndex > 0) {
-		    cachePreviousDataSequence();
-		}
-		stats.clear();
-	}
+        dataIndex = dIndex;
+        if (!firstScan) {
+            return;
+        }
+        if (dataIndex > 0) {
+            cachePreviousDataSequence();
+        }
+        stats.clear();
+    }
     /**
      * @param data
      * @return
@@ -503,7 +536,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     protected int getDataIndex(DataSequence data) {
         return dataIndex;
     }
-	class Cursor {
+    class Cursor {
         int currentFeatureOffset;
         int featureOffsetEnd;
         int edgeFeatureId = 0;
@@ -524,6 +557,10 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 edgeFeatureId = edgeFeatureIds.size()-1;
             }
         }
+        public void noEdgeFeatures() {
+            edgeFeatureId=-1;
+        }
+
         /**
          * @return
          */
@@ -536,71 +573,78 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         public Feature nextFeature() {
             int featureId = (currentFeatureOffset < featureOffsetEnd)?
                     featureIds.get(currentFeatureOffset++):edgeFeatureIds.get(edgeFeatureId--);
-            return featureCache.get(featureId);
+                    return featureCache.get(featureId);
         }
-	}
-	Cursor cursor = new Cursor();
-	
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGeneratorNested#startScanFeaturesAt(iitb.CRF.DataSequence, int, int)
-	 */
-	public void startScanFeaturesAt(DataSequence data, int prevPos, int pos, boolean nested) {
-		if (firstScan) {
-            boolean cached = stats.initSegment(data,prevPos,pos);
-			//assert(!nested || !cached);
-			if (nested) 
-				fgen.startScanFeaturesAt(data,prevPos,pos);
-			else 
-				sfgen.startScanFeaturesAt(data,pos);
-		} else {
-		    cursor.init(data,prevPos,pos); 
-		}
-	}	
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGenerator#hasNext()
-	 */
-	public boolean hasNext() {
-		return (firstScan)?stats.checkFeaturesEnd(sfgen.hasNext()):cursor.hasNext();
-	}
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGenerator#next()
-	 */
-	public Feature next() {
-		if (firstScan) {
-			Feature f = sfgen.next();
-			stats.add(f);
-			return f;
-		} else {
-		    return cursor.nextFeature();
-		}
-	}
+    }
+    Cursor cursor = new Cursor();
+
     /* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGenerator#featureName(int)
-	 */
-	public String featureName(int featureIndex) {
-		return fgen.featureName(featureIndex);
-	}
-	public void startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-		startScanFeaturesAt(data,prevPos,pos,true);
-	}
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGenerator#numFeatures()
-	 */
-	public int numFeatures() {
-		return sfgen.numFeatures();
-	}
-	
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGenerator#startScanFeaturesAt(iitb.CRF.DataSequence, int)
-	 */
-	public void startScanFeaturesAt(DataSequence data, int pos) {
-		startScanFeaturesAt(data,pos-1,pos,false);
-	}
-	
-	/* (non-Javadoc)
-	 * @see iitb.CRF.FeatureGeneratorNested#maxMemory()
-	 */
-	public int maxMemory() {
-		return (sfgen instanceof FeatureGeneratorNested)?((FeatureGeneratorNested)sfgen).maxMemory():1;
-	}
+     * @see iitb.CRF.FeatureGeneratorNested#startScanFeaturesAt(iitb.CRF.DataSequence, int, int)
+     */
+    protected void startScanFeaturesAt(DataSequence data, int prevPos, int pos, boolean nested) {
+        if (dbKeyToIndexMap != null) {
+            dataIndex = dbKeyToIndexMap.getDataIndex(data);
+            assert(dataIndex >= 0);
+        }
+        if (firstScan) {
+            boolean cached = stats.initSegment(data,prevPos,pos);
+            //assert(!nested || !cached);
+            if (nested) 
+                fgen.startScanFeaturesAt(data,prevPos,pos);
+            else 
+                sfgen.startScanFeaturesAt(data,pos);
+        } else {
+            cursor.init(data,prevPos,pos); 
+        }
+    }	
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#hasNext()
+     */
+    public boolean hasNext() {
+        return (firstScan)?stats.checkFeaturesEnd(sfgen.hasNext()):cursor.hasNext();
+    }
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#next()
+     */
+    public Feature next() {
+        if (firstScan) {
+            Feature f = sfgen.next();
+            stats.add(f);
+            return f;
+        } else {
+            return cursor.nextFeature();
+        }
+    }
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#featureName(int)
+     */
+    public String featureName(int featureIndex) {
+        return fgen.featureName(featureIndex);
+    }
+    public void startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
+        startScanFeaturesAt(data,prevPos,pos,true);
+    }
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#numFeatures()
+     */
+    public int numFeatures() {
+        return sfgen.numFeatures();
+    }
+
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGenerator#startScanFeaturesAt(iitb.CRF.DataSequence, int)
+     */
+    public void startScanFeaturesAt(DataSequence data, int pos) {
+        startScanFeaturesAt(data,pos-1,pos,false);
+    }
+
+    /* (non-Javadoc)
+     * @see iitb.CRF.FeatureGeneratorNested#maxMemory()
+     */
+    public int maxMemory() {
+        return (sfgen instanceof FeatureGeneratorNested)?((FeatureGeneratorNested)sfgen).maxMemory():1;
+    }
+    public void noEdgeFeatures() {
+        cursor.noEdgeFeatures();
+    }
 }

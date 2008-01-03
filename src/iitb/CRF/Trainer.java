@@ -71,7 +71,7 @@ public class Trainer {
         params = p; 
     }
     public void train(CRF model, DataIter data, double[] l, Evaluator eval) {
-        trainInternal(model,data,l,eval,null);
+        trainInternal(model,data,l,eval,null,null);
     }
     public void train(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
         if (instanceWts==null) {
@@ -79,10 +79,18 @@ public class Trainer {
             train(model,data,l,eval);
             return;
         }
-        trainInternal(model,data,l,eval,instanceWts);
+        trainInternal(model,data,l,eval,instanceWts,null);
     }
-    
-    private void trainInternal(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts) {
+    public void train(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts, float misClassifyCost[][]) {
+        if ((instanceWts==null) && (misClassifyCost==null)) {
+            // this is to ensure backward compatibility with trainers who might have overridden the above function.
+            train(model,data,l,eval);
+            return;
+        }
+        trainInternal(model,data,l,eval,instanceWts, misClassifyCost);
+    }
+    // this last argument is ignored for logistic trainers on sequence data.
+    private void trainInternal(CRF model, DataIter data, double[] l, Evaluator eval, float[] instanceWts, float misClassifyCost[][]) {
         init(model,data,l);
         evaluator = eval;
         this.instanceWts = instanceWts;
@@ -152,6 +160,7 @@ public class Trainer {
         
         if ((data != null) && params.miscOptions.getProperty("cache", "false").equals("true")) {
             featureGenCache = new FeatureGenCache(featureGenerator,reuseM);
+            featureGenCache.setDataKeys(data);
             featureGenerator = featureGenCache;
         } else
             featureGenCache = null;
@@ -404,6 +413,9 @@ public class Trainer {
     static boolean computeLogMiInitDone(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, double DEFAULT_VALUE) {
+        if ((Mi_YY==null) && (featureGen instanceof FeatureGenCache)) {
+            ((FeatureGenCache)featureGen).noEdgeFeatures();
+        }
         boolean mSet = false;
         while (featureGen.hasNext()) { 
             Feature feature = featureGen.next();

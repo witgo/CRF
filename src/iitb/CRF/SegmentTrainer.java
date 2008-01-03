@@ -237,7 +237,7 @@ public class SegmentTrainer extends SparseTrainer {
         return initLogMi(0.0,constraints,Mi,Ri);
     }
     
-    static boolean computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
+    public static boolean computeLogMi(CandSegDataSequence dataSeq, int prevPos, int pos, 
             FeatureGeneratorNested featureGenNested, 
             double[] lambda, DoubleMatrix2D Mi, DoubleMatrix1D Ri, 
             boolean reuseM, boolean initMDone) {
