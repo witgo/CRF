@@ -301,7 +301,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		while(curId <= 0 && index < patternString.length){
 			int base = 1;
 			for(int k = left; k <= right; k++){
-				boolean match = p[index].matcher((String)data.x(k)).matches();	
+				boolean match = p[index].matcher(data.x(k).toString()).matches();	
 				curId += base * (match? 1:0);
 				base = base * 2;
 			}
