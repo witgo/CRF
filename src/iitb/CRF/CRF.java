@@ -203,4 +203,5 @@ public class CRF implements Serializable {
         }
         trainer.addFeatureVector(dataSeq,featureVec); 
     }
+    public int getNumY() {return numY;}
 };

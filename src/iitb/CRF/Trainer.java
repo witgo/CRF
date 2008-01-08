@@ -413,7 +413,7 @@ public class Trainer {
     static boolean computeLogMiInitDone(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, double DEFAULT_VALUE) {
-        if ((Mi_YY==null) && (featureGen instanceof FeatureGenCache)) {
+        if ((Mi_YY==null) && (featureGen instanceof FeatureGenCache) && (DEFAULT_VALUE==0)) {
             ((FeatureGenCache)featureGen).noEdgeFeatures();
         }
         boolean mSet = false;
@@ -432,15 +432,17 @@ public class Trainer {
                 if (oldVal == DEFAULT_VALUE)
                     oldVal = 0;
                 Ri_Y.set(yp,oldVal+lambda[f]*val);
-            } else if (Mi_YY != null) {
-                double oldVal = Mi_YY.get(yprev,yp);
-                if (oldVal == DEFAULT_VALUE) {
-                    oldVal = 0;
-                    if (Ri_Y.get(yp) == DEFAULT_VALUE)
-                        Ri_Y.set(yp,0);
+            } else {
+                if (Ri_Y.get(yp) == DEFAULT_VALUE)
+                    Ri_Y.set(yp,0);
+                if (Mi_YY != null) {
+                    double oldVal = Mi_YY.get(yprev,yp);
+                    if (oldVal == DEFAULT_VALUE) {
+                        oldVal = 0;
+                    }
+                    Mi_YY.set(yprev,yp,oldVal+lambda[f]*val);
+                    mSet = true;
                 }
-                Mi_YY.set(yprev,yp,oldVal+lambda[f]*val);
-                mSet = true;
             }
         }
         return mSet;
