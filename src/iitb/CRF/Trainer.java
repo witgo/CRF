@@ -318,6 +318,7 @@ public class Trainer {
             
             scale = new double[2*dataSeq.length()];
         }
+        float instanceWt = (float) ((instanceWts!=null)?instanceWts[numRecord]:1);
         // compute beta values in a backward scan.
         // also scale beta-values to 1 to avoid numerical problems.
         scale[dataSeq.length()-1] = (doScaling)?numY:1;
@@ -362,7 +363,7 @@ public class Trainer {
                 int yprev = feature.yprev();
                 float val = feature.value();
                 if ((grad != null) && (dataSeq.y(i) == yp) && (((i-1 >= 0) && (yprev == dataSeq.y(i-1))) || (yprev < 0))) {
-                    grad[f] += val;
+                    grad[f] += instanceWt*val;
                     thisSeqLogli += val*lambda[f];
                 }
                 if (yprev < 0) {
@@ -393,7 +394,7 @@ public class Trainer {
         // update grad.
         if (grad != null) {
         for (int f = 0; f < grad.length; f++)
-            grad[f] -= ExpF[f]/Zx;
+            grad[f] -= instanceWt*ExpF[f]/Zx;
         }
         if (expFVals!=null) {
             for (int f = 0; f < lambda.length; f++) {
@@ -403,7 +404,7 @@ public class Trainer {
         if (params.debugLvl > 1) {
             System.out.println("Sequence "  + thisSeqLogli + " log(Zx) " + Math.log(Zx) + " Zx " + Zx);
         }
-        return thisSeqLogli;
+        return thisSeqLogli*instanceWt;
     }
     static void computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DoubleMatrix2D Mi_YY,
@@ -486,8 +487,9 @@ public class Trainer {
         
         if (reuseM && initMDone) {
             Mi_YY = null;
-        } else
+        } else {
             initMDone = false;
+        }
         if (Mi_YY != null) Mi_YY.assign(0);
         Ri_Y.assign(0);
         initMDone = computeLogMiInitDone(featureGen,lambda,Mi_YY,Ri_Y,0);
