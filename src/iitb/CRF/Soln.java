@@ -30,6 +30,12 @@ public class Soln implements Serializable, Comparable {
         score = soln.score;
         prevSoln = soln.prevSoln;
     }
+    public void copyAll(Soln soln) {
+        score = soln.score;
+        prevSoln = soln.prevSoln;
+        pos = soln.pos;
+        label = soln.label;
+    }
     public int prevPos() {
         return (prevSoln == null)?-1:prevSoln.pos;
     }
@@ -68,5 +74,6 @@ public class Soln implements Serializable, Comparable {
         if (prevSoln==null) return false;
         return prevSoln.equalsRecursive(s.prevSoln);
     }
+   
     
 };
