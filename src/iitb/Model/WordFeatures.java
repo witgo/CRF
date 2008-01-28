@@ -22,6 +22,10 @@ public class WordFeatures extends FeatureTypes {
 	dict = d;
     frequency_cutOff=RARE_THRESHOLD;
     }
+    public WordFeatures(FeatureGenImpl m, WordsInTrain d, int freqCuttOff) {
+        this(m,d);
+        if (freqCuttOff >= 0) frequency_cutOff=freqCuttOff;
+    }
     private void nextStateId() {       
 	stateId = dict.nextStateWithWord(token, stateId);
 	statePos++;
