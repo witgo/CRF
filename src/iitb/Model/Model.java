@@ -68,7 +68,9 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     	    return new CompleteModel(numLabels);
     	} else if (modelSpecs.equalsIgnoreCase("noEdge")) {
     	    return new NoEdgeModel(numLabels);
-    	}
+    	} else if (modelSpecs.startsWith("naiveFollow")) {
+    	    return new CompleteModelRestricted(modelSpecs,numLabels);
+        }
     	throw new Exception("Base model can be one of {naive, noEdge, semi-Markov}");
     }
     public static Model getNewModel(int numLabels, String modelSpecs) throws Exception {

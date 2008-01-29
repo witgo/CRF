@@ -17,4 +17,27 @@ public class Edge implements Comparable, Serializable {
 	Edge e = (Edge)o;
 	return ((start != e.start)?(start - e.start):(end-e.end));
     }
+    @Override
+    public int hashCode() {
+        final int PRIME = 31;
+        int result = 1;
+        result = PRIME * result + end;
+        result = PRIME * result + start;
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final Edge other = (Edge) obj;
+        if (end != other.end)
+            return false;
+        if (start != other.start)
+            return false;
+        return true;
+    }
 };
