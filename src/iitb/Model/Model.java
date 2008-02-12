@@ -35,6 +35,10 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     public abstract int numEndStates();
     public abstract boolean isEndState(int i);
     public abstract boolean isStartState(int i);
+    /*
+     * returns the i-th edge starting from start node. returns -1 at the last edge.
+     */
+    public EdgeIterator nextEdgeFrom(int start) {return null;}
     /**
        return the i-th start state
      */
