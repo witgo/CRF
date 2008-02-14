@@ -16,13 +16,18 @@ public class CompleteModelRestricted extends GenericModel {
         tokens.nextToken(); // this is the name of the model.
         HashSet<Edge> followEdges = new HashSet<Edge>();
         HashSet<Integer> followLabels = new HashSet<Integer>();
+        int startLabel=-1;
         while (tokens.hasMoreTokens()) {
             int parent = Integer.parseInt(tokens.nextToken());
             int child = Integer.parseInt(tokens.nextToken());
-            followEdges.add(new Edge(parent,child));
-            followLabels.add(child);
+            if (parent >= 0) {
+                followEdges.add(new Edge(parent,child));
+                followLabels.add(child);
+            } else {
+                startLabel = child;
+            }
         }
-        _edges = new Edge[numLabels*numLabels-followEdges.size()*(numLabels-2)];
+        _edges = new Edge[numLabels*numLabels-followEdges.size()*(numLabels-2)-((startLabel>=0)?1:0)*(numLabels-1)];
         
         startStates = new int[numLabels-followEdges.size()];
         for (int i = 0, st = 0; i < numLabels; i++) {
@@ -34,13 +39,14 @@ public class CompleteModelRestricted extends GenericModel {
             endStates[i] = i;
         }
         
-        
         edgeStart = new int[numLabels];
         for (int i = 0, edgeNum=0; i < numLabels; i++) {
             edgeStart[i] = edgeNum;
             for (int j = 0; j < numLabels; j++) {
+                if ((j==startLabel) && (i != j)) 
+                    continue;
                 Edge edge = new Edge(i,j);
-                if (followLabels.contains(j) && (i != j) && !followEdges.contains(edge)) {
+                if ((i != j) && followLabels.contains(j) && !followEdges.contains(edge)) {
                     continue;
                 }
                 _edges[edgeNum++] = edge;
