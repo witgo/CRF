@@ -10,7 +10,7 @@ package iitb.CRF;
  */
 public class LabelSequence {
     double score;
-    int[] labels;
+    public int[] labels;
     public LabelSequence() {}
     /**
      * @param length

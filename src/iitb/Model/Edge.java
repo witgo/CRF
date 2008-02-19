@@ -3,8 +3,8 @@ package iitb.Model;
 import java.io.Serializable;
 
 public class Edge implements Comparable, Serializable {
-    int start;
-    int end;
+    public int start;
+    public int end;
     Edge() {;}
     public Edge(int s, int e) {
 	start = s;

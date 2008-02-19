@@ -218,7 +218,7 @@ public class Viterbi implements Serializable {
         return finalSoln.get(0).score;
     }
     
-    void assignLabels(DataSequence dataSeq) {
+    protected void assignLabels(DataSequence dataSeq) {
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
         int pos=-1;
