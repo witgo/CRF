@@ -20,7 +20,6 @@ public class SparseViterbi extends Viterbi {
     protected SparseViterbi(CRF model, int bs) {
         super(model,bs);
     }
-    
     public class Context extends DenseObjectMatrix1D {
         protected int pos;
         protected int beamsize;
@@ -97,9 +96,10 @@ public class SparseViterbi extends Viterbi {
     protected Iter getIter(){return new Iter();}
     protected void finishContext(int i2) {;}
     /**
+     * @param lambda TODO
      * @return
      */
-    protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
+    protected double getCorrectScore(DataSequence dataSeq, int i, int ell, double[] lambda) {
         return	(Ri.getQuick(dataSeq.y(i)) + ((i > 0)?Mi.get(dataSeq.y(i-1),dataSeq.y(i)):0));
     }
     protected class ContextUpdate implements IntIntDoubleFunction, IntDoubleFunction {
@@ -193,7 +193,7 @@ public class SparseViterbi extends Viterbi {
                     }
                     
                     if (calcScore) {
-                        corrScore += getCorrectScore(dataSeq, i, ell);
+                        corrScore += getCorrectScore(dataSeq, i, ell, null);
                     }
                 }	
                 finishContext(i);
@@ -280,7 +280,7 @@ public class SparseViterbi extends Viterbi {
                     }
                     
                     if (calcScore) {
-                        corrScore += getCorrectScore(dataSeq, i, ell);
+                        corrScore += getCorrectScore(dataSeq, i, ell, null);
                     }
                 }
                 finishContext(i);

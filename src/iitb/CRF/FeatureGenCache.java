@@ -45,7 +45,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             prevId = id;
             pos = get(id);
             if (pos==null) {
-                return -1;
+                pos=-1;
             }
             return pos;
         }

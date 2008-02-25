@@ -16,7 +16,7 @@ import iitb.CRF.SegmentViterbi.SegmentationImpl;
  *
  */
 public class BSegmentViterbi extends SparseViterbi {
-    protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
+    protected double getCorrectScore(DataSequence dataSeq, int i, int ell, double[] lambda) {
         Segmentation segmentation = (Segmentation)dataSeq;
         int segNum = segmentation.getSegmentId(i);
         int segLength = segmentation.segmentEnd(segNum)-segmentation.segmentStart(segNum)+1;

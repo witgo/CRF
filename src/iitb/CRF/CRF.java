@@ -110,7 +110,8 @@ public class CRF implements Serializable {
         return new Trainer(params);
     }
     public Viterbi getViterbi(int beamsize) {
-        return new Viterbi(this,beamsize);
+        return params.miscOptions.getProperty("segmentViterbi", "false").equals("true")?
+                new SegmentViterbi(this,beamsize):new Viterbi(this, beamsize);
     }
     /**
      * Trains the model given the data

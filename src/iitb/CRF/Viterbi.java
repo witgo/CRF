@@ -20,7 +20,7 @@ public class Viterbi implements Serializable {
     private static final long serialVersionUID = 8122L;
     protected CRF model;
     protected int beamsize;
-    protected Viterbi(CRF model, int bs) {
+    public Viterbi(CRF model, int bs) {
         this.model = model;
         beamsize = bs;
         if (model.params.miscOptions.getProperty("beamSize") != null)

@@ -20,6 +20,7 @@ import gnu.trove.TIntProcedure;
 
 public class SegmentViterbi extends SparseViterbi {
     protected SegmentCRF segmentModel;
+    protected FeatureGeneratorNested featureGenNested;
     public static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
         protected ConstraintDisallowedPairs disallowedPairs;
@@ -193,10 +194,17 @@ public class SegmentViterbi extends SparseViterbi {
     public SegmentViterbi(SegmentCRF nestedModel, int bs) {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
+        this.featureGenNested = segmentModel.featureGenNested;
     }
-    
+    public SegmentViterbi(CRF model,int bs) {
+        super(model, bs);
+        this.featureGenNested = (FeatureGeneratorNested) model.featureGenerator;
+    }
     protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
-        SegmentTrainer.computeLogMi((CandSegDataSequence)dataSeq,i-ell,i,segmentModel.featureGenNested,lambda,Mi,Ri);
+        if (featureGenNested==null) {
+            featureGenNested = segmentModel.featureGenNested;
+        }
+        SegmentTrainer.computeLogMi((CandSegDataSequence)dataSeq,i-ell,i,featureGenNested,lambda,Mi,Ri);
         
     }
     class SegmentIter extends Iter {
@@ -218,7 +226,7 @@ public class SegmentViterbi extends SparseViterbi {
      * @return
      */
     int prevSegEnd = -1;
-    protected double getCorrectScore(DataSequence dataSeq, int i, int ell) {
+    protected double getCorrectScore(DataSequence dataSeq, int i, int ell, double[] lambda) {
     	SegmentDataSequence data = (SegmentDataSequence)dataSeq;
     	if (data.getSegmentEnd(i-ell+1) != i)
     		return 0;
@@ -234,11 +242,11 @@ public class SegmentViterbi extends SparseViterbi {
     	}
     	if (model.params.debugLvl > 1) {
     	    // output features that hold
-    	    segmentModel.featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
-    	    while (segmentModel.featureGenNested.hasNext()) {
-    	        Feature f = segmentModel.featureGenNested.next();
+    	    featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
+    	    while (featureGenNested.hasNext()) {
+    	        Feature f = featureGenNested.next();
     	        if (((CandSegDataSequence)data).holdsInTrainingData(f,i-ell,i)) {
-    	            System.out.println("Feature " + (i-ell) + " " + i + " " + segmentModel.featureGenerator.featureName(f.index()) + " " + segmentModel.lambda[f.index()] + " " + f.value());
+    	            System.out.println("Feature " + (i-ell) + " " + i + " " + featureGenNested.featureName(f.index()) + " " + lambda[f.index()] + " " + f.value());
     	        }
     	    }
     	}
