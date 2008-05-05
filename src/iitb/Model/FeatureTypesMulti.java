@@ -18,6 +18,7 @@ public class FeatureTypesMulti extends FeatureTypesWrapper {
     private static final long serialVersionUID = 10L;
     int currPos;
     int segEnd;
+    int bagSize;
     transient DataSequence dataSeq;
     
     public FeatureTypesMulti(FeatureTypes s) {
@@ -37,6 +38,7 @@ public class FeatureTypesMulti extends FeatureTypesWrapper {
         currPos = prevPos+1;
         segEnd = pos;
         dataSeq = data;
+        bagSize = pos-prevPos;
         single.startScanFeaturesAt(data,prevPos,prevPos+1);
         advance();
         return single.hasNext();
@@ -46,6 +48,7 @@ public class FeatureTypesMulti extends FeatureTypesWrapper {
     }
     public void next(FeatureImpl f) {
         single.next(f);
+        //f.val /= bagSize;
         advance();
     }
 };

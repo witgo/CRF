@@ -20,15 +20,18 @@ public class RegexCountFeatures extends FeatureTypes {
     		{"isInitCapitalWord",     		"[A-Z][a-z]+"        },
     		{"isAllCapitalWord",      		"[A-Z][A-Z]+"                },
     		{"isAllSmallCase",      	"[a-z]+"                },
-    		{"isWord",           		"[a-zA-Z][a-zA-Z]+"     },
-    		{"isAlphaNumeric",      	"[a-zA-Z0-9]+"          },
+    		//{"isWord",           		"[a-zA-Z][a-zA-Z]+"     },
+    		//{"isAlphaNumeric",      	"[a-zA-Z0-9]+"          },
     		{"singleCapLetter",  		"[A-Z]"  				},
-    		{"isSpecialCharacter",		"[#;:\\-/<>'\"()&]"},
+            {"containsDash",            ".*\\-.*"       },
     		//{"singlePunctuation", 		"\\p{Punct}"			},
     		{"singleDot", 				"[.]"			},
     		{"singleComma", 			"[,]"			},
-    		{"containsDigit", 			".*\\d+.*"		},				
-    		{"isDigits", 				"\\d+"			},
+            {"singleQuote",             "[']"           },
+            {"isSpecialCharacter",      "[#;:\\-/<>'\"()&]"},
+            {"fourDigits",                "\\d\\d\\d\\d"          },
+            {"isDigits",                "\\d+"          },
+    		{"containsDigit", 			".*\\d+.*"		},
     	};
     Pattern p[];
 	int patternOccurence[], index, maxSegmentLength;

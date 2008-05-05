@@ -45,6 +45,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     int cposEnd;
     int cposStart;
     WordsInTrain dict;
+    Vector<WordsInTrain> otherDicts = new Vector<WordsInTrain>();
     
     public void addFeature(FeatureTypes fType) {
         addFeature(fType,false);
@@ -233,6 +234,9 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             labelsMapped = stateMappings(trainData);
         }
         if (dict != null) dict.train(trainData,model.numStates());
+        for (WordsInTrain d : otherDicts) {
+            d.train(trainData, model.numStates());
+        }
         boolean requiresTraining = false;
         for (int f = 0; f < features.size(); f++) {
             if (getFeature(f).requiresTraining()) {
@@ -454,5 +458,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     // returns the label-independent featureId of the current feature
     public int xFeatureIdCurrent() {
         return currentFeatureType.labelIndependentId(featureToReturn);
+    }
+    public void addDict(WordsInTrain ngramDict) {
+        otherDicts.add(ngramDict);
     }
 };

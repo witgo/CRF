@@ -44,7 +44,7 @@ public class FeatureTypesConcat extends FeatureTypes {
 	 */
 	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 		int bitMap = 0;
-		String name = "";
+		String name = "C";
 		feature.strId.id=0;
         setNumBits();
 		if (pos-prevPos > maxConcatLength)
@@ -53,10 +53,13 @@ public class FeatureTypesConcat extends FeatureTypes {
 			if (single.startScanFeaturesAt(data,pos-i-1,pos-i) && single.hasNext()) {
 				single.next(feature);
 				// this could be wrong since label information is not present in single.
-				int thisId = single.offsetLabelIndependentId(feature);
+				//int thisId = single.offsetLabelIndependentId(feature);
+                
+                // 02 May '08: Replaced above with this which is correct but will not work for label tied base features..
+                int thisId=feature.strId.id+1; // to distinguish from the feature not firing..
 				bitMap = bitMap | (thisId << i*numBits);
 				if (featureCollectMode()) {
-					name = feature.strId.name + "." + name;
+					name = feature.strId.name + "_" + name;
 					if (thisId > (1 << numBits)) {
 						System.out.println("Error in max-feature-id value " + feature);
 					}
@@ -66,7 +69,9 @@ public class FeatureTypesConcat extends FeatureTypes {
 				}
 			}
 		}
-		setFeatureIdentifier(bitMap,feature.strId.stateId,name,feature);
+		//setFeatureIdentifier(bitMap,feature.strId.stateId,name,feature);
+        feature.strId.id=bitMap;
+        feature.strId.name=name;
 		return (bitMap != 0);
 	}
 

@@ -15,97 +15,119 @@ import iitb.CRF.*;
 
 public class WordsInTrain implements Serializable {
     class HEntry implements Serializable {
-	int index;
-	int cnt;
-	int stateArray[];
-	HEntry(int v) {
-	    index = v;
-	    cnt = 0;
-	}
-	HEntry(int v, int numStates) {
-	    index = v;
-	    cnt = 0;
-	    stateArray = new int[numStates];
-	}
+        int index;
+        int cnt;
+        int stateArray[];
+        HEntry(int v) {
+            index = v;
+            cnt = 0;
+        }
+        HEntry(int v, int numStates) {
+            index = v;
+            cnt = 0;
+            stateArray = new int[numStates];
+        }
     };
-    private Hashtable dictionary;
+    class Dictionary extends Hashtable<Object,HEntry> {
+        @Override
+        public synchronized boolean containsKey(Object key) {
+            return super.containsKey(getKey(key));
+        }
+        @Override
+        public synchronized HEntry get(Object key) {
+            return super.get(getKey(key));
+        }
+
+        @Override
+        public synchronized HEntry put(Object key, HEntry value) {
+            return super.put(getKey(key), value);
+        }
+        public Object getKey(Object w) {
+            return tokenGenerator.getKey(w);
+        }
+    }
+    private Dictionary dictionary;
     private int cntsArray[][];
     private int cntsOverAllWords[];
     private int allTotal;
 
     transient TokenGenerator tokenGenerator;
     public WordsInTrain() {
-	this(new TokenGenerator());
+        this(new TokenGenerator());
     }
     public WordsInTrain(TokenGenerator tokenGen) {
-	tokenGenerator = tokenGen;
-	dictionary = new Hashtable();
+        tokenGenerator = tokenGen;
+        dictionary = new Dictionary(); 
+    }
+    public Object getKey(Object w) {
+        return tokenGenerator.getKey(w);
     }
     int[] getStateArray(int pos) {
-	return cntsArray[pos];
+        return cntsArray[pos];
     }
     public int getIndex(Object w) {
-	return ((HEntry)(dictionary.get(w))).index;
+        return ((HEntry)(dictionary.get(w))).index;
     }
+   
     boolean inDictionary(Object w) {
-	return (dictionary.get(w) != null);
+        return (dictionary.get(w) != null);
     }
     public int count(Object w) {
-	HEntry entry = (HEntry)dictionary.get(w);
-	return ((entry != null)?entry.cnt:0);
+        HEntry entry = (HEntry)dictionary.get(w);
+        return ((entry != null)?entry.cnt:0);
     }
     public int count(int wordPos, int state) {
-	return getStateArray(wordPos)[state];
+        return getStateArray(wordPos)[state];
     }
     public int count(int state) {
-	return cntsOverAllWords[state];
+        return cntsOverAllWords[state];
     }
     public int totalCount() {return allTotal;}
 
     public int dictionaryLength() {return dictionary.size();}
 
     public int nextStateWithWord(Object w, int prev) {
-	if (!inDictionary(w))
-	    return -1;
-	int pos = getIndex(w);
-	return nextStateWithWord(pos,prev);
+        if (!inDictionary(w))
+            return -1;
+        int pos = getIndex(w);
+        return nextStateWithWord(pos,prev);
     }
     public int nextStateWithWord(int pos, int prev) {
-	int k = 0;
-	if (prev >= 0)
-	    k = prev + 1;
-	for (; k < getStateArray(pos).length; k++) {
-	    if (getStateArray(pos)[k] > 0)
-		return k;
-	}
-	return -1;
+        int k = 0;
+        if (prev >= 0)
+            k = prev + 1;
+        for (; k < getStateArray(pos).length; k++) {
+            if (getStateArray(pos)[k] > 0)
+                return k;
+        }
+        return -1;
     }
     public Enumeration allWords() {return dictionary.keys();}
     private void addDictElem(Object x, int y) {
-	HEntry index = (HEntry)dictionary.get(x);
-	if (index == null) {
-	    index = new HEntry(dictionary.size());
-	    dictionary.put(x, index);
-	}
-	index.cnt++;
+        HEntry index = (HEntry)dictionary.get(x);
+        if (index == null) {
+            index = new HEntry(dictionary.size());
+            dictionary.put(x, index);
+        }
+        index.cnt++;
     }
     protected void addDictElem(Object x, int y, int nelems) {
-	HEntry index = (HEntry)dictionary.get(x);
-	if (index == null) {
-	    index = new HEntry(dictionary.size(),nelems);
-	    dictionary.put(x, index);
-	}
-	index.cnt++;
-	index.stateArray[y]++;
+        HEntry index = (HEntry)dictionary.get(x);
+        if (index == null) {
+            index = new HEntry(dictionary.size(),nelems);
+            dictionary.put(x, index);
+        }
+        index.cnt++;
+        index.stateArray[y]++;
     }
     void setAggregateCnts(int numStates) {
-	cntsOverAllWords = new int[numStates];
-	for (int i = 0; i < numStates; i++) {
-	    cntsOverAllWords[i] = 0;
-	    for (int m = 0; m < cntsArray.length; m++)
-		cntsOverAllWords[i] += getStateArray(m)[i];
-	    allTotal += cntsOverAllWords[i];
-	}
+        cntsOverAllWords = new int[numStates];
+        for (int i = 0; i < numStates; i++) {
+            cntsOverAllWords[i] = 0;
+            for (int m = 0; m < cntsArray.length; m++)
+                cntsOverAllWords[i] += getStateArray(m)[i];
+            allTotal += cntsOverAllWords[i];
+        }
     }
     protected void postProcess(int numStates){
         cntsArray = new int[dictionary.size()][0];
@@ -117,48 +139,48 @@ public class WordsInTrain implements Serializable {
         setAggregateCnts(numStates);
     }
     public void train(DataIter trainData, int numStates) {
-	for (trainData.startScan(); trainData.hasNext();) {
-	    DataSequence seq = trainData.next();
-	    for (int l = 0; l < seq.length(); l++) {
-		for (tokenGenerator.startScan(seq.x(l)); tokenGenerator.hasNext();) {
-		    addDictElem(tokenGenerator.next(),seq.y(l),numStates);
-		}
-	    }
-	}
-    postProcess(numStates);
+        for (trainData.startScan(); trainData.hasNext();) {
+            DataSequence seq = trainData.next();
+            for (int l = 0; l < seq.length(); l++) {
+                for (tokenGenerator.startScan(seq.x(l)); tokenGenerator.hasNext();) {
+                    addDictElem(tokenGenerator.next(),seq.y(l),numStates);
+                }
+            }
+        }
+        postProcess(numStates);
     }
-	
+
     public void read(BufferedReader in, int numStates) throws IOException {
-	int dictLen = Integer.parseInt(in.readLine());
-	cntsArray = new int[dictLen][numStates];
-	String line;
-	for(int l = 0; (l < dictLen) && ((line=in.readLine())!=null); l++) {
-	    StringTokenizer entry = new StringTokenizer(line," ");
-	    String key = entry.nextToken();
-	    int pos = Integer.parseInt(entry.nextToken());
-	    HEntry hEntry = new HEntry(pos);
-	    dictionary.put(key,hEntry);
-	    while (entry.hasMoreTokens()) {
-		StringTokenizer scp = new StringTokenizer(entry.nextToken(),":");
-		int state = Integer.parseInt(scp.nextToken());
-		int cnt = Integer.parseInt(scp.nextToken());
-		getStateArray(pos)[state] = cnt;
-		hEntry.cnt += cnt;
-	    }
-	}
-	setAggregateCnts(numStates);
+        int dictLen = Integer.parseInt(in.readLine());
+        cntsArray = new int[dictLen][numStates];
+        String line;
+        for(int l = 0; (l < dictLen) && ((line=in.readLine())!=null); l++) {
+            StringTokenizer entry = new StringTokenizer(line," ");
+            String key = entry.nextToken();
+            int pos = Integer.parseInt(entry.nextToken());
+            HEntry hEntry = new HEntry(pos);
+            dictionary.put(key,hEntry);
+            while (entry.hasMoreTokens()) {
+                StringTokenizer scp = new StringTokenizer(entry.nextToken(),":");
+                int state = Integer.parseInt(scp.nextToken());
+                int cnt = Integer.parseInt(scp.nextToken());
+                getStateArray(pos)[state] = cnt;
+                hEntry.cnt += cnt;
+            }
+        }
+        setAggregateCnts(numStates);
     }
     public void write(PrintWriter out) throws IOException {
-	out.println(dictionary.size());
-	for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
-	    Object key = e.nextElement();
-	    int pos = getIndex(key);
-	    out.print(key + " " + pos);
-	    for (int s = nextStateWithWord(pos,-1); s != -1; 
-		 s = nextStateWithWord(pos,s)) {
-		out.print(" " + s + ":" + getStateArray(pos)[s]);
-	    }
-	    out.println("");
-	}	
+        out.println(dictionary.size());
+        for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
+            Object key = e.nextElement();
+            int pos = getIndex(key);
+            out.print(key + " " + pos);
+            for (int s = nextStateWithWord(pos,-1); s != -1; 
+            s = nextStateWithWord(pos,s)) {
+                out.print(" " + s + ":" + getStateArray(pos)[s]);
+            }
+            out.println("");
+        }	
     }
 };

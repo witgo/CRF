@@ -11,38 +11,42 @@ import java.io.*;
 
 public class UnknownFeature extends FeatureTypes {
     private static final long serialVersionUID = 6122L;
-	int stateId;
+    int stateId;
     WordsInTrain dict;
+    int numStates;
     public UnknownFeature(FeatureGenImpl m, WordsInTrain d) {
-	super(m);
-	dict = d;
+        this(m,d,true);
+    }
+    public UnknownFeature(FeatureGenImpl m, WordsInTrain d,boolean assignStateIds) {
+        super(m);
+        dict = d;
+        if (assignStateIds)
+            numStates = m.numStates();
+        else
+            numStates=1;
     }
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-	if (dict.count(data.x(pos)) > WordFeatures.RARE_THRESHOLD+1) {
-	    stateId = model.numStates();
-	    return false;
-	} else {
-	    stateId = 0;
-	    return true;
-	}
+        if (dict.count(data.x(pos)) > WordFeatures.RARE_THRESHOLD+1) {
+            stateId = numStates;
+            return false;
+        } else {
+            stateId = 0;
+            return true;
+        }
     }
     public boolean hasNext() {
-	return (stateId < model.numStates());
+        return (stateId < numStates);
     }
     public void next(FeatureImpl f) {
-	setFeatureIdentifier(stateId,stateId,"U",f);
-	f.yend = stateId;
-	f.ystart = -1;
-	f.val = 1;
-	stateId++;
+        setFeatureIdentifier(stateId,stateId,"U",f);
+        f.yend = stateId;
+        f.ystart = -1;
+        f.val = 1;
+        stateId++;
     }
-    
-	/* (non-Javadoc)
-	 * @see iitb.Model.FeatureTypes#maxFeatureId()
-	 */
-	public int maxFeatureId() {
-		return model.numStates();
-	}
+    public int maxFeatureId() {
+        return numStates;
+    }
 };
 
 
