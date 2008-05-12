@@ -114,8 +114,7 @@ public class NestedModel extends Model {
 	public void stateMappings(DataSequence data, int len, int start) throws Exception 
 	{
 		assert false;
-	}
-	
+    }	
 	public void stateMappings(SegmentDataSequence data) throws Exception {
 		if (data.length() == 0)
 			return;
