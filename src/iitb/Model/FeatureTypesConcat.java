@@ -5,6 +5,7 @@
 package iitb.Model;
 
 import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 import iitb.Utils.*;
 /**
  * @author Administrator
@@ -96,5 +97,11 @@ public class FeatureTypesConcat extends FeatureTypes {
 	public void train(DataSequence data, int pos) {
 		single.train(data, pos);
 	}
-	
+    public void train(SegmentDataSequence data, int prevPos, int pos) {
+        single.train(data, prevPos, pos);
+    }
+    @Override
+    public void trainingDone() {
+        single.trainingDone();
+    }
 }

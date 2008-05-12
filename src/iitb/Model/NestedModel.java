@@ -294,5 +294,9 @@ public class NestedModel extends Model {
     public EdgeIterator nextEdgeFrom(int start) {
         return new NestedEdgeIterator(this,start);
     }
+    @Override
+    public int numStates(int label) {
+        return inner[label].numStates();
+    }
 };
 

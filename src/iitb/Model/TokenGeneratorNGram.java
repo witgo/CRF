@@ -12,7 +12,7 @@ public class TokenGeneratorNGram extends TokenGenerator {
     }
     @Override
     public Object getKey(Object xArg) {
-        String xstr = (String)xArg;
+        String xstr = xArg.toString();
         return xstr.substring(Math.max(0,xstr.length()-N)).toLowerCase();
     }
 }

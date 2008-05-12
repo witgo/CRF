@@ -98,6 +98,10 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
 				    //System.out.println("WARNING: label ending in a state not marked as a End-state");
 				    break;
 				}
+                if (numStates(label(dataSeq.y(segStart)))==1) {
+                    // naive model --- entity boundaries can only be based on change of label.
+                    continue;
+                }
 				if (isEndState(dataSeq.y(segEnd)) && ((segEnd == dataLen-1) || isStartState(dataSeq.y(segEnd+1)))) {
 					break;
 				}				    
@@ -112,7 +116,10 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
 			dataSeq.setSegment(segStart,segEnd,label(dataSeq.y(segStart)	));
 		}
 	}
-	/**
+	public int numStates(int label) {
+        return 1;
+    }
+    /**
 	 * @param label
 	 * @param len
 	 * @param stateIds

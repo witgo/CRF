@@ -51,7 +51,7 @@ public class WordsInTrain implements Serializable {
     private int cntsOverAllWords[];
     private int allTotal;
 
-    transient TokenGenerator tokenGenerator;
+    TokenGenerator tokenGenerator;
     public WordsInTrain() {
         this(new TokenGenerator());
     }
@@ -182,5 +182,8 @@ public class WordsInTrain implements Serializable {
             }
             out.println("");
         }	
+    }
+    public Collection<? extends String> wordSet() {
+        return (Collection<? extends String>) dictionary.keySet();
     }
 };

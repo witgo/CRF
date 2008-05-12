@@ -1,6 +1,8 @@
 package iitb.Model;
 
-public class TokenGenerator {
+import java.io.Serializable;
+
+public class TokenGenerator implements Serializable {
     boolean firstCall;
     Object x;
     public void startScan(Object xArg) {x=xArg; firstCall=true;}

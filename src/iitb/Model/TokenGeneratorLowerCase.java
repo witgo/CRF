@@ -7,6 +7,6 @@ package iitb.Model;
 public class TokenGeneratorLowerCase extends TokenGenerator {
     @Override
     public Object getKey(Object xArg) {
-        return ((String)xArg).toLowerCase();
+        return xArg.toString().toLowerCase();
     }
 }
