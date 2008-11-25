@@ -148,13 +148,13 @@ public class SegmentTrainer extends SparseTrainer {
                         if (segmentMarginals[yp][segEnd-ell+1]==null)
                             segmentMarginals[yp][segEnd-ell+1] = new TIntDoubleHashMap();
                         segmentMarginals[yp][segEnd-ell+1].put(segEnd,newAlpha_Y.get(yp)+beta_Y[segEnd].get(yp));
-                        segmentMarginals[yp][segEnd-ell+1].put(segEnd,Ri_Y.get(yp));
+                        //segmentMarginals[yp][segEnd-ell+1].put(segEnd,Ri_Y.get(yp));
                         if (edgeMarginals != null) {
                             for (int yprev = newAlpha_Y.size()-1; yprev >= 0; yprev--) {
                                 if (edgeMarginals[yprev][yp][segEnd-ell+1]==null)
                                     edgeMarginals[yprev][yp][segEnd-ell+1] = new TIntDoubleHashMap();
                                 edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,alpha_Y_Array[segEnd-ell-base].get(yprev)+Ri_Y.get(yp)+Mi_YY.get(yprev,yp)+beta_Y[segEnd].get(yp));
-                                edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,Mi_YY.get(yprev,yp));
+                                //edgeMarginals[yprev][yp][segEnd-ell+1].put(segEnd,Mi_YY.get(yprev,yp));
                             }
                         }
                     }
@@ -190,6 +190,8 @@ public class SegmentTrainer extends SparseTrainer {
         if (dataSize > 0) beta_Y[dataSize-1] = oldBeta;
         if (segmentMarginals != null) {
             // normalize with respect to thisSeqLogLi.
+            boolean normalize=false;
+            if (normalize) {
             for (int y = 0; y < segmentMarginals.length; y++) {
                 for (int segStart = 0; segStart < segmentMarginals[y].length; segStart++) {
                     for (TIntDoubleIterator segEndProbIter = segmentMarginals[y][segStart].iterator(); segEndProbIter.hasNext();) {
@@ -208,6 +210,7 @@ public class SegmentTrainer extends SparseTrainer {
                         }
                     }
                 }
+            }
             }
             return lZx;
         }

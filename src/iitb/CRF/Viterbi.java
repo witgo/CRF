@@ -23,7 +23,7 @@ public class Viterbi implements Serializable {
     public Viterbi(CRF model, int bs) {
         this.model = model;
         beamsize = bs;
-        if (model.params.miscOptions.getProperty("beamSize") != null)
+        if (model != null && model.params.miscOptions.getProperty("beamSize") != null)
             beamsize = Integer.parseInt(model.params.miscOptions.getProperty("beamSize"));
     }
     protected class Entry {
