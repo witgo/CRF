@@ -7,6 +7,7 @@
  *      title = {Exponentiated Gradient Algorithms for Large-margin Structured Classification},
  *      booktitle = {Advances in Neural Information Processing Systems 17},
  *      year = {2005}}
+ *      
  */
 package iitb.CRF;
 

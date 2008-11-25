@@ -23,6 +23,7 @@ public class RegexCountFeatures extends FeatureTypes {
     		//{"isWord",           		"[a-zA-Z][a-zA-Z]+"     },
     		//{"isAlphaNumeric",      	"[a-zA-Z0-9]+"          },
     		{"singleCapLetter",  		"[A-Z]"  				},
+            {"containsDashes",          ".*--.*"},
             {"containsDash",            ".*\\-.*"       },
     		//{"singlePunctuation", 		"\\p{Punct}"			},
     		{"singleDot", 				"[.]"			},
@@ -32,6 +33,7 @@ public class RegexCountFeatures extends FeatureTypes {
             {"fourDigits",                "\\d\\d\\d\\d"          },
             {"isDigits",                "\\d+"          },
     		{"containsDigit", 			".*\\d+.*"		},
+            {"endsWithDot",             "\\p{Alnum}+\\."        }
     	};
     Pattern p[];
 	int patternOccurence[], index, maxSegmentLength;
@@ -39,21 +41,27 @@ public class RegexCountFeatures extends FeatureTypes {
      * @param m
      */
     public RegexCountFeatures(FeatureGenImpl m, int maxSegmentLength) {
+        this(m,maxSegmentLength,null);
+    }
+    public RegexCountFeatures(FeatureGenImpl m, int maxSegmentLength, String patternFile) {
         super(m);
         this.maxSegmentLength = maxSegmentLength;
+        if (patternFile != null) 
+            patternString = ConcatRegexFeatures.getPatterns(patternFile);
+        assert(patternString != null);
         p = new Pattern[patternString.length];
-		for(int i = 0; i < patternString.length; i++)
-			p[i] = Pattern.compile(patternString[i][1]);
-		patternOccurence = new int[patternString.length];
+        for(int i = 0; i < patternString.length; i++)
+            p[i] = Pattern.compile(patternString[i][1]);
+        patternOccurence = new int[patternString.length];
+        
     }
-
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {        
         int i, j;
 		for(j = 0; j < patternOccurence.length; j++)
 		    patternOccurence[j] = 0;
 		for(i = prevPos + 1; i <= pos; i++){
 		    for(j = 0; j < p.length; j++){
-		        if(p[j].matcher((String)data.x(i)).matches())
+		        if(p[j].matcher(data.x(i).toString()).matches())
 		            patternOccurence[j]++;
 		    }
 		}
@@ -61,7 +69,7 @@ public class RegexCountFeatures extends FeatureTypes {
         return advance();
     }
 
-    private boolean advance() {        
+    protected boolean advance() {        
         while(++index < (patternOccurence.length) && patternOccurence[index] <= 0);
         return index < patternOccurence.length;
     }
@@ -80,5 +88,20 @@ public class RegexCountFeatures extends FeatureTypes {
 			//System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
 		}
     	advance();
+    }
+
+    @Override
+    public int labelIndependentId(FeatureImpl f) {
+        return f.id;
+    }
+
+    @Override
+    public int maxFeatureId() {
+        return maxSegmentLength*(patternString.length+1);
+    }
+
+    @Override
+    public String name() {
+        return "RC";
     }
 }

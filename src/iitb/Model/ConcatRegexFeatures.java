@@ -140,7 +140,8 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		
 		window = getWindowSize(relSegmentStart, relSegmentEnd);		
 		idbase = (int) Math.pow(2, window-1);
-        if (patternFile != null) getPatterns(patternFile);
+        if (patternFile != null) 
+            patternString = getPatterns(patternFile);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];
 		for(int i = 0; i < patternString.length; i++){
@@ -205,7 +206,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 	 *
 	 * @param patternFile		name of the pattern file
 	 */
-	void getPatterns(String patternFile){
+	public static String[][] getPatterns(String patternFile){
 		String line;
 		String patterns[][];
 		try {
@@ -222,11 +223,10 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		}catch(IOException ioe){
 			System.err.println("Could not read pattern file : " + patternFile);
 			ioe.printStackTrace();
-			return;
+			return null;
 		}
 
-		patternString = patterns;
-		return;
+		return patterns;
 	}
 
 	/**
