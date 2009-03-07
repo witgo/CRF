@@ -46,7 +46,7 @@ public class RegexCountFeatures extends FeatureTypes {
     public RegexCountFeatures(FeatureGenImpl m, int maxSegmentLength, String patternFile) {
         super(m);
         this.maxSegmentLength = maxSegmentLength;
-        if (patternFile != null) 
+        if ((patternFile != null)&& (patternFile.length()>0)) 
             patternString = ConcatRegexFeatures.getPatterns(patternFile);
         assert(patternString != null);
         p = new Pattern[patternString.length];

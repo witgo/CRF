@@ -140,7 +140,7 @@ public class ConcatRegexFeatures extends FeatureTypes {
 		
 		window = getWindowSize(relSegmentStart, relSegmentEnd);		
 		idbase = (int) Math.pow(2, window-1);
-        if (patternFile != null) 
+        if ((patternFile != null) && (patternFile.length()>0))
             patternString = getPatterns(patternFile);
 		assert(patternString != null);
 		p = new Pattern[patternString.length];

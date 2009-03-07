@@ -30,7 +30,7 @@ public class EdgeSelector extends RegexCountFeatures {
     public void next(FeatureImpl f) {
         f.val = (float)patternOccurence[index]/segLen;
         assert(f.val>0);
-        f.strId.id =  (index+1);
+        f.strId.id =  index;
         f.ystart = -1;
         if(featureCollectMode()){
             f.strId.name = name() + "_"+patternString[index][0];
@@ -51,11 +51,15 @@ public class EdgeSelector extends RegexCountFeatures {
 
     @Override
     public int maxFeatureId() {
-        return (patternString.length+1);
+        return patternString.length;
     }
 
     @Override
     public String name() {
         return "EdgeSel";
+    }
+    
+    public String featureName(int index) {
+        return patternString[index][0];
     }
 }
