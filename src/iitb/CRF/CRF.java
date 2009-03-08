@@ -193,6 +193,8 @@ public class CRF implements Serializable {
         if (trainer==null) {
             trainer = getTrainer();
             trainer.init(this,null,lambda);
+        } else {
+            trainer.reInit();
         }
         return -1*trainer.sumProduct(dataSequence,featureGenerator,lambda,null,null,false, -1, null);
     }

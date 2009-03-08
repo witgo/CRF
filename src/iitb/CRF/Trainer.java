@@ -710,4 +710,7 @@ public class Trainer {
                 }
         }
     }
+    public void reInit() {
+        initMDone=false;
+    }
 }
