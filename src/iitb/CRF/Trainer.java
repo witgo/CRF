@@ -220,6 +220,7 @@ public class Trainer {
             }
             icall += 1;
         } while (( iflag[0] != 0) && (icall <= params.maxIters));
+        reInit();
     }
     protected double computeFunctionGradient(double lambda[], double grad[]) {
         return computeFunctionGradient(lambda,grad,null,featureGenerator);
