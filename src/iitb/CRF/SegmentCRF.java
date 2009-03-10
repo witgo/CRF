@@ -80,6 +80,19 @@ public class SegmentCRF extends CRF {
             }
             return -1*((SegmentTrainer)trainer).sumProductInner(dataSequence,featureGenerator,lambda,null,false, -1, null,segmentMarginals,edgeMarginals);
     }
+    public double[] marginalProbsOfSegmentation(DataSequence dataSequence, Segmentation segmentation) {
+        TIntDoubleHashMap segMargs[][] = new TIntDoubleHashMap[numY][dataSequence.length()];
+        for (int i = segmentation.numSegments()-1; i >= 0; i--) {
+            segMargs[segmentation.segmentLabel(i)][segmentation.segmentStart(i)] = new TIntDoubleHashMap();
+            segMargs[segmentation.segmentLabel(i)][segmentation.segmentStart(i)].put(segmentation.segmentEnd(i), 0);
+        }
+        segmentMarginalProbabilities(dataSequence, segMargs, null);
+        double margPr[]=new double[segmentation.numSegments()];
+        for (int i = segmentation.numSegments()-1; i >= 0; i--) {
+            margPr[i] = segMargs[segmentation.segmentLabel(i)][segmentation.segmentStart(i)].get(segmentation.segmentEnd(i));
+        }
+        return margPr;
+    }
 	/*
 	public void apply(DataSequence dataSeq) {
 		apply((CandSegDataSequence)dataSeq);

@@ -145,10 +145,11 @@ public class SegmentTrainer extends SparseTrainer {
                 
                 if (segmentMarginals != null) {
                     for (int yp = newAlpha_Y.size()-1; yp >= 0; yp--) {
-                        if (segmentMarginals[yp][segEnd-ell+1]==null)
-                            segmentMarginals[yp][segEnd-ell+1] = new TIntDoubleHashMap();
-                        segmentMarginals[yp][segEnd-ell+1].put(segEnd,newAlpha_Y.get(yp)+beta_Y[segEnd].get(yp));
+                        if ((segmentMarginals[yp][segEnd-ell+1]!=null) && (segmentMarginals[yp][segEnd-ell+1].containsKey(segEnd))) {
+                            // segmentMarginals[yp][segEnd-ell+1] = new TIntDoubleHashMap();
+                            segmentMarginals[yp][segEnd-ell+1].put(segEnd,newAlpha_Y.get(yp)+beta_Y[segEnd].get(yp));
                         //segmentMarginals[yp][segEnd-ell+1].put(segEnd,Ri_Y.get(yp));
+                        }
                         if (edgeMarginals != null) {
                             for (int yprev = newAlpha_Y.size()-1; yprev >= 0; yprev--) {
                                 if (edgeMarginals[yprev][yp][segEnd-ell+1]==null)
@@ -190,10 +191,11 @@ public class SegmentTrainer extends SparseTrainer {
         if (dataSize > 0) beta_Y[dataSize-1] = oldBeta;
         if (segmentMarginals != null) {
             // normalize with respect to thisSeqLogLi.
-            boolean normalize=false;
+            boolean normalize=true;
             if (normalize) {
             for (int y = 0; y < segmentMarginals.length; y++) {
                 for (int segStart = 0; segStart < segmentMarginals[y].length; segStart++) {
+                    if (segmentMarginals[y][segStart] == null) continue;
                     for (TIntDoubleIterator segEndProbIter = segmentMarginals[y][segStart].iterator(); segEndProbIter.hasNext();) {
                         segEndProbIter.advance();
                         segEndProbIter.setValue(Math.exp(segEndProbIter.value()-lZx));

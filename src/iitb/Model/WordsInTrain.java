@@ -183,7 +183,9 @@ public class WordsInTrain implements Serializable {
             out.println("");
         }	
     }
-    public Collection<? extends String> wordSet() {
-        return (Collection<? extends String>) dictionary.keySet();
+    /*
+    public Collection<String> wordSet() {
+        return  dictionary.keySet();
     }
+    */
 };
