@@ -24,7 +24,7 @@ public class SegmentViterbi extends SparseViterbi {
     public static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
         protected ConstraintDisallowedPairs disallowedPairs;
-        
+
         public class Intersects implements TIntProcedure {
             public int label;
             public int prevLabel;
@@ -51,11 +51,11 @@ public class SegmentViterbi extends SparseViterbi {
         public boolean valid(TIntHashSet set, int label, int prevLabel) {
             if (!conflicting(label))
                 return true;
-             if (disallowedPairs.conflictingPair(label,prevLabel,-1))
-                 return false;
-             intersectTest.label = label;
-             intersectTest.prevLabel = prevLabel;
-             return set.forEach(intersectTest);
+            if (disallowedPairs.conflictingPair(label,prevLabel,-1))
+                return false;
+            intersectTest.label = label;
+            intersectTest.prevLabel = prevLabel;
+            return set.forEach(intersectTest);
         }
         public boolean valid(TIntHashSet set, int yp, TIntHashSet set2) {
             intersectTest.label = yp;
@@ -77,7 +77,7 @@ public class SegmentViterbi extends SparseViterbi {
             labelsOnPath.clear();
             labelsOnPath.add(label);
             for(TIntIterator iter = set.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
-//            labelsOnPath.addAll(set.toArray());
+            //            labelsOnPath.addAll(set.toArray());
             return labelsOnPath;
         }
         /**
@@ -87,16 +87,16 @@ public class SegmentViterbi extends SparseViterbi {
         public static LabelConstraints checkConstraints(CandSegDataSequence dataSeq, LabelConstraints labelCons) {
             Iterator constraints = dataSeq.constraints(-1,dataSeq.length());
             if (constraints != null) {
-    			for (; constraints.hasNext();) {
-    				Constraint constraint = (Constraint)constraints.next();
-    				if (constraint.type() == Constraint.PAIR_DISALLOW) {
-    				    if (labelCons != null) {
-    				        labelCons.init((ConstraintDisallowedPairs)constraint);
-    				        return labelCons;
-    				    } else
-    				        return new LabelConstraints((ConstraintDisallowedPairs)constraint);
-    				}
-    			}
+                for (; constraints.hasNext();) {
+                    Constraint constraint = (Constraint)constraints.next();
+                    if (constraint.type() == Constraint.PAIR_DISALLOW) {
+                        if (labelCons != null) {
+                            labelCons.init((ConstraintDisallowedPairs)constraint);
+                            return labelCons;
+                        } else
+                            return new LabelConstraints((ConstraintDisallowedPairs)constraint);
+                    }
+                }
             }
             return null;
         }
@@ -110,8 +110,8 @@ public class SegmentViterbi extends SparseViterbi {
         public boolean conflicting(int label) {
             return disallowedPairs.conflicting(label);
         }
-       
- 
+
+
     }
 
     LabelConstraints labelConstraints=null;
@@ -123,7 +123,7 @@ public class SegmentViterbi extends SparseViterbi {
         protected void copy(Soln soln) {
             super.copy(soln);
             labelsOnPath.clear();
-//            labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
+            //            labelsOnPath.addAll(((SolnWithLabelsOnPath)soln).labelsOnPath.toArray());
             for(TIntIterator iter = ((SolnWithLabelsOnPath)soln).labelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
         }
         private static final long serialVersionUID = 1L;
@@ -140,11 +140,11 @@ public class SegmentViterbi extends SparseViterbi {
             super.setPrevSoln(prevSoln,score);
             if ((prevSoln != null) && (labelConstraints != null)) {
                 labelsOnPath.clear();
-            	//labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
+                //labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
                 for(TIntIterator iter = ((SolnWithLabelsOnPath)prevSoln).labelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
-            	assert(labelConstraints.valid(labelsOnPath,label,prevSoln.label));
-            	if (labelConstraints.conflicting(prevSoln.label))
-            		labelsOnPath.add(prevSoln.label);
+                assert(labelConstraints.valid(labelsOnPath,label,prevSoln.label));
+                if (labelConstraints.conflicting(prevSoln.label))
+                    labelsOnPath.add(prevSoln.label);
             }
         }       
     }
@@ -163,7 +163,7 @@ public class SegmentViterbi extends SparseViterbi {
         protected int findInsert(int insertPos, float score, Soln prev) {
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
-                    if ((prev == null) || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
+                    if ((prev == null) || labelConstraints==null || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
                         insert(insertPos, score, prev);
                         insertPos++;
                     } else if (prev != null) {
@@ -205,7 +205,7 @@ public class SegmentViterbi extends SparseViterbi {
             featureGenNested = segmentModel.featureGenNested;
         }
         SegmentTrainer.computeLogMi((CandSegDataSequence)dataSeq,i-ell,i,featureGenNested,lambda,Mi,Ri);
-        
+
     }
     class SegmentIter extends Iter {
         int nc;
@@ -227,34 +227,34 @@ public class SegmentViterbi extends SparseViterbi {
      */
     int prevSegEnd = -1;
     protected double getCorrectScore(DataSequence dataSeq, int i, int ell, double[] lambda) {
-    	SegmentDataSequence data = (SegmentDataSequence)dataSeq;
-    	if (data.getSegmentEnd(i-ell+1) != i)
-    		return 0;
-    	if ((i - ell >= 0) && (prevSegEnd != i-ell))
-    		return RobustMath.LOG0;
-    	prevSegEnd = i;
-    	if ((labelConstraints != null) && labelConstraints.conflicting(data.y(i))) {
-    		for (int segStart = 0; segStart < i-ell+1; segStart = data.getSegmentEnd(segStart)+1) {
-    			int segEnd = data.getSegmentEnd(segStart);
-    			if (labelConstraints.disallowedPairs.conflictingPair(data.y(i),data.y(segStart),(segEnd==i-ell)?-1:0))  // TODO: 0 here is not correct. 
-    				return RobustMath.LOG0;
-    		}
-    	}
-    	if (model.params.debugLvl > 1) {
-    	    // output features that hold
-    	    featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
-    	    while (featureGenNested.hasNext()) {
-    	        Feature f = featureGenNested.next();
-    	        if (((CandSegDataSequence)data).holdsInTrainingData(f,i-ell,i)) {
-    	            System.out.println("Feature " + (i-ell) + " " + i + " " + featureGenNested.featureName(f.index()) + " " + lambda[f.index()] + " " + f.value());
-    	        }
-    	    }
-    	}
-    	double val = (Ri.getQuick(dataSeq.y(i)) + ((i-ell >= 0)?Mi.get(dataSeq.y(i-ell),dataSeq.y(i)):0));
-    	if (Double.isInfinite(val)) {
-    	    System.out.println("Infinite score");
-    	}
-    	return val;
+        SegmentDataSequence data = (SegmentDataSequence)dataSeq;
+        if (data.getSegmentEnd(i-ell+1) != i)
+            return 0;
+        if ((i - ell >= 0) && (prevSegEnd != i-ell))
+            return RobustMath.LOG0;
+        prevSegEnd = i;
+        if ((labelConstraints != null) && labelConstraints.conflicting(data.y(i))) {
+            for (int segStart = 0; segStart < i-ell+1; segStart = data.getSegmentEnd(segStart)+1) {
+                int segEnd = data.getSegmentEnd(segStart);
+                if (labelConstraints.disallowedPairs.conflictingPair(data.y(i),data.y(segStart),(segEnd==i-ell)?-1:0))  // TODO: 0 here is not correct. 
+                    return RobustMath.LOG0;
+            }
+        }
+        if (model.params.debugLvl > 1) {
+            // output features that hold
+            featureGenNested.startScanFeaturesAt(dataSeq,i-ell,i);
+            while (featureGenNested.hasNext()) {
+                Feature f = featureGenNested.next();
+                if (((CandSegDataSequence)data).holdsInTrainingData(f,i-ell,i)) {
+                    System.out.println("Feature " + (i-ell) + " " + i + " " + featureGenNested.featureName(f.index()) + " " + lambda[f.index()] + " " + f.value());
+                }
+            }
+        }
+        double val = (Ri.getQuick(dataSeq.y(i)) + ((i-ell >= 0)?Mi.get(dataSeq.y(i-ell),dataSeq.y(i)):0));
+        if (Double.isInfinite(val)) {
+            System.out.println("Infinite score");
+        }
+        return val;
     }
     protected void setSegment(DataSequence dataSeq, int prevPos, int pos, int label) {
         ((CandSegDataSequence)dataSeq).setSegment(prevPos+1,pos, label);
@@ -266,7 +266,7 @@ public class SegmentViterbi extends SparseViterbi {
         int i = dataSeq.length()-1;
         if (i >= 0) {
             double norm	 = RobustMath.LOG0;
-            
+
             for (int y = 0; y < context[i].size(); y++) {
                 if (context[i].entryNotNull(y)) {
                     Soln soln = ((Entry)context[i].getQuick(y)).get(0);
@@ -281,7 +281,7 @@ public class SegmentViterbi extends SparseViterbi {
                 }
             }
             /*context[i].getNonZeros(validPrevYs, prevContext);
-           
+
             for (int prevPx = 0; prevPx < validPrevYs.size(); prevPx++) {
                 Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
                 assert (soln.prevSoln == null); // only applicable for single segment.
@@ -291,7 +291,7 @@ public class SegmentViterbi extends SparseViterbi {
                 Soln soln = ((Entry)prevContext.getQuick(prevPx)).get(0);
                 scores.put(soln.label,(float)Math.exp(soln.score-norm));
             }
-            */
+             */
         }
     }
     protected Context newContext(int numY, int beamsize, int pos, int startPos){
@@ -299,40 +299,69 @@ public class SegmentViterbi extends SparseViterbi {
             return new Context(numY,beamsize,pos, startPos);        
         return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos,startPos); 
     }
-    
+
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
         //labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
         return viterbiSearch(dataSeq, lambda, null, null, true, calcCorrectScore);
     }
-    
-	public double viterbiSearch(DataSequence dataSeq, double lambda[], 
-	        DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris, 
-	        boolean constraints, boolean calCorrectScore) {
-	    if(constraints)
-	        labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
-	    else
-	        labelConstraints = null;
-		return super.viterbiSearch(dataSeq, lambda, Mis, Ris, calCorrectScore);
-	}
 
-	public double viterbiSearch(DataSequence dataSeq, double lambda[],  
-	        DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris,  
-	        Soln soln, boolean constraints, boolean calCorrectScore) {
-	    if(constraints)
-	        labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
-	    else
-	        labelConstraints = null;
+    public double viterbiSearch(DataSequence dataSeq, double lambda[], 
+            DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris, 
+            boolean constraints, boolean calCorrectScore) {
+        if(constraints)
+            labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+        else
+            labelConstraints = null;
+        return super.viterbiSearch(dataSeq, lambda, Mis, Ris, calCorrectScore);
+    }
 
-		return super.viterbiSearch(dataSeq, lambda, Mis, Ris, soln, calCorrectScore);
-	}	
+    public double viterbiSearch(DataSequence dataSeq, double lambda[],  
+            DoubleMatrix2D[][] Mis, DoubleMatrix1D[][] Ris,  
+            Soln soln, boolean constraints, boolean calCorrectScore) {
+        if(constraints)
+            labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+        else
+            labelConstraints = null;
 
-	public double viterbiSearchBackward(DataSequence dataSeq, double[] lambda,
-	        DoubleMatrix2D Mis[][],DoubleMatrix1D Ris[][],
-			boolean calcCorrectScore) {
-	    labelConstraints = null;
-		return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
-	}
+        return super.viterbiSearch(dataSeq, lambda, Mis, Ris, soln, calCorrectScore);
+    }	
+    public double sumScoreTopKViolators(DataSequence dataSeq, double lambda[]) {
+        LabelConstraints labelCons = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);
+        if (labelCons==null)
+            return RobustMath.LOG0;
+        int oldbeamsize=beamsize;
+        beamsize=20;
+        viterbiSearch(dataSeq,lambda,null,null,false,false);
+        double totalScore=RobustMath.LOG0;
+        int numSols = finalSoln.numSolns();
+        for (int k = numSols-1; k >= 0; k--) {
+            Soln ybest = finalSoln.get(k);
+            float score = ybest.score;
+            ybest = ybest.prevSoln;
+            TIntHashSet labelsSeen=new TIntHashSet();
+            boolean violating=false;
+            while (ybest != null) { 
+                if (!labelCons.valid(labelsSeen,ybest.label,-1)) {
+                    violating=true;
+                    break;
+                }
+                if (labelCons.conflicting(ybest.label)) {
+                    labelsSeen.add(ybest.label);
+                }
+                ybest = ybest.prevSoln;
+            }
+            if (violating) totalScore = RobustMath.logSumExp(score,totalScore);
+        }
+        beamsize=oldbeamsize;
+        return totalScore;
+    }
+    public double viterbiSearchBackward(DataSequence dataSeq, double[] lambda,
+            DoubleMatrix2D Mis[][],DoubleMatrix1D Ris[][],
+            boolean calcCorrectScore) {
+        labelConstraints = null;
+        return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
+    }
     public double viterbiSearchBackward(DataSequence dataSeq, double[] lambda,
             DoubleMatrix2D Mis[][],DoubleMatrix1D Ris[][], boolean constraints,
             boolean calcCorrectScore) {
@@ -342,7 +371,7 @@ public class SegmentViterbi extends SparseViterbi {
             labelConstraints = null;
         return super.viterbiSearchBackward(dataSeq, lambda, Mis, Ris, calcCorrectScore);
     }
-    
+
     public static class SegmentationImpl extends LabelSequence implements Segmentation {
         class Segment implements Comparable {
             int start;
@@ -397,8 +426,8 @@ public class SegmentViterbi extends SparseViterbi {
          */
         public int getSegmentId(int offset) {
             dummySegment.end = offset;
-//            if (segments.headSet(dummySegment) == null)
-  //              return 0;
+            //            if (segments.headSet(dummySegment) == null)
+            //              return 0;
             return ((Segment)segments.tailSet(dummySegment).first()).id;
         }
 
@@ -432,15 +461,11 @@ public class SegmentViterbi extends SparseViterbi {
     };
     public Segmentation[] segmentSequences(CandSegDataSequence dataSeq, double lambda[], int numLabelSeqs, double[] scores) {
         viterbiSearch(dataSeq, lambda,false);
-        double lZx=0;
-        if (scores!=null) {
-            lZx = model.getLogZx(dataSeq);
-        }
         int numSols = Math.min(finalSoln.numSolns(), numLabelSeqs);
         Segmentation segments[] = new Segmentation[numSols];
         for (int k = numSols-1; k >= 0; k--) {
             Soln ybest = finalSoln.get(k);
-            if (scores != null) scores[k] = Math.exp((double)ybest.score-lZx);
+            if (scores != null) scores[k] = (double)ybest.score;
             ybest = ybest.prevSoln;
             segments[k] = new SegmentationImpl();
             while (ybest != null) {	
@@ -448,6 +473,14 @@ public class SegmentViterbi extends SparseViterbi {
                 ybest = ybest.prevSoln;
             }
             ((SegmentationImpl)segments[k]).doneAdd();
+        }
+        
+        if (scores!=null) {
+            double lZx = model.getLogZx(dataSeq);
+            if (scores.length > numSols) scores[numSols] = lZx;
+            for (int i = 0; i < numSols; i++) {
+                scores[i] = Math.exp(scores[i]-lZx);
+            }
         }
         return segments;
     }

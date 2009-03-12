@@ -93,6 +93,20 @@ public class SegmentCRF extends CRF {
         }
         return margPr;
     }
+    
+    @Override
+    public double getLogZx(DataSequence dataSequence) {
+        double logZ = super.getLogZx(dataSequence);
+        if (segmentViterbi==null)
+            segmentViterbi = (SegmentViterbi)getViterbi(20);
+        double violatingScore = segmentViterbi.sumScoreTopKViolators(dataSequence,lambda);
+        assert(violatingScore < logZ+1e-4);
+       // if (Math.exp(violatingScore-logZ) > 0.5) {
+       //     System.out.println("Lot of mass in violating labelings "+Math.exp(violatingScore-logZ));
+       // }
+        return RobustMath.logMinusExp(logZ, violatingScore);
+    }
+    
 	/*
 	public void apply(DataSequence dataSeq) {
 		apply((CandSegDataSequence)dataSeq);
