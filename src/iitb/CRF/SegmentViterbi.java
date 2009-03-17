@@ -479,7 +479,7 @@ public class SegmentViterbi extends SparseViterbi {
             double lZx = model.getLogZx(dataSeq);
             if (scores.length > numSols) scores[numSols] = lZx;
             for (int i = 0; i < numSols; i++) {
-                scores[i] = Math.exp(scores[i]-lZx);
+                scores[i] = Math.min(Math.exp(scores[i]-lZx),1);
             }
         }
         return segments;
