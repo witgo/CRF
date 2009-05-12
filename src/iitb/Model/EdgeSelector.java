@@ -42,8 +42,8 @@ public class EdgeSelector extends RegexCountFeatures {
 
     @Override
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-        segLen = Math.min(pos+windowSize,data.length()-1)-Math.max(pos-windowSize-2,-1)+1;
-        return super.startScanFeaturesAt(data, Math.max(pos-windowSize-2,-1), Math.min(pos+windowSize,data.length()-1));
+        segLen = Math.min(pos+windowSize,data.length()-1)-Math.max(pos-windowSize-1,0)+1;
+        return super.startScanFeaturesAt(data, Math.max(pos-windowSize-1,0)-1, Math.min(pos+windowSize,data.length()-1));
     }
     @Override
     public int labelIndependentId(FeatureImpl f) {
