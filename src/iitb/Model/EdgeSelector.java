@@ -30,6 +30,7 @@ public class EdgeSelector extends RegexCountFeatures {
     public void next(FeatureImpl f) {
         f.val = (float)patternOccurence[index]/segLen;
         assert(f.val>0);
+        f.id = index;
         f.strId.id =  index;
         f.ystart = -1;
         if(featureCollectMode()){
