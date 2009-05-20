@@ -48,7 +48,8 @@ public class YSequence implements Serializable {
     }
     @Override
     public boolean equals(Object obj) {
-        return yseq.equals(((YSequence)obj).yseq);
+        return (obj == yseq) || 
+        ((obj != null) && yseq.equals(((YSequence)obj).yseq));
     }
     public int getY(int j) {
         int y = 0;

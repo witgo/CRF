@@ -118,7 +118,7 @@ public class WordsInTrain implements Serializable {
             dictionary.put(x, index);
         }
         index.cnt++;
-        index.stateArray[y]++;
+        if (y >= 0) index.stateArray[y]++;
     }
     void setAggregateCnts(int numStates) {
         cntsOverAllWords = new int[numStates];

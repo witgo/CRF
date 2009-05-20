@@ -85,8 +85,8 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     	  return retainFeature(seq,f);
     }
     protected boolean retainFeature(DataSequence seq, FeatureImpl f) {
-        return ((seq.y(cposEnd) == f.y()) 
-                && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev())));
+        return ((seq.y(cposEnd) == f.y() || seq.y(cposEnd) < 0) 
+                && ((cposStart == 0) || (f.yprev() < 0) || (seq.y(cposStart-1) == f.yprev()) || seq.y(cposStart-1) < 0));
     }
     protected boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
@@ -411,7 +411,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         return model.numStates();
     }
     public int label(int stateNum) {
-        return model.label(stateNum);
+        return (stateNum >= 0)?model.label(stateNum):stateNum;
     }
     protected int numFeatureTypes() {
         return features.size();

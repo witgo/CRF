@@ -11,15 +11,21 @@ import iitb.CRF.DataSequence;
 public class EdgeSelector extends RegexCountFeatures {
     int windowSize=0;
     int segLen;
-    public EdgeSelector(FeatureGenImpl fgen, int width, String patternFile) {
+    int histSize;
+    int currentHistSize;
+    public EdgeSelector(FeatureGenImpl fgen, int width, String patternFile, int histSize) {
         super(fgen,2*width+2,patternFile);
         windowSize=width;
+        this.histSize = histSize;
     }
     public EdgeSelector(FeatureGenImpl fgen,String patternFile) {
-        this(fgen,0,patternFile);
+        this(fgen,0,patternFile,1);
+    }
+    public EdgeSelector(FeatureGenImpl fgen,String patternFile, int histSize) {
+        this(fgen,0,patternFile, histSize);
     }
     public EdgeSelector(FeatureGenImpl fgen) {
-        this(fgen,0,null);
+        this(fgen,0,null,1);
     }
     @Override
     public boolean hasNext() {
@@ -31,10 +37,10 @@ public class EdgeSelector extends RegexCountFeatures {
         f.val = (float)patternOccurence[index]/segLen;
         assert(f.val>0);
         f.id = index;
-        f.strId.id =  index;
+        f.strId.id =  f.id*histSize+(currentHistSize-1);
         f.ystart = -1;
         if(featureCollectMode()){
-            f.strId.name = name() + "_"+patternString[index][0];
+            f.strId.name = featureName(f.id);
             //System.out.println((String)f.strId.name +" " +index + " " + f.strId.id);
         }
         advance();
@@ -42,8 +48,10 @@ public class EdgeSelector extends RegexCountFeatures {
 
     @Override
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
-        segLen = Math.min(pos+windowSize,data.length()-1)-Math.max(pos-windowSize-1,0)+1;
-        return super.startScanFeaturesAt(data, Math.max(pos-windowSize-1,0)-1, Math.min(pos+windowSize,data.length()-1));
+        currentHistSize = pos-prevPos;
+        assert(currentHistSize <= histSize);
+        segLen = Math.min(pos+windowSize,data.length()-1)-Math.max(pos-windowSize-histSize,0)+1;
+        return super.startScanFeaturesAt(data, Math.max(pos-windowSize-histSize,0)-1, Math.min(pos+windowSize,data.length()-1));
     }
     @Override
     public int labelIndependentId(FeatureImpl f) {
@@ -52,7 +60,7 @@ public class EdgeSelector extends RegexCountFeatures {
 
     @Override
     public int maxFeatureId() {
-        return patternString.length;
+        return patternString.length*histSize;
     }
 
     @Override
@@ -61,6 +69,6 @@ public class EdgeSelector extends RegexCountFeatures {
     }
     
     public String featureName(int index) {
-        return patternString[index][0];
+        return name()+"_"+patternString[index/histSize][0]+((histSize > 1)?("_H"+histSize):"");
     }
 }
