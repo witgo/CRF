@@ -41,16 +41,17 @@ public class PartialTrainer extends SparseTrainer {
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false);
             
-            if(dataSeq.y(i) >= 0) {
-            	for(int y=0;y < numY;y++) {
-            		if(y != dataSeq.y(i)) {
-            			Ri_Y.set(y, RobustMath.LOG0);
-            		}
-            	}
-            }
             tmp_Y.assign(constrained_beta_Y[i]);
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, constrained_beta_Y[i-1],1,0,false);
+
+            if(dataSeq.y(i-1) >= 0) {
+                for(int y=0;y < numY;y++) {
+                    if(y != dataSeq.y(i-1)) {
+                        constrained_beta_Y[i-1].set(y, RobustMath.LOG0);
+                    }
+                }
+            }
         }
         return beta_Y;
     }
@@ -152,10 +153,10 @@ public class PartialTrainer extends SparseTrainer {
                 System.out.println("Beta-i " + beta_Y[i].toString());
             }
         }
-        lZx = RobustMath.logSumExp(alpha_Y);
-        constrainedlZx = RobustMath.logSumExp(constrained_alpha_Y);
+        lZx = alpha_Y.zSum();
+        constrainedlZx = constrained_alpha_Y.zSum();
         if(params.debugLvl > 1) {
-            System.out.println("constrainedLZx " + constrainedlZx+", wDotF "+wDotF+ " constrainedLZxBeta "+RobustMath.logSumExp(constrained_beta_Y[0]));
+            System.out.println("constrainedLZx " + constrainedlZx+", wDotF "+wDotF+ " constrainedLZxBeta "+constrained_beta_Y[0].zSum());
         }
         if(grad != null) {
         	for(int i=0;i < grad.length;i++) {
