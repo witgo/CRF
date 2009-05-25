@@ -50,6 +50,7 @@ public class EdgeSelector extends RegexCountFeatures {
     @Override
     public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
         currentHistSize = pos-prevPos;
+        assert(currentHistSize >=1);
         assert(currentHistSize <= histSize);
         segLen = Math.min(pos+windowSize,data.length()-1)-Math.max(pos-windowSize-histSize,0)+1;
         return super.startScanFeaturesAt(data, Math.max(pos-windowSize-histSize,0)-1, Math.min(pos+windowSize,data.length()-1));
