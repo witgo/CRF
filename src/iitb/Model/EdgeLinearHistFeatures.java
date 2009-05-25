@@ -16,7 +16,7 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
     boolean allDone;
     int histArr[];
     int histPos;
-    EdgeIterator edgeIter;
+    transient EdgeIterator edgeIter;
     Edge edge;
     int edgeNum;
 

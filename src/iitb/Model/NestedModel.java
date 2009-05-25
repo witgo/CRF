@@ -1,6 +1,8 @@
 package iitb.Model;
 import gnu.trove.TIntArrayList;
 import iitb.CRF.*;
+
+import java.io.Serializable;
 import java.util.*;
 
 public class NestedModel extends Model {
@@ -160,7 +162,7 @@ public class NestedModel extends Model {
             stateIds.setQuick(i, stateIds.getQuick(i)+ nodeOffsets[label]);
         }
     }
-    public class NestedEdgeIterator implements EdgeIterator {
+    public class NestedEdgeIterator implements EdgeIterator, Serializable {
         NestedModel model;
         int label;
         Edge edge;

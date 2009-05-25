@@ -17,6 +17,7 @@ public class EdgeSelector extends RegexCountFeatures {
         super(fgen,2*width+2,patternFile);
         windowSize=width;
         this.histSize = histSize;
+        assert(histSize >= 1);
     }
     public EdgeSelector(FeatureGenImpl fgen,String patternFile) {
         this(fgen,0,patternFile,1);
