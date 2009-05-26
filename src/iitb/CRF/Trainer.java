@@ -563,7 +563,7 @@ public class Trainer {
         if (params.debugLvl > 1) {
             System.out.println("Sequence "  + thisSeqLogli  + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
         }
-        return thisSeqLogli * instanceWt;
+        return (grad == null)?-lZx:thisSeqLogli * instanceWt;
     }
 
     protected double sumProductInner(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], 
