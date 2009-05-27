@@ -161,10 +161,14 @@ public class SegmentViterbi extends SparseViterbi {
                 solns[i] = new SolnWithLabelsOnPath(id, pos);
         }
         protected int findInsert(int insertPos, float score, Soln prev) {
+           // if (prev != null && prev.pos==6 && prev.label==4 && get(insertPos).label==4) {
+           //     System.out.println("Reached ");
+            //}
             for (; insertPos < size(); insertPos++) {
                 if (score >= get(insertPos).score) {
                     if ((prev == null) || labelConstraints==null || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
                         insert(insertPos, score, prev);
+                        //assert(!(prev != null && prev.pos==6 && prev.label==4 && get(insertPos).label==4));
                         insertPos++;
                     } else if (prev != null) {
                         // System.out.println("Constraint violation");
@@ -191,14 +195,21 @@ public class SegmentViterbi extends SparseViterbi {
             }
         }
     }
+    boolean markovModel=false;
     public SegmentViterbi(SegmentCRF nestedModel, int bs) {
         super(nestedModel, bs);
         this.segmentModel = nestedModel;
         this.featureGenNested = segmentModel.featureGenNested;
+        setMarkovState(segmentModel.params);
+    }
+    private void setMarkovState(CrfParams params) {
+        if (!params.miscOptions.getProperty("modelGraph", "semi-markov").equalsIgnoreCase("semi-markov"))
+            markovModel=true;
     }
     public SegmentViterbi(CRF model,int bs) {
         super(model, bs);
         this.featureGenNested = (FeatureGeneratorNested) model.featureGenerator;
+        setMarkovState(segmentModel.params);
     }
     protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         if (featureGenNested==null) {
@@ -221,7 +232,7 @@ public class SegmentViterbi extends SparseViterbi {
             return -1;
         }
     }	
-    protected Iter getIter(){return new SegmentIter();}
+    protected Iter getIter(){return (markovModel?new Iter():new SegmentIter());}
     /**
      * @return
      */
