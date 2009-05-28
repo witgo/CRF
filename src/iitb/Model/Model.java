@@ -31,6 +31,7 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     public abstract int numEdges();
     public abstract EdgeIterator edgeIterator();
     public EdgeIterator innerEdgeIterator() {return null;}
+    public EdgeIterator outerEdgeIterator() {return edgeIterator();}
     public abstract int numStartStates();
     public abstract int numEndStates();
     public abstract boolean isEndState(int i);
