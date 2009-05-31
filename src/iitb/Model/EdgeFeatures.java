@@ -36,7 +36,7 @@ public class EdgeFeatures extends FeatureTypes {
 		}
 	}
 	public boolean hasNext() {
-		return (edgeIter != null) && (edgeNum < model.numEdges());
+		return (edgeIter != null) && (edgeIter.hasNext());
 	}	
 	public boolean lastEdgeWasOuter() {return edgeIsOuter;}
 	public void next(FeatureImpl f) {
