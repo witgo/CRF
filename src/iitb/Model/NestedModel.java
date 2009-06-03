@@ -170,7 +170,7 @@ public class NestedModel extends Model {
         Edge outerEdge;
         boolean outerEdgesSent;
         int index1, index2;
-        boolean sendOuter;
+        boolean sendOuter, sendInner;
         int edgesFrom=-1;
 
         NestedEdgeIterator(NestedModel m) {
@@ -182,6 +182,7 @@ public class NestedModel extends Model {
         NestedEdgeIterator(NestedModel m, boolean sendOuter, boolean sendInner) {
             model = m;
             edge = new Edge();
+            this.sendInner=sendInner;
             if (sendInner) {
             edgeIter = new EdgeIterator[model.numLabels];
                 for (int l = 0; l < model.numLabels; l++) {
@@ -193,9 +194,7 @@ public class NestedModel extends Model {
             outerEdgeIter = model.outer.edgeIterator();
             this.sendOuter = sendOuter;
             start();
-            if (sendInner==false) {
-                label=model.numLabels;
-            }
+           
         }
         NestedEdgeIterator(NestedModel m, int edgesFrom) {
             model = m;
@@ -204,6 +203,7 @@ public class NestedModel extends Model {
             int l = model.label(edgesFrom);
             outerEdgeIter = model.outer.edgeIterator();
             this.sendOuter = true;
+            this.sendInner=true;
             this.edgesFrom=edgesFrom;
             start();
             index1=l;
@@ -211,6 +211,9 @@ public class NestedModel extends Model {
         }
         public void start() {
             label = 0;
+            if (sendInner==false) {
+                label=model.numLabels;
+            }
             for (int l = 0; l < edgeIter.length; l++) {
                 edgeIter[l].start();
             } 
