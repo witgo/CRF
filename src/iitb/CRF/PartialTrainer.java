@@ -169,6 +169,46 @@ public class PartialTrainer extends SparseTrainer {
         return constrainedlZx;
     }
 
-	
-	
+	 protected void getMarginals(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], float nodeMargs[][], float edgeMargs[][][]) {
+	    	allocateAlphaBeta(2*dataSeq.length()+1);
+	    	computeBetaArray(dataSeq,lambda,featureGenerator);
+	    	constrained_alpha_Y.assign(0);
+	    	for (int i = 0; i < dataSeq.length(); i++) {
+	            // compute the Mi matrix
+	            initMDone = SegmentTrainer.computeLogMi((CandSegDataSequence) dataSeq,i-1,i,(FeatureGeneratorNested) featureGenerator,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
+	            if (i > 0) {
+	                tmp_Y.assign(constrained_alpha_Y);
+	                RobustMath.logMult(Mi_YY, tmp_Y, constrained_newAlpha_Y,1,0,true);
+	                constrained_newAlpha_Y.assign(Ri_Y,sumFunc); 
+	            } else {
+	                constrained_newAlpha_Y.assign(Ri_Y);
+	            }
+	            if(dataSeq.y(i) >= 0) {
+	            	double d = constrained_newAlpha_Y.get(dataSeq.y(i));
+	            	constrained_newAlpha_Y.assign(RobustMath.LOG0);
+	            	constrained_newAlpha_Y.set(dataSeq.y(i), d);
+	            }
+	            for (int y = 0; y < numY; y++) {
+	            	nodeMargs[i][y] = (float) (constrained_newAlpha_Y.get(y)+constrained_beta_Y[i].get(y));
+	            	if (i > 0) {
+	            		for (int yprev = 0; yprev < numY; yprev++) {
+							edgeMargs[i][yprev][y] = (float) (constrained_alpha_Y.get(yprev)+constrained_beta_Y[i].get(y)+Ri_Y.get(y)+Mi_YY.get(yprev,y));
+						}
+	            	}
+				}
+	            constrained_alpha_Y.assign(constrained_newAlpha_Y);
+	        }
+	        double logZx = constrained_alpha_Y.zSum();
+	        for (int i = 0; i < edgeMargs.length; i++) {
+				for (int y = 0; y < numY; y++) {
+					nodeMargs[i][y] = (float) Math.exp(nodeMargs[i][y] - logZx);
+					assert(!Float.isNaN(nodeMargs[i][y]));
+					if (i==0) continue;
+					for (int yprev = 0; yprev < numY; yprev++) {
+						edgeMargs[i][yprev][y] = (float) Math.exp(edgeMargs[i][yprev][y]-logZx);
+						assert(!Float.isNaN(edgeMargs[i][yprev][y]));
+					}
+				}
+			}
+	    }
 }

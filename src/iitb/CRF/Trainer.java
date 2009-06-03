@@ -14,6 +14,7 @@ import cern.colt.matrix.*;
 import cern.colt.matrix.impl.*;
 import gnu.trove.TIntArrayList;
 import iitb.CRF.HistoryManager.*;
+import iitb.Model.FeatureImpl;
 /**
  *
  * @author Sunita Sarawagi
@@ -564,6 +565,43 @@ public class Trainer {
             System.out.println("Sequence "  + thisSeqLogli  + " log(Zx) " + lZx + " Zx " + Math.exp(lZx));
         }
         return (grad == null)?-lZx:thisSeqLogli * instanceWt;
+    }
+    
+    protected void getMarginals(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], float nodeMargs[][], float edgeMargs[][][]) {
+    	allocateAlphaBeta(2*dataSeq.length()+1);
+    	beta_Y = computeBetaArray(dataSeq,lambda,featureGenerator);
+    	alpha_Y.assign(0);
+    	for (int i = 0; i < dataSeq.length(); i++) {
+            // compute the Mi matrix
+            initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
+            
+            if (i > 0) {
+                tmp_Y.assign(alpha_Y);
+                RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true,edgeGen);
+                newAlpha_Y.assign(Ri_Y,sumFunc); 
+            } else {
+                newAlpha_Y.assign(Ri_Y);
+            }
+            for (int y = 0; y < numY; y++) {
+            	nodeMargs[i][y] = (float) (newAlpha_Y.get(y)+beta_Y[i].get(y));
+            	if (i > 0) {
+            		for (int yprev = 0; yprev < numY; yprev++) {
+						edgeMargs[i][yprev][y] = (float) (alpha_Y.get(yprev)+beta_Y[i].get(y)+Ri_Y.get(y)+Mi_YY.get(yprev,y));
+					}
+            	}
+			}
+            alpha_Y.assign(newAlpha_Y);
+        }
+        double logZx = RobustMath.logSumExp(alpha_Y);
+        for (int i = 0; i < edgeMargs.length; i++) {
+			for (int y = 0; y < numY; y++) {
+				nodeMargs[i][y] = (float) Math.exp(nodeMargs[i][y] - logZx);
+				if (i==0) continue;
+				for (int yprev = 0; yprev < edgeMargs.length; yprev++) {
+					edgeMargs[i][yprev][y] = (float) Math.exp(edgeMargs[i][yprev][y]-logZx);
+				}
+			}
+		}
     }
 
     protected double sumProductInner(DataSequence dataSeq, FeatureGenerator featureGenerator, double lambda[], 

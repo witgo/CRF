@@ -209,7 +209,7 @@ public class SegmentViterbi extends SparseViterbi {
     public SegmentViterbi(CRF model,int bs) {
         super(model, bs);
         this.featureGenNested = (FeatureGeneratorNested) model.featureGenerator;
-        setMarkovState(segmentModel.params);
+        setMarkovState(model.params);
     }
     protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {
         if (featureGenNested==null) {
