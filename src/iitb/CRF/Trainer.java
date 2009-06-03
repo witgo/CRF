@@ -435,8 +435,8 @@ public class Trainer {
                     oldVal = 0;
                 Ri_Y.set(yp,oldVal+lambda[f]*val);
             } else {
-                if (Ri_Y.get(yp) == DEFAULT_VALUE)
-                    Ri_Y.set(yp,0);
+                //if (Ri_Y.get(yp) == DEFAULT_VALUE)
+                 //   Ri_Y.set(yp,0);
                 if (Mi_YY != null) {
                     double oldVal = Mi_YY.get(yprev,yp);
                     if (oldVal == DEFAULT_VALUE) {
