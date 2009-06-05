@@ -191,7 +191,7 @@ public class SegmentTrainer extends SparseTrainer {
         if (dataSize > 0) beta_Y[dataSize-1] = oldBeta;
         if (segmentMarginals != null) {
             // normalize with respect to thisSeqLogLi.
-            boolean normalize=true;
+            boolean normalize=false;
             if (normalize) {
             for (int y = 0; y < segmentMarginals.length; y++) {
                 for (int segStart = 0; segStart < segmentMarginals[y].length; segStart++) {
