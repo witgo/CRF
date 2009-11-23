@@ -37,7 +37,10 @@ public class PartialTrainer extends SparseTrainer {
         for (int i = dataSeq.length()-1; i > 0; i--) {
             // compute the Mi matrix
             //initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-            initMDone = SegmentTrainer.computeLogMi((CandSegDataSequence) dataSeq,i-1,i,(FeatureGeneratorNested) featureGenerator,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
+            if(dataSeq instanceof CandSegDataSequence)
+            	initMDone = SegmentTrainer.computeLogMi((CandSegDataSequence) dataSeq,i-1,i,(FeatureGeneratorNested) featureGenerator,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
+            else
+            	initMDone = SegmentTrainer.computeLogMi(featureGenerator, lambda, dataSeq, i, Mi_YY, Ri_Y, false, reuseM, initMDone);
             tmp_Y.assign(beta_Y[i]);
             tmp_Y.assign(Ri_Y,sumFunc);
             RobustMath.logMult(Mi_YY, tmp_Y, beta_Y[i-1],1,0,false);
@@ -87,7 +90,10 @@ public class PartialTrainer extends SparseTrainer {
         for (int i = 0; i < dataSeq.length(); i++) {
             // compute the Mi matrix
             //initMDone = computeLogMiTrainMode(featureGenerator,lambda,dataSeq,i,Mi_YY,Ri_Y,false,reuseM,initMDone);
-            initMDone = SegmentTrainer.computeLogMi((CandSegDataSequence) dataSeq,i-1,i,(FeatureGeneratorNested) featureGenerator,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
+        	if(dataSeq instanceof CandSegDataSequence)
+        		initMDone = SegmentTrainer.computeLogMi((CandSegDataSequence) dataSeq,i-1,i,(FeatureGeneratorNested) featureGenerator,lambda,Mi_YY,Ri_Y,reuseM,initMDone);
+        	else
+        		initMDone = SegmentTrainer.computeLogMi(featureGenerator, lambda, dataSeq, i, Mi_YY, Ri_Y, false, reuseM, initMDone);
             if (i > 0) {
                 tmp_Y.assign(alpha_Y);
                 RobustMath.logMult(Mi_YY, tmp_Y, newAlpha_Y,1,0,true);
