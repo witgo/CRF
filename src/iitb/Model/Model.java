@@ -75,6 +75,8 @@ public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
     	    return new NoEdgeModel(numLabels);
     	} else if (modelSpecs.startsWith("naiveFollow")) {
     	    return new CompleteModelRestricted(modelSpecs,numLabels);
+        } else if (modelSpecs.startsWith("naiveNoLoop")) {
+            return new CompleteModelNoSelfLoop(modelSpecs,numLabels);
         }
     	throw new Exception("Base model can be one of {naive, noEdge, semi-Markov}");
     }

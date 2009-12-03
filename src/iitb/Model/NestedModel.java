@@ -282,6 +282,7 @@ public class NestedModel extends Model {
 
     public static void main(String args[]) {
         try {
+            args = new String[]{"3", "naiveNoLoop:2,boundary,boundary,naive"};
             System.out.println(args[0]);
             System.out.println(args[1]);
             Model model = new NestedModel(Integer.parseInt(args[0]), args[1]);
