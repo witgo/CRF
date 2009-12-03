@@ -512,7 +512,7 @@ public class Trainer {
             DoubleMatrix1D Ri_Y, boolean takeExp) {
         computeLogMi(featureGen, lambda, dataSeq, i, Mi_YY, Ri_Y, takeExp,false,false);
     }
-    static boolean computeLogMi(FeatureGenerator featureGen, double lambda[], 
+    public static boolean computeLogMi(FeatureGenerator featureGen, double lambda[], 
             DataSequence dataSeq, int i, 
             DoubleMatrix2D Mi_YY,
             DoubleMatrix1D Ri_Y, boolean takeExp, boolean reuseM, boolean initMDone) {

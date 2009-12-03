@@ -1,10 +1,17 @@
 package iitb.CRF;
 
+import iitb.CRF.Viterbi.Entry;
+
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 import gnu.trove.TIntFloatHashMap;
 import gnu.trove.TIntHashSet;
@@ -24,7 +31,8 @@ public class SegmentViterbi extends SparseViterbi {
     public static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
         protected ConstraintDisallowedPairs disallowedPairs;
-
+        protected ConstraintDisallowedPairsExtended disallowedPairsExt;
+        
         public class Intersects implements TIntProcedure {
             public int label;
             public int prevLabel;
@@ -38,6 +46,10 @@ public class SegmentViterbi extends SparseViterbi {
          */
         public LabelConstraints(ConstraintDisallowedPairs pairs) {
             disallowedPairs = pairs;
+            if (disallowedPairs instanceof ConstraintDisallowedPairsExtended)
+                disallowedPairsExt = (ConstraintDisallowedPairsExtended) disallowedPairs;
+            else
+                disallowedPairsExt = null;
         }
         public LabelConstraints(LabelConstraints labelCons) {
             this(labelCons.disallowedPairs);
@@ -75,10 +87,13 @@ public class SegmentViterbi extends SparseViterbi {
             if (!conflicting(label))
                 return set;
             labelsOnPath.clear();
-            labelsOnPath.add(label);
+            labelsOnPath.add(canonicalId(label));
             for(TIntIterator iter = set.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
             //            labelsOnPath.addAll(set.toArray());
             return labelsOnPath;
+        }
+        public int canonicalId(int label) {
+            return disallowedPairsExt!=null?disallowedPairsExt.canonicalId(label):label;
         }
         /**
          * @param dataSeq
@@ -100,6 +115,13 @@ public class SegmentViterbi extends SparseViterbi {
             }
             return null;
         }
+        public TIntHashSet formPreviousLabel(TIntHashSet prevLabelsOnPath, TIntHashSet labelsOnPath, int prevLabel) {
+            labelsOnPath.clear();
+            for(TIntIterator iter = prevLabelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
+            if (conflicting(prevLabel))
+                labelsOnPath.add(canonicalId(prevLabel));
+            return labelsOnPath;
+        }    
         protected void init(ConstraintDisallowedPairs pairs) {
             disallowedPairs = pairs;
         }
@@ -110,8 +132,23 @@ public class SegmentViterbi extends SparseViterbi {
         public boolean conflicting(int label) {
             return disallowedPairs.conflicting(label);
         }
-
-
+        public int countConflicting(int numY) {
+            TIntHashSet maxSet = new TIntHashSet();
+            for (int i = 0; i < numY; i++) {
+                if (conflicting(i))
+                    maxSet.add(canonicalId(i));
+            }
+            return Math.min(1 << maxSet.size(), 20);
+        }
+        public boolean contained(TIntHashSet labelsOnPath, TIntHashSet prevLabels) {
+            if (labelsOnPath == null) return true;
+            for(TIntIterator iter = labelsOnPath.iterator(); iter.hasNext();) {
+                int thisL = iter.next();
+                if (prevLabels != null && prevLabels.contains(thisL)) continue;
+                return false;
+            }
+            return true;
+        }
     }
 
     LabelConstraints labelConstraints=null;
@@ -139,44 +176,71 @@ public class SegmentViterbi extends SparseViterbi {
         public void setPrevSoln(Soln prevSoln, float score) {
             super.setPrevSoln(prevSoln,score);
             if ((prevSoln != null) && (labelConstraints != null)) {
-                labelsOnPath.clear();
-                //labelsOnPath.addAll(((SolnWithLabelsOnPath)prevSoln).labelsOnPath.toArray());
-                for(TIntIterator iter = ((SolnWithLabelsOnPath)prevSoln).labelsOnPath.iterator(); iter.hasNext();  labelsOnPath.add(iter.next()));
-                assert(labelConstraints.valid(labelsOnPath,label,prevSoln.label));
-                if (labelConstraints.conflicting(prevSoln.label))
-                    labelsOnPath.add(prevSoln.label);
+                labelConstraints.formPreviousLabel(((SolnWithLabelsOnPath)prevSoln).labelsOnPath, labelsOnPath, prevSoln.label);
             }
-        }       
+        }
     }
     public class EntryForLabelConstraints extends Entry {
+        TIntHashSet tmpLabels = new TIntHashSet();
         /**
          * @param beamsize
          * @param id
          * @param pos
          */
-        protected EntryForLabelConstraints(int beamsize, int id, int pos) {
+        protected EntryForLabelConstraints(int beamsize, int id, int pos, int numStatComb) {
             super();
-            solns = new Soln[beamsize];
+            if (beamsize > 1)
+                throw new NotImplementedException();
+            solns = new Soln[beamsize*numStatComb];
             for (int i = 0; i < solns.length; i++)
                 solns[i] = new SolnWithLabelsOnPath(id, pos);
         }
         protected int findInsert(int insertPos, float score, Soln prev) {
-           // if (prev != null && prev.pos==6 && prev.label==4 && get(insertPos).label==4) {
-           //     System.out.println("Reached ");
-            //}
-            for (; insertPos < size(); insertPos++) {
-                if (score >= get(insertPos).score) {
-                    if ((prev == null) || labelConstraints==null || labelConstraints.valid(((SolnWithLabelsOnPath)prev).labelsOnPath,get(insertPos).label, prev.label)) {
-                        insert(insertPos, score, prev);
-                        //assert(!(prev != null && prev.pos==6 && prev.label==4 && get(insertPos).label==4));
-                        insertPos++;
-                    } else if (prev != null) {
-                        // System.out.println("Constraint violation");
-                    }
-                    break;
+            SolnWithLabelsOnPath prevSolL = (SolnWithLabelsOnPath)prev;
+            // this solution conflicts with the label in this state..
+            if ((prev != null) && labelConstraints!=null 
+                    && !labelConstraints.valid(prevSolL.labelsOnPath,get(0).label, prev.label)) {
+                return insertPos;
+            }
+            TIntHashSet prevLabels = ((prevSolL != null && labelConstraints != null)?labelConstraints.formPreviousLabel(prevSolL.labelsOnPath, tmpLabels, prevSolL.label):null);
+            for (insertPos=0; insertPos < size(); insertPos++) {
+             // if a better solution with a less restrictive condition exists..do not keep this one.
+                if (score <= get(insertPos).score) {
+                    if (prev == null || labelConstraints == null)
+                        return 0;
+                    SolnWithLabelsOnPath thisSolL = (SolnWithLabelsOnPath) get(insertPos);
+                    if (labelConstraints.contained(thisSolL.labelsOnPath, prevLabels))
+                        return 0;
                 }
             }
-            return insertPos;
+            int minPos = -1; float minScore = Float.MAX_VALUE;
+            for (insertPos=0; insertPos < size(); insertPos++) {
+                if (score > get(insertPos).score) {
+                   if (minScore > get(insertPos).score) {
+                       minScore = get(insertPos).score;
+                       minPos = insertPos;
+                   }
+                   if (labelConstraints != null && labelConstraints.contained(prevLabels, ((SolnWithLabelsOnPath) get(insertPos)).labelsOnPath)) {
+                        insert(insertPos, score, prev);
+                        return insertPos;
+                   }
+                } 
+            }
+            if (minPos >= 0) {
+                insert(minPos, score, prev);
+            }
+            return minPos;
+        }
+        public void sortEntries() {
+            Arrays.sort(solns);
+            for (int i = 0; i < solns.length/2; i++) {
+                Soln tmp = solns[i];
+                solns[i] = solns[solns.length-1-i];
+                solns[solns.length-1-i] = tmp;
+            }
+            for (int i = 1; i < solns.length; i++) {
+                assert(solns[i-1].score >= solns[i].score);
+            }
         }
     }
     class ContextForLabelConstraints extends Context {
@@ -189,7 +253,7 @@ public class SegmentViterbi extends SparseViterbi {
                 super.add(y,prevSoln,thisScore);
             } else {
                 if (getQuick(y) == null) {
-                    setQuick(y, new EntryForLabelConstraints((pos==startPos)?1:beamsize, y, pos)); 
+                    setQuick(y, new EntryForLabelConstraints((pos==startPos)?1:beamsize, y, pos, labelConstraints.countConflicting(size()))); 
                 }
                 super.add(y,prevSoln,thisScore);
             }
@@ -308,9 +372,8 @@ public class SegmentViterbi extends SparseViterbi {
     protected Context newContext(int numY, int beamsize, int pos, int startPos){
         if (labelConstraints == null)
             return new Context(numY,beamsize,pos, startPos);        
-        return  new ContextForLabelConstraints(numY,(beamsize==1)?20:beamsize,pos,startPos); 
+        return  new ContextForLabelConstraints(numY,beamsize,pos,startPos); 
     }
-
     public double viterbiSearch(DataSequence dataSeq, double[] lambda,
             boolean calcCorrectScore) {
         //labelConstraints = LabelConstraints.checkConstraints((CandSegDataSequence)dataSeq, labelConstraints);

@@ -60,11 +60,13 @@ public class Viterbi implements Serializable {
                 add(thisScore);
                 return;
             }
+            // the soln within each entry are sorted.
             int insertPos = 0;
             for (int i = 0; (i < e.size()) && (insertPos < size()); i++) {
                 float score = e.get(i).score + thisScore;
                 insertPos = findInsert(insertPos, score, e.get(i));
             }
+            
             //print()
         }
         protected int findInsert(int insertPos, float score, Soln prev) {
@@ -102,6 +104,8 @@ public class Viterbi implements Serializable {
                 toString += " : " + solns[0].prevSoln.pos + " " + solns[0].prevSoln.label + " " + solns[0].prevSoln.score;
             toString += "]";
             return toString;
+        }
+        public void sortEntries() {
         }
     };
     
@@ -214,6 +218,11 @@ public class Viterbi implements Serializable {
         double corrScore = viterbiSearch(dataSeq, lambda,false);
         if(model.params.debugLvl > 1)
             System.out.println("Score of best sequence "+finalSoln.get(0).score + " corrScore " + corrScore);
+        /*if (finalSoln.get(0).prevSoln == null) {
+            viterbiSearch(dataSeq, lambda,false);
+            assert(false);
+        }
+        */
         assignLabels(dataSeq);   
         return finalSoln.get(0).score;
     }
@@ -222,6 +231,7 @@ public class Viterbi implements Serializable {
         Soln ybest = finalSoln.get(0);
         ybest = ybest.prevSoln;
         int pos=-1;
+        assert(ybest.pos == dataSeq.length()-1);
         while (ybest != null) {
             pos = ybest.pos;
             setSegment(dataSeq,ybest.prevPos(),ybest.pos, ybest.label);

@@ -388,8 +388,10 @@ public class SparseViterbi extends Viterbi {
     protected void calculateFinalSolution(Context context){
         finalSoln.valid = true;
         for (int y = 0; y < context.size(); y++) {
-            if (context.entryNotNull(y))
+            if (context.entryNotNull(y)) {
+                ((Entry)context.getQuick(y)).sortEntries();
                 finalSoln.add((Entry)context.getQuick(y),0);
+            }
         }
     }
     
