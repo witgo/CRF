@@ -23,7 +23,7 @@ import iitb.Model.FeatureImpl;
 
 public class Trainer {
     protected int numF,numY;
-    double gradLogli[];
+    protected double gradLogli[];
     double diag[];
     protected double lambda[];
     protected boolean reuseM, initMDone=false, logProcessing=false;
