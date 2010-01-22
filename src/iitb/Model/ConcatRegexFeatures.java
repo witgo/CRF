@@ -178,6 +178,9 @@ public class ConcatRegexFeatures extends FeatureTypes {
     public ConcatRegexFeatures(FeatureGenImpl m){
         this(m, 0,0,1);
     }
+    public ConcatRegexFeatures(FeatureGenImpl m, String patternFile){
+        this(m, 0,0,1,patternFile);
+    }
 	/**
 	 * Constructs an object of ConcatRegexFeatures to be used to generate features for current token.
 	 
