@@ -110,12 +110,8 @@ public class BWindowFeatureMulti extends WindowFeatures implements BoundaryFeatu
 	    }
 	    setFeatureIdentifier(f.strId.id*windows.length+currentWindow, f.strId.stateId, name, f);
 	    
-	    if (windows[currentWindow].toString().equals("unique")) {
-	        assert(!f._startOpen && !f._endOpen && (f._startB == f._endB));
-	    }
-	    if (windows[currentWindow].toString().equals("end")) {
-	        assert(f._startOpen && !f._endOpen && (f._startB + 1 == f._endB));
-	    }
+	    assert(!windows[currentWindow].toString().equals("unique") || (!f._startOpen && !f._endOpen && (f._startB == f._endB)));
+	    assert(!windows[currentWindow].toString().equals("end") || (f._startOpen && !f._endOpen && (f._startB + 1 == f._endB)));
        // next((FeatureImpl)f);
 //	    f.copyBoundary(boundary);
 //	    assert((boundary._startB >= 0) && (boundary._endB < dataSeq.length()));

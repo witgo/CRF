@@ -9,9 +9,20 @@ import iitb.BSegmentCRF.BFeatureGenerator;
 import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Segmentation;
+import iitb.Model.ClassPriorFeature;
+import iitb.Model.ConcatRegexFeatures;
+import iitb.Model.EdgeFeatures;
+import iitb.Model.EndFeatures;
 import iitb.Model.FeatureGenImpl;
 import iitb.Model.FeatureImpl;
+import iitb.Model.FeatureTypes;
+import iitb.Model.FeatureTypesEachLabel;
 import iitb.Model.Model;
+import iitb.Model.StartFeatures;
+import iitb.Model.UnknownFeature;
+import iitb.Model.WindowFeatures;
+import iitb.Model.WordFeatures;
+import iitb.Model.WordsInTrain;
 
 /**
  * @author sunita
@@ -26,7 +37,7 @@ public class BFeatureGenImpl extends FeatureGenImpl implements
     private static final long serialVersionUID = 1L;
     boolean bfeatureMode=false;
     BFeatureImpl bfeature = new BFeatureImpl(), bfeatureToReturn = new BFeatureImpl();
-    int maxGap = 0;
+    int maxGap = 1;
     /**
      * @param arg0
      * @param arg1
@@ -34,6 +45,13 @@ public class BFeatureGenImpl extends FeatureGenImpl implements
      */
     public BFeatureGenImpl(String arg0, int arg1) throws Exception {
         super(arg0, arg1);
+    }
+    public BFeatureGenImpl(String arg0, int arg1, java.util.Properties options) throws Exception {
+        super(arg0, arg1,false);
+        if (options.getProperty("MaxMemory") != null) {
+            maxGap = Integer.parseInt(options.getProperty("MaxMemory"));
+        }
+        addFeatures();
     }
     /**
      * @param arg0
@@ -69,6 +87,33 @@ public class BFeatureGenImpl extends FeatureGenImpl implements
      */
     public int maxBoundaryGap() {
         return maxGap;
+    }
+    protected void addFeatures() { 
+        addFeature(new BFeatureEachPosition(
+                new BFeatureEachPosition.TypePosEndOpen(new StartFeatures(this))));
+        addFeature(new BFeatureEachPosition(
+                new BFeatureEachPosition.TypePosStartOpen(new EndFeatures(this))));
+        addFeature(new BFeatureEachPosition(new BFeatureEachPosition.TypePosEndOpen(new ClassPriorFeature(this))),true);
+        addFeature(new BFeatureEachPosition(
+                    new BFeatureEachPosition.TypePosEndOpen(new EdgeFeatures(this))),true);
+        WindowFeatures.Window windows[] = new WindowFeatures.Window[] {
+                new WindowFeatures.Window(0,true,0,true,"start",2,Integer.MAX_VALUE), 
+                new WindowFeatures.Window(0,false,0,false,"end",2,Integer.MAX_VALUE),
+                new WindowFeatures.Window(1,true,-1,false,"continue",3,Integer.MAX_VALUE),
+                new WindowFeatures.Window(0,true,0,false,"Unique",1,1),
+                new WindowFeatures.Window(-1,true,-1,true,"left-1"),
+                new WindowFeatures.Window(1,false,1,false,"right+1"),
+        };
+        
+        dict = new WordsInTrain();
+        addFeature(new BFeatureEachPosition(new BWindowFeatureMulti(windows, new WordFeatures(this, dict))));
+         
+        FeatureTypes features = new ConcatRegexFeatures(this,0,0);
+        addFeature(new BFeatureEachPosition(new BFeatureTypesEachLabel(this,
+                new BWindowFeatureMulti(windows, features))));
+        
+        addFeature(new BFeatureEachPosition(new BFeatureTypesEachLabel(this, 
+                        new BSegmentLength(this,maxGap))));
     }
 
     /* (non-Javadoc)

@@ -44,7 +44,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     transient DataSequence data;
     int cposEnd;
     int cposStart;
-    WordsInTrain dict;
+    protected WordsInTrain dict;
     Vector<WordsInTrain> otherDicts = new Vector<WordsInTrain>();
     
     public void addFeature(FeatureTypes fType) {

@@ -7,8 +7,9 @@ package iitb.CRF;
 
 
 public class Util {
+    public static boolean debug=true;
     static public void printDbg(String msg) {
-	System.out.println(msg);
+	if (debug) System.out.println(msg);
     }
 };
 
