@@ -29,7 +29,7 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" debug="${compile.debug}" source="1.4"
+    <javac srcdir="${src}" destdir="${build}" debug="${compile.debug}"
     classpathref="compile.classpath"/>
   </target>
 
@@ -43,7 +43,6 @@
            windowtitle="CRF API"
            packagenames="iitb.*"
 	   classpathref="compile.classpath"
-	   source="1.4"
 	   >
            <doctitle><![CDATA[<h1>CRF API Specification</h1>]]></doctitle>
            <bottom><![CDATA[<font size="-1"><a href="mailto:sunita@iitb.ac.in">Submit a bug or feature</a>. </font>]]></bottom> 
