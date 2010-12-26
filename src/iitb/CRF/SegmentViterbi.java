@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
@@ -190,7 +189,7 @@ public class SegmentViterbi extends SparseViterbi {
         protected EntryForLabelConstraints(int beamsize, int id, int pos, int numStatComb) {
             super();
             if (beamsize > 1)
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             solns = new Soln[beamsize*numStatComb];
             for (int i = 0; i < solns.length; i++)
                 solns[i] = new SolnWithLabelsOnPath(id, pos);

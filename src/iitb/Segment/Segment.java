@@ -2,13 +2,13 @@ package iitb.Segment;
 import java.io.*;
 import java.util.*;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import iitb.BSegment.BFeatureGenImpl;
 import iitb.BSegmentCRF.BSegmentCRF;
 import iitb.CRF.*;
 import iitb.Model.*;
 import iitb.Utils.*;
+import java.lang.UnsupportedOperationException;
 /**
  *
  * @author Sunita Sarawagi
@@ -195,23 +195,23 @@ public class Segment {
         }
         public int getSegmentId(int offset) {
             // TODO Auto-generated method stub
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
         public int numSegments() {
             // TODO Auto-generated method stub
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
         public int segmentEnd(int segmentNum) {
             // TODO Auto-generated method stub
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
         public int segmentLabel(int segmentNum) {
             // TODO Auto-generated method stub
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
         public int segmentStart(int segmentNum) {
             // TODO Auto-generated method stub
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         }
     };
 
