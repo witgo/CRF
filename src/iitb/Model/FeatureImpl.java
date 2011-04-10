@@ -1,6 +1,8 @@
 package iitb.Model;
 import java.io.Serializable;
 
+import javax.net.ssl.HostnameVerifier;
+
 import iitb.CRF.*;
 /**
  *
@@ -34,7 +36,18 @@ public class FeatureImpl implements Feature, Serializable {
         ystart = featureToReturn.yprev();
         yend = featureToReturn.y();
         val = featureToReturn.value();
-        historyArray = featureToReturn.yprevArray();
+        int arr[] = featureToReturn.yprevArray();
+        if (arr == null && historyArray != null)
+        	historyArray = null;
+        else if (arr != null) {
+        	if (historyArray == null || historyArray.length != arr.length)
+        		historyArray = arr.clone();
+        	else {
+        		for (int i = 0; i < arr.length; i++) {
+					historyArray[i] = arr[i];
+				}
+        	}
+        }
     }
     public void copy(FeatureImpl featureToReturn) {
         copy((Feature)featureToReturn);

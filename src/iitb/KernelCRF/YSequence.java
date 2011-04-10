@@ -60,6 +60,13 @@ public class YSequence implements Serializable {
         }
         return y;
     }
+    public int[] getYArray(int n) {
+    	int ys[] = new int[n];
+    	for (int i = 0; i < ys.length; i++) {
+			ys[i] = getY(i);
+		}
+    	return ys;
+    }
     public boolean segStart(int j) {
         return yseq.get(j*numBits+numBits-1);
     }

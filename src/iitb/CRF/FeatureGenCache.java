@@ -13,6 +13,8 @@ package iitb.CRF;
  *   
  *   TODO: keeping vector of featureIds implies that insertion is quadratic--- need to make this efficient.
  */
+import iitb.Model.StartFeatures;
+
 import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -55,6 +57,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 DataSequence data = dataIter.next();
                 assert(getDataIndex(data)==-1);
                 put(((KeyedDataSequence)data).getKey(),pos);
+               // System.out.println("Inserting "+((KeyedDataSequence)data).getKey()+" "+pos+ " "+data.length());
             }
         }
     } 
@@ -385,6 +388,26 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     public FeatureGenCache(FeatureGenerator fgen, boolean edgeFeaturesXIndependent) {
         alloc(fgen,edgeFeaturesXIndependent);
     }
+    public FeatureGenCache(FeatureGenerator fgen, boolean edgeFeaturesXIndependent, DataIter dataIter) {
+        alloc(fgen,edgeFeaturesXIndependent);
+        cacheFeaturesOnKeys(dataIter);
+    }
+    public void cacheFeaturesOnKeys(DataIter dataIter) {
+    	setDataKeys(dataIter);
+        startDataScan();
+        dataIter.startScan();
+        while (dataIter.hasNext()) {
+        	DataSequence dataSeq = dataIter.next();
+        	nextDataIndex();
+        	for (int p = 0; p < dataSeq.length(); p++) {
+        		startScanFeaturesAt(dataSeq, p);
+        		while (hasNext()) {
+        			next();
+        		}
+        	}
+        }
+        startDataScan();
+    }
     // for each distinct feature-id this stores all various forms of the features.
     class Stats {
         int dataLen;
@@ -462,6 +485,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 featureCache.edgeFeatures.addEdgeFeature(featureCache.add(f),prevPos, pos,dataLen);
                 return;
             }
+            assert(f.yprevArray()==null);
             featureIds.add(featureCache.add(f));
             thisSegmentOffsets[1]++;
         }
