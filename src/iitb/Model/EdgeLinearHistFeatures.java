@@ -59,14 +59,17 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
 			}
 		}
 		setFeatureIdentifier(edgeNum*histsize + histPos, model.label(f.yend),fname,f);
-		histPos++;	
-		if (histPos+1 > histsize || pos - histPos <= 0) {
-			histPos = 1; // the first set is handled by edge features.
-			if (edgeIter.hasNext()) {
-				edge = edgeIter.next();
-				edgeNum++;
-			} else {
+		if (edgeIter.hasNext()) {
+			edge = edgeIter.next();
+			edgeNum++;
+		} else {
+			histPos++;	
+			if (histPos+1 > histsize || pos - histPos <= 0) {
 				allDone = true;
+			} else {
+				edgeIter.start();
+				edgeNum = 0;
+				edge = edgeIter.next();
 			}
 		}
 	}
