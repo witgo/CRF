@@ -73,4 +73,7 @@ public class EdgeSelector extends RegexCountFeatures {
     public String featureName(int index) {
         return name()+"_"+patternString[index/histSize][0]+((histSize > 1)?("_H"+histSize):"");
     }
+	public int historySize() {
+		return histSize;
+	}
 }

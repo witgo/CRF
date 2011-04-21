@@ -28,6 +28,7 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
 		edgeIter = model.edgeIterator();
 		this.histsize = histsize;
 		histArr = new int[histsize];
+		System.err.println("Using debugged version of EdgeLinearHistFeatures");
 	}
 	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 		this.pos = pos;
