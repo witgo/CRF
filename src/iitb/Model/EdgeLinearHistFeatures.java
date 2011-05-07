@@ -28,7 +28,7 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
 		edgeIter = model.edgeIterator();
 		this.histsize = histsize;
 		histArr = new int[histsize];
-		System.err.println("Using debugged version of EdgeLinearHistFeatures");
+		//System.err.println("Using debugged version of EdgeLinearHistFeatures");
 	}
 	public boolean startScanFeaturesAt(DataSequence data, int prevPos, int pos) {
 		this.pos = pos;
@@ -54,12 +54,12 @@ public class EdgeLinearHistFeatures extends FeatureTypes {
 		Object fname = null;
 		if (featureCollectMode()) {
 			if (fnames == null) {
-				fname = "H."+histPos+"."+edgeNum;
+				fname = "H."+histPos+"."+edge.start+"."+edge.end;
 			} else {
 				fname = fnames[histPos][f.yend];
 			}
 		}
-		setFeatureIdentifier(edgeNum*histsize + histPos, model.label(f.yend),fname,f);
+		setFeatureIdentifier(edgeNum*histsize + histPos, f.yend,fname,f);
 		if (edgeIter.hasNext()) {
 			edge = edgeIter.next();
 			edgeNum++;
