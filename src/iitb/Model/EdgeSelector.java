@@ -13,20 +13,21 @@ public class EdgeSelector extends RegexCountFeatures {
     int segLen;
     int histSize;
     int currentHistSize;
-    public EdgeSelector(FeatureGenImpl fgen, int width, String patternFile, int histSize) {
+    int minHist;
+    public EdgeSelector(FeatureGenImpl fgen, int width, String patternFile, int histSize, int minHist) {
         super(fgen,2*width+2,patternFile);
         windowSize=width;
         this.histSize = histSize;
         assert(histSize >= 1);
     }
     public EdgeSelector(FeatureGenImpl fgen,String patternFile) {
-        this(fgen,0,patternFile,1);
+        this(fgen,0,patternFile,1,0);
     }
     public EdgeSelector(FeatureGenImpl fgen,String patternFile, int histSize) {
-        this(fgen,0,patternFile, histSize);
+        this(fgen,0,patternFile, histSize,0);
     }
     public EdgeSelector(FeatureGenImpl fgen) {
-        this(fgen,0,null,1);
+        this(fgen,0,null,1,0);
     }
     @Override
     public boolean hasNext() {
@@ -71,7 +72,7 @@ public class EdgeSelector extends RegexCountFeatures {
     }
     
     public String featureName(int index) {
-        return name()+"_"+patternString[index/histSize][0]+((histSize > 1)?("_H"+histSize):"");
+        return name()+"_"+patternString[index/histSize][0]+((histSize > 1)?("_H"+(index % histSize)):"");
     }
 	public int historySize() {
 		return histSize;
