@@ -14,7 +14,7 @@ import iitb.CRF.KeyedDataSequence;
 public class RandomEdgeSelector extends EdgeSelector {
     Random rand;
     public RandomEdgeSelector(FeatureGenImpl fgen, int width, String patternFile, int histSize) {
-        super(fgen,width,patternFile,histSize);
+        super(fgen,width,patternFile,histSize,0);
         windowSize=width;
         this.histSize = histSize;
         assert(histSize >= 1);
