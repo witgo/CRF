@@ -1,6 +1,9 @@
 package iitb.Segment;
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import iitb.CRF.*;
 /**
  *
@@ -447,27 +450,42 @@ public class DataCruncher {
         }
     }
 
-    public static void createRaw(String file,String tagDelimit) {
-        try {
-            BufferedReader in=new BufferedReader(new FileReader(file+".tagged"));
-            PrintWriter out=new PrintWriter(new FileOutputStream(file+".raw"));
-            String line,rawLine;
-            rawLine=new String("");
-            while((line=in.readLine())!=null) {
-                StringTokenizer t=new StringTokenizer(line,tagDelimit);
-                if(t.countTokens()<2) {
-                    out.println(rawLine);
-                    rawLine=new String("");
-                } else {
-                    rawLine=new String(rawLine+" "+t.nextToken());
-                }
-            }
-            out.println(rawLine);
-            in.close();
-            out.close();
-        } catch(IOException e) {
-            System.out.println("I/O Error"+e);
-            System.exit(-1);
-        }
-    }
-};
+    /**
+     * 
+     * @param file
+     * @param tagDelimit
+     */
+	public static void createRaw(String file, String tagDelimit) {
+		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
+		BufferedReader in = null;
+		PrintWriter out = null;
+		try {
+			in = new BufferedReader(new FileReader(file + ".tagged"));
+			out = new PrintWriter(new FileOutputStream(file + ".raw"));
+			String line;
+			StringBuilder rawLine;
+			rawLine = new StringBuilder(200);
+			while ((line = in.readLine()) != null) {
+				String[] parts = delimitPattern.split(line);
+				if (parts.length < 2) {
+					out.println(rawLine);
+					rawLine.setLength(0);
+				} else {
+					rawLine.append(" ");
+					rawLine.append(parts[0]);
+				}
+			}
+			out.println(rawLine);
+		} catch (IOException e) {
+			System.out.println("I/O Error" + e);
+			System.exit(-1);
+		} finally {
+			if (in != null) {
+				try { in.close();} catch (IOException e) {}
+			}
+			if (out != null) {
+				out.close();
+			}
+		}
+	}
+}
