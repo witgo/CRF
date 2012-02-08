@@ -290,26 +290,32 @@ class TestDataWrite {
 
 public class DataCruncher {
 
-    static String[]  getTokenList(String text, String delimit, String impDelimit) {
-        StringTokenizer textTok=new StringTokenizer(text.toLowerCase(),delimit,true);
-        int tlen = 0;
-        while (textTok.hasMoreTokens()) {
-            String tokStr=textTok.nextToken();
-            if (delimit.indexOf(tokStr)==-1 || impDelimit.indexOf(tokStr)!=-1){
-                tlen++;
-            }
-        }
-        String[] cArray = new String[tlen];
-        tlen = 0;
-        textTok=new StringTokenizer(text.toLowerCase(),delimit,true);
-        while (textTok.hasMoreTokens()) {
-            String tokStr=textTok.nextToken();
-            if (delimit.indexOf(tokStr)==-1 || impDelimit.indexOf(tokStr)!=-1) {	    
-                cArray[tlen++] = tokStr;
-            }
-        }
-        return cArray;
-    }
+	/**
+	 * 
+	 * @param text 
+	 * @param delimit A set of delimiters used by the Tokenizer.
+	 * @param impDelimit 
+	 * @return an Array of tokens.
+	 */
+	protected static String[] getTokenList(String text, String delimit,
+			String impDelimit) {
+		text = text.toLowerCase();
+		StringTokenizer textTok = new StringTokenizer(text, delimit, true);
+		//This might allocate slightly more space than needed (in case of 
+		//delimiters in the String), but will make a second pass through
+		//the String unnecessary.
+		ArrayList<String> tokenList = new ArrayList<String>(textTok.countTokens());
+		
+		while (textTok.hasMoreTokens()) {
+			String tokStr = textTok.nextToken();
+			if (!delimit.contains(tokStr) || impDelimit.contains(tokStr)) {
+				tokenList.add(tokStr);
+			}
+		}
+		//TODO: Change the return type to ArrayList<String>
+		return tokenList.toArray(new String[tokenList.size()]);
+	}
+    
     static int readRowVarCol(int numLabels, BufferedReader tin, String tagDelimit, String delimit, String impDelimit, int[] t, String[][] cArray) throws IOException 
     {
         int ptr=0;
