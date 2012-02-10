@@ -1,7 +1,6 @@
 package iitb.Segment;
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import iitb.CRF.*;
@@ -301,9 +300,8 @@ public class DataCruncher {
 			String impDelimit) {
 		text = text.toLowerCase();
 		StringTokenizer textTok = new StringTokenizer(text, delimit, true);
-		//This might allocate slightly more space than needed (in case of 
-		//delimiters in the String), but will make a second pass through
-		//the String unnecessary.
+		//This allocates space for all tokens and delimiters, 
+		//but will make a second pass through the String unnecessary.
 		ArrayList<String> tokenList = new ArrayList<String>(textTok.countTokens());
 		
 		while (textTok.hasMoreTokens()) {
@@ -312,34 +310,42 @@ public class DataCruncher {
 				tokenList.add(tokStr);
 			}
 		}
-		//TODO: Change the return type to ArrayList<String>
+		//Finally, the storage is trimmed to the actual size.
 		return tokenList.toArray(new String[tokenList.size()]);
 	}
     
-    static int readRowVarCol(int numLabels, BufferedReader tin, String tagDelimit, String delimit, String impDelimit, int[] t, String[][] cArray) throws IOException 
-    {
-        int ptr=0;
-        int previousLabel = -1;
-        while(true) {
-            String line=tin.readLine();
-            StringTokenizer firstSplit=null;
-            if (line!=null) {
-                firstSplit=new StringTokenizer(line.toLowerCase(),tagDelimit);
-            }
-            if ((line==null) || (firstSplit.countTokens()<2)) {
-                // Empty Line
-                return ptr;
-            }
-            String w = firstSplit.nextToken();
-            int label=Integer.parseInt(firstSplit.nextToken()); 
-            //if ((!c[label].equals(" ")) && (previousLabel != label)) {
-            //	System.out.println("WARNING: duplicate tags in training data are not allowed: " + w);
-            //}
-            t[ptr] = label;
-            cArray[ptr++] = getTokenList(w,delimit,impDelimit);
-            previousLabel = label;
-        }
-    }
+	/**
+	 * Reads a block of text ended by a blank line or the end of the file.
+	 * The block contains lines of tokens with a label.
+	 * @param numLabels The maximal number of labels expected
+	 * @param tin 
+	 * @param tagDelimit
+	 * @param delimit
+	 * @param impDelimit
+	 * @param t Stores the labels
+	 * @param cArray Stores the tokens
+	 * @return number of lines read
+	 * @throws IOException
+	 */
+	public static int readRowVarCol(int numLabels, BufferedReader tin,
+			String tagDelimit, String delimit, String impDelimit, int[] t,
+			String[][] cArray) throws IOException {
+		int ptr = 0;
+		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
+		String line;
+		while ((line = tin.readLine()) != null) {
+			String[] parts = delimitPattern.split(line.toLowerCase());
+			if (parts.length == 2) {				
+				String w = parts[0];
+				int label = Integer.parseInt(parts[1]);
+				t[ptr] = label;
+				cArray[ptr++] = getTokenList(w, delimit, impDelimit);
+			} else {
+				return ptr;
+			}
+		}
+		return ptr;
+	}
 
     static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, String delimit, String impDelimit, int[] t, String[][] cArray, int labels[], StringTokenizer rawTok) throws IOException {
         String line=tin.readLine();
