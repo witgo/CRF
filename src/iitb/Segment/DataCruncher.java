@@ -348,8 +348,8 @@ public class DataCruncher {
 	}
 
     static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, 
-    		String delimit, String impDelimit, int[] t, String[][] cArray, int labels[], 
-    		StringTokenizer rawTok) throws IOException {
+    		String delimit, String impDelimit, int[] t, String[][] cArray, int labels[])
+    		throws IOException {
         String line=tin.readLine();
         if (line == null)
             return 0;
@@ -431,7 +431,7 @@ public class DataCruncher {
                 }
                 int ptr = 0;
                 if (fixedColFormat) {
-                    ptr = readRowFixedCol(numLabels, tin, tagDelimit, delimit, impDelimit,t,cArray,labels,rawTok);
+                    ptr = readRowFixedCol(numLabels, tin, tagDelimit, delimit, impDelimit,t,cArray,labels);
                 } else {
                     ptr = readRowVarCol(numLabels, tin, tagDelimit, delimit,impDelimit,t,cArray);
                 }
