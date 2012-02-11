@@ -347,14 +347,15 @@ public class DataCruncher {
 		return ptr;
 	}
 
-    static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, String delimit, String impDelimit, int[] t, String[][] cArray, int labels[], StringTokenizer rawTok) throws IOException {
+    static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, 
+    		String delimit, String impDelimit, int[] t, String[][] cArray, int labels[], 
+    		StringTokenizer rawTok) throws IOException {
         String line=tin.readLine();
         if (line == null)
             return 0;
         StringTokenizer firstSplit=new StringTokenizer(line.toLowerCase(),tagDelimit,true);
         int ptr = 0;
-        for (int i = 0; (i < labels.length) 
-        && firstSplit.hasMoreTokens(); i++) {
+        for (int i = 0; (i < labels.length) && firstSplit.hasMoreTokens(); i++) {
             int label = labels[i];
             String w = firstSplit.nextToken();
             if (tagDelimit.indexOf(w)!=-1) {
@@ -371,24 +372,40 @@ public class DataCruncher {
         }
         return ptr;
     }
-    static int[] readHeaderInfo(int numLabels, BufferedReader tin, String tagDelimit) throws IOException {
-        tin.mark(1000);
-        String line = tin.readLine();
-        if (line == null)
-            throw new IOException("Header row not present in tagged file");
-        // System.out.println(line);
-        if (! line.toLowerCase().startsWith("fixed-column-format")) {
-            tin.reset();
-            return null;
-        }
-        line = tin.readLine();
-        StringTokenizer firstSplit=new StringTokenizer(line,tagDelimit);
-        int labels[] = new int[numLabels];
-        for (int i = 0; (i < numLabels)&& firstSplit.hasMoreTokens();) {
-            labels[i++] = Integer.parseInt(firstSplit.nextToken());
-        }
-        return labels;
-    }
+
+    /**
+     * Checks, if the data are available in fixed column format, or variable
+     * column format.
+     * @param numLabels The maximal number of labels expected
+     * @param tin
+     * @param tagDelimit A character as String that acts as a delimiter between tokens and label.
+     * @return An array with labels if the data are in fixed column format, null otherwise.
+     * @throws IOException
+     */
+	protected static int[] readHeaderInfo(int numLabels, BufferedReader tin,
+			String tagDelimit) throws IOException {
+		tin.mark(1000);
+		String line = tin.readLine();
+		if (line == null) {
+			throw new IOException("Header row not present in tagged file");
+		}
+		if (!line.toLowerCase().startsWith("fixed-column-format")) {
+			tin.reset();
+			return null;
+		}
+		
+		line = tin.readLine();
+		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
+		String[] parts = delimitPattern.split(line);
+		int labels[] = new int[numLabels];
+		
+		for (int i = 0, size = parts.length; i < size; ++i) {
+			labels[i] = Integer.parseInt(parts[i]);
+		}
+
+		return labels;
+	}
+	
     public static TrainData readTagged(int numLabels,String tfile,String rfile,String delimit,String tagDelimit,String impDelimit, LabelMap labelMap) {
         try {
             Vector td = new Vector();

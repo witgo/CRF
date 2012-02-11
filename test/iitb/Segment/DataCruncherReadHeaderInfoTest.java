@@ -24,7 +24,7 @@ import org.junit.Test;
 public class DataCruncherReadHeaderInfoTest {
 	
 	private static final String tagged = "fixed-column-format\n"
-		+ "|3|5|6|7|\n"
+		+ "3|5|6|7\n"
 		+ "Homer Spit Road,|Homer,|AK|99603\n\n"
 		+ "Lnlck Shopping Center,|Anniston,|AL|36201";
 
