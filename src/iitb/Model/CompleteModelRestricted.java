@@ -1,16 +1,23 @@
-/*
+/** CompleteModelRestricted.java
  * Created on Jan 29, 2008
- * @author sunita
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
  */
 package iitb.Model;
 
 import java.util.HashSet;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 public class CompleteModelRestricted extends GenericModel {
 
-    public CompleteModelRestricted(String spec, int numLabels) throws Exception {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3151215795713987849L;
+
+	public CompleteModelRestricted(String spec, int numLabels) throws Exception {
         super(numLabels,0);
         StringTokenizer tokens = new StringTokenizer(spec,":");
         tokens.nextToken(); // this is the name of the model.

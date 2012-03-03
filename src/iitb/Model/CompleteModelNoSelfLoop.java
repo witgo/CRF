@@ -1,19 +1,25 @@
-/*
+/** CompleteModelNoSelfLoop.java
  * Created on Jan 29, 2008
- * @author sunita
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
  */
 package iitb.Model;
 
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /*
  * No self loop in any label except "other"
  */
 public class CompleteModelNoSelfLoop extends GenericModel {
-    public CompleteModelNoSelfLoop(String spec, int numLabels) throws Exception {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8650040567397288593L;
+
+	public CompleteModelNoSelfLoop(String spec, int numLabels) throws Exception {
         super(numLabels,0);
         StringTokenizer tokens = new StringTokenizer(spec,":");
         tokens.nextToken(); // this is the name of the model.

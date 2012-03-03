@@ -1,15 +1,18 @@
-package iitb.Model;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
-/**
+/** WordFeatures.java
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.1
+ * @version 1.3
  */ 
+package iitb.Model;
+import iitb.CRF.DataSequence;
 
 public class WordFeatures extends FeatureTypes {
-    protected int stateId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -202366673127245027L;
+	protected int stateId;
     int statePos;
     Object token;
     int tokenId;
