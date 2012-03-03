@@ -1,8 +1,15 @@
+/** GenericModel.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.Model;
 import gnu.trove.TIntArrayList;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
+import iitb.CRF.DataSequence;
+
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.StringTokenizer;
 /**
  *
  * @author Sunita Sarawagi
@@ -11,7 +18,11 @@ import java.io.*;
 
 
 public class GenericModel extends Model {
-    int _numStates;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6363225834538701213L;
+	int _numStates;
     Edge _edges[];  // edges have to be sorted by their starting node id.
     int edgeStart[]; // the index in the edges array where edges out of node i start.
     int startStates[];

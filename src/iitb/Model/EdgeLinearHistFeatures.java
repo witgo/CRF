@@ -1,17 +1,21 @@
-package iitb.Model;
-import gnu.trove.TIntIntHashMap;
-import iitb.CRF.*;
-
-/**
- *
+/** EdgeLinearHistFeatures.java
+ * 
  * @author Sunita Sarawagi
- *
+ * @version 1.3
+ * 
  * Suppose if history size is H and number of edges in the model graph
  * is E, this will generate HE features (for each history position
- * generate features for each possible edge)
- */ 
+ * generate features for each possible edge).
+ */
+package iitb.Model;
+import iitb.CRF.DataSequence;
 
 public class EdgeLinearHistFeatures extends FeatureTypes {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1362878603460516882L;
 	Object fnames[][];
 	int histsize;
 	boolean allDone;

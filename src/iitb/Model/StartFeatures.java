@@ -1,17 +1,17 @@
-package iitb.Model;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
-/**
+/** StartFeatures.java
  *
  * @author Sunita Sarawagi
- *
+ * @version 1.3
  */ 
-
-
+package iitb.Model;
+import iitb.CRF.DataSequence;
 
 public class StartFeatures  extends FeatureTypes {
-    int stateId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4603152016253011064L;
+	int stateId;
     int startStateNum;
     Object fname;
     public StartFeatures(FeatureGenImpl m) {
