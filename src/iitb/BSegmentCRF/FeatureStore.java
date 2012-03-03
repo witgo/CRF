@@ -1,6 +1,9 @@
-/*
+/** FeatureStore.java
  * Created on Apr 2, 2005
- *
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 package iitb.BSegmentCRF;
 
@@ -16,10 +19,6 @@ import java.util.Iterator;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-/**
- * @author sunita
- *
- */
 public class FeatureStore {
     BFeatureGenerator bfgen;
     int numLabels;
@@ -272,7 +271,7 @@ public class FeatureStore {
         int currentType;
         int currentLen;
         int s;
-        Iterator viter;
+        Iterator<Feature> viter;
         FeatureImpl featureImpl = new FeatureImpl();
         public void init() {
             int m = bfgen.maxBoundaryGap();
@@ -338,8 +337,8 @@ public class FeatureStore {
     public void getLogMi(int i, DoubleMatrix2D mi_YY) {
         double DEFAULT_VALUE = RobustMath.LOG0;
         mi_YY.assign(DEFAULT_VALUE);
-        for (Iterator iter = edgeFeatures.get(i).iterator(); iter.hasNext(); ) {
-            Feature f = (Feature)iter.next();
+        for (Iterator<Feature> iter = edgeFeatures.get(i).iterator(); iter.hasNext(); ) {
+            Feature f = iter.next();
             double oldVal = mi_YY.get(f.yprev(), f.y());
             if (oldVal == DEFAULT_VALUE)
                 oldVal = 0;
@@ -424,8 +423,8 @@ public class FeatureStore {
      */
     boolean printFeatures = false;
     private void addFeatures3(FeatureGenCache.AllFeatureCache.Flist vector, DoubleMatrix1D mat, boolean add) {
-        for (Iterator iter = vector.iterator(); iter.hasNext();) {
-            Feature feature = (Feature) iter.next();
+        for (Iterator<Feature> iter = vector.iterator(); iter.hasNext();) {
+            Feature feature = iter.next();
             if (printFeatures)
                 System.out.println(feature);
             int f = feature.index();
@@ -462,8 +461,8 @@ public class FeatureStore {
                 mat.set(y,oldVal-val);
         }
         if (printFeatures) {
-            for (Iterator iter = vector.iterator(); iter.hasNext();) {
-                Feature feature = (Feature) iter.next();
+            for (Iterator<Feature> iter = vector.iterator(); iter.hasNext();) {
+                Feature feature = iter.next();
                 System.out.println(bfgen.featureName(feature.index()));
             }
         }
