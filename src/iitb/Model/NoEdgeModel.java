@@ -1,12 +1,17 @@
-package iitb.Model;
-import iitb.CRF.*;
-/**
+/** NoEdgeModel.java
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.2
+ * @version 1.3
  */ 
+package iitb.Model;
+
 public class NoEdgeModel extends CompleteModel {
-    class EmptyEdgeIter implements EdgeIterator {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8955183589954114429L;
+	class EmptyEdgeIter implements EdgeIterator {
 	public void start(){}
 	public boolean hasNext(){return false;}
 	public Edge next(){return null;}
