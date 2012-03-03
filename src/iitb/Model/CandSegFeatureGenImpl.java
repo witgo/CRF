@@ -1,24 +1,24 @@
-/*
+/** CandSegFeatureGenImpl.java
  * Created on May 5, 2005
  *
+ * @author Sunita Sarawagi
+ * @version 1.3
  */
 package iitb.Model;
 
-import gnu.trove.TIntHashSet;
 import iitb.CRF.CandSegDataSequence;
-import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
-import iitb.CRF.Feature;
-import iitb.CRF.SegmentDataSequence;
-
-import java.util.Properties;
 
 /**
  * @author sunita
  *
  */
 public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
-    boolean length1SegsForOther=false;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 948213974126007086L;
+	boolean length1SegsForOther=false;
     int otherLabel = -1;
     public CandSegFeatureGenImpl(String modelSpecs, int numLabels,
             boolean addFeatureNow) throws Exception {
