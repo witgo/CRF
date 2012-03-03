@@ -1,14 +1,18 @@
+/** RobustMath.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.CRF;
 
 import iitb.CRF.Trainer.SumFunc;
 
-import java.io.Serializable;
-import java.util.*;
-import cern.colt.function.*;
+import java.util.TreeSet;
+
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.IntIntDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class RobustMath {
     public static double LOG0 = -1*Double.MAX_VALUE;
@@ -109,18 +113,19 @@ public class RobustMath {
         }
     };
     public static LogSumExp logSumExpFunc = new LogSumExp();
-    static void addNoDups(TreeSet vec, double v) {
+    //TODO: Should TreeSet<Double> be replaced with a Trove type?
+    static void addNoDups(TreeSet<Double> vec, double v) {
         Double val = new Double(v);
         if (!vec.add(val)) {
             vec.remove(val);
             addNoDups(vec, val.doubleValue()+LOG2);
         }
     }
-    public static double logSumExp(TreeSet logProbVector) {
+    public static double logSumExp(TreeSet<Double> logProbVector) {
         while ( logProbVector.size() > 1 ) {
-            double lp0 = ((Double)logProbVector.first()).doubleValue();
+            double lp0 = logProbVector.first();
             logProbVector.remove(logProbVector.first());
-            double lp1 = ((Double)logProbVector.first()).doubleValue();
+            double lp1 = logProbVector.first();
             logProbVector.remove(logProbVector.first());
             addNoDups(logProbVector,logSumExp(lp0,lp1));
         }
@@ -131,14 +136,14 @@ public class RobustMath {
 
     // matrix stuff for the older version..
     public static double logSumExp(DoubleMatrix1D logProb) {
-        TreeSet logProbVector = new TreeSet();
+        TreeSet<Double> logProbVector = new TreeSet<Double>();
         for ( int lpx = 0; lpx < logProb.size(); lpx++ )
             if (logProb.getQuick(lpx) != RobustMath.LOG0)
                 addNoDups(logProbVector,logProb.getQuick(lpx));
         return logSumExp(logProbVector);
     }
     public static double logSumExp(double[] ds) {
-        TreeSet logProbVector = new TreeSet();
+        TreeSet<Double> logProbVector = new TreeSet<Double>();
         for ( int lpx = 0; lpx < ds.length; lpx++ )
             if (ds[lpx] != RobustMath.LOG0)
                 addNoDups(logProbVector,ds[lpx]);
