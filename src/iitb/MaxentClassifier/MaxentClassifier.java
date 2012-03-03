@@ -1,8 +1,10 @@
 package iitb.MaxentClassifier;
-import java.util.*;
-import java.io.*;
-import iitb.CRF.*;
-import iitb.Utils.*;
+import iitb.CRF.CRF;
+import iitb.Utils.Options;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Vector;
 /**
  *
  * This class shows how to use the CRF package iitb.CRF for basic maxent 
@@ -44,7 +46,7 @@ public class MaxentClassifier {
         fData.openForRead(testFile,dataDesc);
         test(fData.iterator(),false);
     }
-    public void test(Iterator dataIter, boolean testOnly)  throws IOException {
+    public void test(Iterator<DataRecord> dataIter, boolean testOnly)  throws IOException {
 	int confMat[][] = new int[dataDesc.numLabels][dataDesc.numLabels];
 	while (dataIter.hasNext()) {
         DataRecord dataRecord = (DataRecord) dataIter.next();
