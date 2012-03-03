@@ -1,3 +1,9 @@
+/** FeatureGenImpl.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
+
 package iitb.Model;
 import gnu.trove.TIntHashSet;
 import iitb.CRF.*;
@@ -29,8 +35,8 @@ import java.io.*;
  * */
 
 public class FeatureGenImpl implements FeatureGeneratorNested {
-    Vector features;
-    transient Iterator featureIter;
+    ArrayList<FeatureTypes> features;
+    transient Iterator<FeatureTypes> featureIter;
     protected FeatureTypes currentFeatureType;
     protected FeatureImpl featureToReturn, feature;
     public Model model;
@@ -77,7 +83,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         addFeature(new FeatureTypesEachLabel(this,new ConcatRegexFeatures(this,0,0)));
     }
     protected FeatureTypes getFeature(int i) {
-        return (FeatureTypes)features.elementAt(i);
+        return features.get(i);
     }
     protected boolean keepFeature(DataSequence seq, FeatureImpl f) {
     	  if ((retainedFeatureTypes != null) && (retainedFeatureTypes.contains(currentFeatureType.getTypeId()+1)))
@@ -90,7 +96,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     }
     protected boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
-        Hashtable strToInt = new Hashtable();
+        Hashtable<FeatureIdentifier, FeatureImpl> strToInt = new Hashtable<FeatureIdentifier, FeatureImpl>();
         FeatureIdentifier idToName[];
         FeatureMap(){
             featureCollectMode = true;
@@ -99,7 +105,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             int id = getId(f.identifier());
             
             if ((id >= 0) && featureCollectMode) {
-                FeatureIdentifier storedFIdentifier = ((FeatureImpl)strToInt.get(f.identifier())).identifier();
+                FeatureIdentifier storedFIdentifier = (strToInt.get(f.identifier())).identifier();
                 if (!storedFIdentifier.name.equals(f.identifier().name)) {
                     System.out.println("WARNING: same feature-id for different feature names?: " 
                             + storedFIdentifier + ":" + f.identifier());
@@ -132,9 +138,10 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             //	    System.out.println(strToInt.size());
             featureCollectMode = false;
             idToName = new FeatureIdentifier[strToInt.size()];
-            for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
-                Object key = e.nextElement();
-                idToName[getId(key)] = (FeatureIdentifier)key;
+            for (Enumeration<FeatureIdentifier> e = strToInt.keys() ; e.hasMoreElements() ;) {
+                //TODO: Just add immediately
+            	FeatureIdentifier key = e.nextElement();
+                idToName[getId(key)] = key;
             }
             totalFeatures = strToInt.size();
         }
@@ -149,7 +156,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
         public void write(PrintWriter out) throws IOException {
             out.println("******* Features ************");
             out.println(strToInt.size());
-            for (Enumeration e = strToInt.keys() ; e.hasMoreElements() ;) {
+            for (Enumeration<FeatureIdentifier> e = strToInt.keys() ; e.hasMoreElements() ;) {
                 Object key = e.nextElement();
                 out.println(key + " " + getId(key));
             }
@@ -183,7 +190,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     }
     public FeatureGenImpl(Model m, int numLabels, boolean addFeatureNow) throws Exception {
         model = m;
-        features = new Vector();
+        features = new ArrayList<FeatureTypes>();
         featureToReturn = new FeatureImpl();
         feature = new FeatureImpl();
         featureMap = new FeatureMap();
@@ -296,7 +303,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     protected void advance(boolean returnWithId) {
         while (true) {
             for (;((currentFeatureType == null) || !currentFeatureType.hasNext()) && featureIter.hasNext();) {
-                currentFeatureType = (FeatureTypes)featureIter.next();
+                currentFeatureType = featureIter.next();
             }
             if (!currentFeatureType.hasNext())
                 break;
