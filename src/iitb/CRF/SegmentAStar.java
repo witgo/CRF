@@ -1,3 +1,8 @@
+/** SegmentAStar.java
+ * 
+ * @author imran
+ * @version 1.3
+ */
 package iitb.CRF;
 
 import gnu.trove.TIntArrayList;
@@ -37,7 +42,7 @@ public class SegmentAStar extends AStarInference {
     SegmentIterForward iter;
     
     OptimizedSparseMatrixMapper stateGenerator;//not used
-    ArrayList states;
+    ArrayList<SegmentState> states;
     TIntHashSet nextLabelsOnPath = null;
     int succEll, succPos;
     Soln lbSoln;
@@ -59,7 +64,7 @@ public class SegmentAStar extends AStarInference {
         segmentViterbi = new SegmentViterbi(model, forwardViterbiBeamSize);
         backwardSegmentViterbi = new SegmentViterbi(model, backwardViterbiBeamSize);
         iter = new SegmentIterForward(segmentViterbi.new SegmentIter());
-        states = new ArrayList();
+        states = new ArrayList<SegmentState>();
                        
         if(sparseMatrix){
             staticHeapOptSparseDoubleMatrix1D = new StaticHeapOptimizedSparseDoubleMatrix1D(0);
@@ -76,7 +81,7 @@ public class SegmentAStar extends AStarInference {
     public double bestLabelSequence(CandSegDataSequence dataSeq, double lambda[]) {
         double corrScore = aStarSearch(dataSeq, lambda, false);
         int pos;
-        //check whehter the search succeed or not
+        //check whether the search succeeded or not
         int segmentCount = 0;//profiling
         double score = goalState.g();
         if (goalState != null && goalState.goalState()) {
@@ -89,7 +94,7 @@ public class SegmentAStar extends AStarInference {
             assert (pos == 0);
             return score;
         } else {
-            //Error! Failure in A* search, finding solution using Vitrbi
+            //Error! Failure in A* search, finding solution using Viterbi
             Soln soln = getViterbiSoln(dataSeq, lambda, (SegmentState)goalState);
             if(soln == null || (lbSoln != null && Double.compare(soln.score, lbSoln.score) < 0)){
                 soln = lbSoln;
@@ -356,7 +361,7 @@ public class SegmentAStar extends AStarInference {
             }
             successors = new SegmentState[states.size()];
             for(int i = 0; i < states.size(); i++)
-                successors[i] = (SegmentState)states.get(i);
+                successors[i] = states.get(i);
             return successors;
         }
 
