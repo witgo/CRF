@@ -1,44 +1,44 @@
-/*
+/** FeatureGenCache.java
  * Created on Jul 20, 2005
  *
- */
-package iitb.CRF;
-
-/**
- * @author sunita
- *   
+ * @author Sunita Sarawagi
+ * @version 1.3
+ * 
  *   For each distinct feature-id there is a IntHashArray of variants of 
  *   the values and labels of the feature seen throughout the data.  This list is a vector of
  *   variantIds.  There is hash-map from variantIds to FeatureImpl.
  *   
  *   TODO: keeping vector of featureIds implies that insertion is quadratic--- need to make this efficient.
  */
-import iitb.Model.StartFeatures;
+package iitb.CRF;
 
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
-
-import cern.colt.matrix.DoubleMatrix1D;
 import gnu.trove.TIntArrayList;
-import gnu.trove.TIntIntHashMap;
 import gnu.trove.TIntObjectHashMap;
 import gnu.trove.TObjectProcedure;
+
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+
+import cern.colt.matrix.DoubleMatrix1D;
 
 public class FeatureGenCache implements FeatureGeneratorNested {
     private static final long serialVersionUID = 1L;
     FeatureGeneratorNested fgen;
     FeatureGenerator sfgen;
     TIntArrayList featureIds = new TIntArrayList();
-    Vector perSegmentFeatureOffsets = new Vector();
+    ArrayList<int[][][]> perSegmentFeatureOffsets = new ArrayList<int[][][]>();
     protected boolean firstScan=true;
     int dataIndex=-1;
     int scanNum=0;
     int dataIndexStart=0;
     static class DBKeysToIndexMap extends Hashtable<Integer,Integer> {
-        int prevId=-1;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -5371025071227735691L;
+		int prevId=-1;
         Integer pos;
         public int getDataIndex(DataSequence data) {
             int id = ((KeyedDataSequence)data).getKey();
@@ -64,8 +64,8 @@ public class FeatureGenCache implements FeatureGeneratorNested {
     DBKeysToIndexMap dbKeyToIndexMap=null;
 
     public static class AllFeatureCache {
-        Vector distinctFeatures;
-        Vector featureVariants;
+        ArrayList<FeatureImpl> distinctFeatures;
+        ArrayList<FeatureImpl> featureVariants;
 //      public FeatureVector edgeFeatureIds = new FeatureVector();
         public EdgeFeatures edgeFeatures = new EdgeFeatures();
         public boolean edgeFeaturesXIndependent = false;
@@ -215,8 +215,8 @@ public class FeatureGenCache implements FeatureGeneratorNested {
 
         public AllFeatureCache(boolean edgeFeaturesXIndependent) {
             this.edgeFeaturesXIndependent = edgeFeaturesXIndependent;
-            distinctFeatures = new Vector();
-            featureVariants = new Vector();
+            distinctFeatures = new ArrayList<FeatureImpl>();
+            featureVariants = new ArrayList<FeatureImpl>();
         }
         public int add(Feature f) {
             int numAdd = f.index()+1-distinctFeatures.size();
@@ -225,9 +225,9 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             }
             if (distinctFeatures.get(f.index())==null) {
                 if (f.yprev() >= 0)
-                    distinctFeatures.setElementAt(new FeatureCacheWithYPrev(f),f.index());
+                    distinctFeatures.set(f.index(), new FeatureCacheWithYPrev(f));
                 else 
-                    distinctFeatures.setElementAt(new FeatureCache(f),f.index());
+                    distinctFeatures.set(f.index(), new FeatureCache(f));
                 return f.index();
             } else {
                 return ((FeatureImpl)(distinctFeatures.get(f.index()))).add(f);
@@ -327,7 +327,11 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         }
         double DEFAULT_VALUE = RobustMath.LOG0;
         public class Flist extends FeatureVector {
-            public DoubleMatrix1D mat;
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = -8388201269131208682L;
+			public DoubleMatrix1D mat;
             Flist(int numLabels) {
                 mat = new LogDenseDoubleMatrix1D(numLabels);
                 mat.assign(DEFAULT_VALUE);
