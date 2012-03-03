@@ -1,5 +1,8 @@
-/* SparseViterbi.java
+/** SparseViterbi.java
+ * Viterbi search.
+ * 
  * @author Sunita Sarawagi
+ * @since 1.2
  * @version 1.3
  */
 package iitb.CRF;
@@ -8,24 +11,27 @@ import iitb.Utils.StaticObjectHeap;
 
 import java.util.Stack;
 
-import cern.colt.function.*;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.function.IntIntDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.*;
-/**
- *
- * Viterbi search
- *
- * @author Sunita Sarawagi
- *
- */ 
+import cern.colt.matrix.impl.DenseObjectMatrix1D;
 
 public class SparseViterbi extends Viterbi {
-    protected SparseViterbi(CRF model, int bs) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -496598232351755202L;
+
+	protected SparseViterbi(CRF model, int bs) {
         super(model,bs);
     }
     public class Context extends DenseObjectMatrix1D {
-        protected int pos;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 6590594788796602787L;
+		protected int pos;
         protected int beamsize;
         protected int startPos=0;
        
