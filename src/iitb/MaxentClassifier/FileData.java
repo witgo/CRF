@@ -1,3 +1,8 @@
+/** FileData.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.MaxentClassifier;
 import java.io.*;
 import java.util.*;
@@ -43,9 +48,9 @@ public class FileData {
 	}
 	return allRecords;
     }
-    static void write(String fileName, Vector allRecords, int numColumns, String colSep) throws IOException {
+    static void write(String fileName, Vector<DataRecord> allRecords, int numColumns, String colSep) throws IOException {
 	PrintWriter out=new PrintWriter(new FileOutputStream(fileName));
-	for(Enumeration e = allRecords.elements(); e.hasMoreElements();) {
+	for(Enumeration<DataRecord> e = allRecords.elements(); e.hasMoreElements();) {
 	    DataRecord dataRecord = (DataRecord)e.nextElement();
 	    for (int i = 0; i < numColumns; i++) {
 		out.print(dataRecord.getColumn(i) + colSep);
