@@ -1,13 +1,14 @@
-/*
+/* FeatureStoreCache.java
  * Created on May 31, 2005
  *
+ * @author Sunita Sarawagi
+ * @version 1.3
  */
 package iitb.BSegmentCRF;
 
-import java.util.Vector;
-
 import iitb.CRF.DataSequence;
-import iitb.CRF.FeatureGenCache;
+
+import java.util.ArrayList;
 
 /**
  * @author sunita
@@ -15,7 +16,7 @@ import iitb.CRF.FeatureGenCache;
  */
 public class FeatureStoreCache extends FeatureStore {
     boolean cache= false;
-    Vector fstores = new Vector();
+    ArrayList<FeatureStore> fstores = new ArrayList<FeatureStore>();
     int numIters = 0;
     public FeatureStoreCache(boolean cache, boolean edgeFeatureXIndependent) {
         super(edgeFeatureXIndependent);
