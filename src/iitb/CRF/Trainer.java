@@ -1,20 +1,24 @@
+/** Trainer.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3 
+ */
 package iitb.CRF;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
-import riso.numerical.*;
-import cern.colt.function.*;
-import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
-import gnu.trove.TIntArrayList;
-import iitb.CRF.HistoryManager.*;
-import iitb.Model.FeatureImpl;
+import riso.numerical.LBFGS;
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.DoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 /**
  *
  * @author Sunita Sarawagi

@@ -1,17 +1,20 @@
-/*
+/* BSegmentTrainer.java
  * Created on Apr 2, 2005
  *
+ * @author Sunita Sarawagi
+ * @version 1.3
  */
 package iitb.BSegmentCRF;
 
-
-import iitb.CRF.*;
-
-import java.io.*;
-import java.util.*;
-
-import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
+import iitb.CRF.CRF;
+import iitb.CRF.CrfParams;
+import iitb.CRF.DataIter;
+import iitb.CRF.DataSequence;
+import iitb.CRF.FeatureGenerator;
+import iitb.CRF.RobustMath;
+import iitb.CRF.SegmentTrainer;
+import iitb.CRF.Segmentation;
+import cern.colt.matrix.DoubleMatrix1D;
 
 /**
  *

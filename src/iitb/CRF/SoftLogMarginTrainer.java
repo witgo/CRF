@@ -1,6 +1,8 @@
-/*
+/* SoftLogMarginTrainer.java
  * Created on Oct 16, 2007
+ * 
  * @author sunita
+ * @version 1.3
  * 
  * Objective is log (sum_y hammingLoss(y)*exp(W.(F(xi,y)-F(xi,yi))))
  * 
@@ -8,7 +10,6 @@
 package iitb.CRF;
 
 import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 
 public class SoftLogMarginTrainer extends Trainer {

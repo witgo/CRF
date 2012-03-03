@@ -1,7 +1,10 @@
+/** UnknownFeature.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.Model;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
+import iitb.CRF.DataSequence;
 
 /**
  *
