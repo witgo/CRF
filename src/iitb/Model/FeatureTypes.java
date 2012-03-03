@@ -1,22 +1,31 @@
 package iitb.Model;
+import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import iitb.CRF.*;
+
 /**
  *
  * Inherit from the FeatureTypes class for creating any kind of
  * feature. You will see various derived classes from them,
  * EdgeFeatures, StartFeatures, etc, etc.  The ".id" field of
- * FeatureImpl does not need to be set by the FEatureTypes.next()
+ * FeatureImpl does not need to be set by the FeatureTypes.next()
  * methods.
  *
  * @author Sunita Sarawagi
+ * @since 1.0
+ * @version 1.3
  */
 
 public abstract class FeatureTypes implements Serializable {
-    int thisTypeId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8062238861233186461L;
+	int thisTypeId;
     private FeatureGenImpl fgen;
     public Model model;
     public boolean cache = false;

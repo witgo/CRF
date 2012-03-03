@@ -7,9 +7,11 @@
  */
 
 package iitb.BSegment;
-import iitb.Model.*;
 import iitb.CRF.DataSequence;
-import java.io.*;
+import iitb.Model.FeatureTypes;
+import iitb.Model.WindowFeatures;
+
+import java.io.Serializable;
 
 public class BWindowFeatureMultiNew extends WindowFeatures implements BoundaryFeatureFunctions {
 	/**
@@ -57,6 +59,10 @@ public class BWindowFeatureMultiNew extends WindowFeatures implements BoundaryFe
 	final static int WIN_MIDDLE = 2;
 
 	private class Boundary implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		public int start;
 		public int end;
 		public Boundary() {	start = end = 0;}
