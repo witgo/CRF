@@ -1,11 +1,13 @@
-package iitb.MaxentClassifier;
-import java.util.*;
-import iitb.CRF.*;
-/**
- *
+/** DataSet.java
+ * 
  * @author Sunita Sarawagi
- *
- */ 
+ * @since 1.0
+ * @version 1.3
+ */
+package iitb.MaxentClassifier;
+import java.util.Vector;
+import iitb.CRF.DataIter;
+import iitb.CRF.DataSequence;
 
 public class DataSet implements DataIter {
     Vector allRecords;
