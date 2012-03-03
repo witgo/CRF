@@ -1,15 +1,22 @@
-package iitb.Segment;
-import java.io.*;
-import java.util.*;
-import java.util.regex.Pattern;
-
-import iitb.CRF.*;
-/**
+/** DataCruncher.java
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
+package iitb.Segment;
+import iitb.CRF.DataSequence;
+import iitb.CRF.Segmentation;
 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.regex.Pattern;
 
 class DCTrainRecord implements TrainRecord, Segmentation {
 
@@ -295,7 +302,7 @@ public class DataCruncher {
 	 * 
 	 * @param text 
 	 * @param delimit A set of delimiters used by the Tokenizer.
-	 * @param impDelimit 
+	 * @param impDelimit Delimiters to be retained for tagging. 
 	 * @return an Array of tokens.
 	 */
 	protected static String[] getTokenList(String text, String delimit,
@@ -321,9 +328,9 @@ public class DataCruncher {
 	 * The block contains lines of tokens with a label.
 	 * @param numLabels The maximal number of labels expected
 	 * @param tin 
-	 * @param tagDelimit
-	 * @param delimit
-	 * @param impDelimit
+	 * @param tagDelimit Separator between tokens and tag number
+	 * @param delimit Used to define token boundaries
+	 * @param impDelimit Delimiters to be retained for tagging
 	 * @param t Stores the labels
 	 * @param cArray Stores the tokens
 	 * @return number of lines read
@@ -333,20 +340,22 @@ public class DataCruncher {
 			String tagDelimit, String delimit, String impDelimit, int[] t,
 			String[][] cArray) throws IOException {
 		int ptr = 0;
-		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
 		String line;
-		while ((line = tin.readLine()) != null) {
-			String[] parts = delimitPattern.split(line.toLowerCase());
-			if (parts.length == 2) {				
-				String w = parts[0];
-				int label = Integer.parseInt(parts[1]);
-				t[ptr] = label;
-				cArray[ptr++] = getTokenList(w, delimit, impDelimit);
-			} else {
-				return ptr;
-			}
-		}
-		return ptr;
+        while(true) {
+            line = tin.readLine();
+            StringTokenizer firstSplit=null;
+            if (line!=null) {
+                firstSplit=new StringTokenizer(line.toLowerCase(),tagDelimit);
+            }
+            if ((line==null) || (firstSplit.countTokens()<2)) {
+                // Empty Line
+                return ptr;
+            }
+            String w = firstSplit.nextToken();
+            int label=Integer.parseInt(firstSplit.nextToken()); 
+            t[ptr] = label;
+            cArray[ptr++] = getTokenList(w,delimit,impDelimit);
+        }
 	}
 
     static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, 
@@ -395,7 +404,7 @@ public class DataCruncher {
 			tin.reset();
 			return null;
 		}
-		
+
 		line = tin.readLine();
 		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
 		String[] parts = delimitPattern.split(line);
@@ -495,7 +504,6 @@ public class DataCruncher {
      * @param tagDelimit A character as String that acts as a delimiter between tokens and label.
      */
 	public static void createRaw(String file, String tagDelimit) {
-		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
 		BufferedReader in = null;
 		PrintWriter out = null;
 		try {
@@ -504,16 +512,16 @@ public class DataCruncher {
 			String line;
 			StringBuilder rawLine;
 			rawLine = new StringBuilder(200);
-			while ((line = in.readLine()) != null) {
-				String[] parts = delimitPattern.split(line);
-				if (parts.length < 2) {
+            while((line=in.readLine())!=null) {
+                StringTokenizer t=new StringTokenizer(line,tagDelimit);
+                if(t.countTokens()<2) {
 					out.println(rawLine);
 					rawLine.setLength(0);
-				} else {
-					rawLine.append(" ");
-					rawLine.append(parts[0]);
-				}
-			}
+                } else {
+                    rawLine.append(" ");
+					rawLine.append(t.nextToken());
+                }
+            }
 			out.println(rawLine);
 		} catch (IOException e) {
 			System.out.println("I/O Error" + e);
