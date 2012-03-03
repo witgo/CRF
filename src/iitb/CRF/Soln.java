@@ -1,16 +1,14 @@
-/*
+/** Soln.java
  * Created on Apr 25, 2005
- *
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 package iitb.CRF;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
-/**
- * @author sunita
- *
- */
 public class Soln implements Serializable, Comparable {
     private static final long serialVersionUID = 812L;
     public float score=-1*Float.MAX_VALUE;
