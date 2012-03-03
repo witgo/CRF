@@ -1,3 +1,8 @@
+/** WordsInTrain.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.Model;
 import java.util.*;
 import java.io.*;
@@ -14,8 +19,16 @@ import iitb.CRF.*;
 
 
 public class WordsInTrain implements Serializable {
-    class HEntry implements Serializable {
-        int index;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4743850971317817295L;
+	class HEntry implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7173469259440218615L;
+		int index;
         int cnt;
         int stateArray[];
         HEntry(int v) {
@@ -28,8 +41,13 @@ public class WordsInTrain implements Serializable {
             stateArray = new int[numStates];
         }
     };
+    //TODO: Might be improved by generics.
     class Dictionary extends Hashtable<Object,HEntry> {
-        @Override
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -6961655882827666386L;
+		@Override
         public synchronized boolean containsKey(Object key) {
             return super.containsKey(getKey(key));
         }
@@ -66,14 +84,14 @@ public class WordsInTrain implements Serializable {
         return cntsArray[pos];
     }
     public int getIndex(Object w) {
-        return ((HEntry)(dictionary.get(w))).index;
+        return ((dictionary.get(w))).index;
     }
    
     boolean inDictionary(Object w) {
         return (dictionary.get(w) != null);
     }
     public int count(Object w) {
-        HEntry entry = (HEntry)dictionary.get(w);
+        HEntry entry = dictionary.get(w);
         return ((entry != null)?entry.cnt:0);
     }
     public int count(int wordPos, int state) {
@@ -104,7 +122,7 @@ public class WordsInTrain implements Serializable {
     }
     public Enumeration allWords() {return dictionary.keys();}
     private void addDictElem(Object x, int y) {
-        HEntry index = (HEntry)dictionary.get(x);
+        HEntry index = dictionary.get(x);
         if (index == null) {
             index = new HEntry(dictionary.size());
             dictionary.put(x, index);
@@ -112,7 +130,7 @@ public class WordsInTrain implements Serializable {
         index.cnt++;
     }
     protected void addDictElem(Object x, int y, int nelems) {
-        HEntry index = (HEntry)dictionary.get(x);
+        HEntry index = dictionary.get(x);
         if (index == null) {
             index = new HEntry(dictionary.size(),nelems);
             dictionary.put(x, index);
@@ -133,7 +151,7 @@ public class WordsInTrain implements Serializable {
         cntsArray = new int[dictionary.size()][0];
         for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
             Object key = e.nextElement();
-            HEntry entry = (HEntry)dictionary.get(key);
+            HEntry entry = dictionary.get(key);
             cntsArray[entry.index] = entry.stateArray;
         }   
         setAggregateCnts(numStates);
