@@ -1,20 +1,19 @@
+/** Viterbi.java
+ *
+ * Viterbi search.
+ *
+ * @author Sunita Sarawagi
+ * @since 1.1
+ * @version 1.3
+ */ 
 package iitb.CRF;
-
-
-import iitb.CRF.SegmentViterbi.SegmentationImpl;
 
 import java.io.Serializable;
 
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.*;
-/**
- *
- * Viterbi search
- *
- * @author Sunita Sarawagi
- *
- */ 
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class Viterbi implements Serializable {
     private static final long serialVersionUID = 8122L;
