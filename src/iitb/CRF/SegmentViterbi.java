@@ -1,22 +1,23 @@
+/** SegmentViterbi.java
+ * 
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.CRF;
 
-import iitb.CRF.Viterbi.Entry;
+import gnu.trove.TIntFloatHashMap;
+import gnu.trove.TIntHashSet;
+import gnu.trove.TIntIterator;
+import gnu.trove.TIntProcedure;
+
+import iitb.CRF.SegmentViterbi.SegmentationImpl.Segment;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
-import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-
-import gnu.trove.TIntFloatHashMap;
-import gnu.trove.TIntHashSet;
-import gnu.trove.TIntIntHashMap;
-import gnu.trove.TIntIterator;
-import gnu.trove.TIntProcedure;
 
 /**
  *
@@ -25,7 +26,11 @@ import gnu.trove.TIntProcedure;
  */ 
 
 public class SegmentViterbi extends SparseViterbi {
-    protected SegmentCRF segmentModel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3055942733801323491L;
+	protected SegmentCRF segmentModel;
     protected FeatureGeneratorNested featureGenNested;
     public static class LabelConstraints  {
         private static final long serialVersionUID = 1L;
@@ -463,7 +468,7 @@ public class SegmentViterbi extends SparseViterbi {
                 return end - ((Segment)arg0).end;
             }
         }
-        TreeSet segments = new TreeSet();
+        TreeSet<Segment> segments = new TreeSet<Segment>();
         Segment segmentArr[]=null;
         Segment dummySegment = new Segment(0,0,0);
         /* (non-Javadoc)
@@ -514,8 +519,8 @@ public class SegmentViterbi extends SparseViterbi {
         public void doneAdd() {
             segmentArr = new Segment[segments.size()];
             int p = 0;
-            for (Iterator iter = segments.iterator(); iter.hasNext();) {
-                segmentArr[p++] = (Segment) iter.next();
+            for (Iterator<Segment> iter = segments.iterator(); iter.hasNext();) {
+                segmentArr[p++] = iter.next();
             }
             for (int i = segmentArr.length-1; i >= 0; segmentArr[i].id = i, i--);
         }
