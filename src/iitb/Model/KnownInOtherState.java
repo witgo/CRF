@@ -1,15 +1,19 @@
-package iitb.Model;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
-/**
+/** KnownInOtherState.java
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.2
+ * @version 1.3
  */ 
 
+package iitb.Model;
+import iitb.CRF.DataSequence;
+
 public class KnownInOtherState extends FeatureTypes {
-    int stateId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9116122948866020445L;
+	int stateId;
     WordsInTrain dict;
     float wordFreq;
     int wordPos;
