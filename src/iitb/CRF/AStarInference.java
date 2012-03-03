@@ -34,7 +34,7 @@ public class AStarInference implements Serializable {
 
     DataSequence dataSeq;
 
-    TIntObjectHashMap conflictingLabels;
+    TIntObjectHashMap<BitSet> conflictingLabels;
 
     Model graphModel;
 
@@ -135,7 +135,7 @@ public class AStarInference implements Serializable {
             debug = true;
     }
 
-    public AStarInference(CRF model, int bs, TIntObjectHashMap confLabelMap,
+    public AStarInference(CRF model, int bs, TIntObjectHashMap<TIntHashSet> confLabelMap,
             Model graphModel) {
         this.model = model;
         this.graphModel = graphModel;
@@ -148,10 +148,10 @@ public class AStarInference implements Serializable {
         initConflictLables(confLabelMap);        
     }
 
-    private void initConflictLables(TIntObjectHashMap confLabelMap) {
+    private void initConflictLables(TIntObjectHashMap<TIntHashSet> confLabelMap) {
         if (confLabelMap == null || confLabelMap.size() == 0)
             return;
-        conflictingLabels = new TIntObjectHashMap();
+        conflictingLabels = new TIntObjectHashMap<BitSet>();
         int keys[] = confLabelMap.keys();
         TIntHashSet labelSet;
         BitSet bitSet;
@@ -175,7 +175,7 @@ public class AStarInference implements Serializable {
         double corrScore = aStarSearch(dataSeq, lambda, true);
         //constraintCheck = false;
         int pos;
-        //check whehter the search succeed or not
+        //check whether the search succeeded or not
         boolean nonMatch = false;
         int lastPos = 0, lastLabel = 0;
 
@@ -201,7 +201,7 @@ public class AStarInference implements Serializable {
         //      allocate data structures
         allocateScratch(model.numY, dataSeq.length());
 
-        if (!getUpperBoundSoultion(dataSeq, lambda)) {
+        if (!getUpperBoundSolution(dataSeq, lambda)) {
             goalState = null;
             return 0;
         }
@@ -216,7 +216,7 @@ public class AStarInference implements Serializable {
 
     Soln lastUbSoln;
 
-    private boolean getUpperBoundSoultion(DataSequence dataSeq, double[] lambda) {
+    private boolean getUpperBoundSolution(DataSequence dataSeq, double[] lambda) {
         int seqLength = dataSeq.length(), pos = 0;
 
         viterbi.viterbiSearchBackward(dataSeq, lambda, Mi, Ri, false);
@@ -279,11 +279,11 @@ public class AStarInference implements Serializable {
         return null;
     }
 
-    public TIntObjectHashMap getConflictingLabels() {
+    public TIntObjectHashMap<BitSet> getConflictingLabels() {
         return conflictingLabels;
     }
 
-    public void setConflictingLabels(TIntObjectHashMap conflictingLabels) {
+    public void setConflictingLabels(TIntObjectHashMap<BitSet> conflictingLabels) {
         this.conflictingLabels = conflictingLabels;
     }
 
