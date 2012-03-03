@@ -1,21 +1,26 @@
+/** Segment.java
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.0
+ * @version 1.3
+ */
 package iitb.Segment;
-import java.io.*;
-import java.util.*;
-
-
 import iitb.BSegment.BFeatureGenImpl;
 import iitb.BSegmentCRF.BSegmentCRF;
-import iitb.CRF.*;
-import iitb.Model.*;
-import iitb.Utils.*;
-import java.lang.UnsupportedOperationException;
-/**
- *
- * @author Sunita Sarawagi
- *
- */ 
+import iitb.CRF.CRF;
+import iitb.CRF.FeatureGenerator;
+import iitb.CRF.NestedCRF;
+import iitb.CRF.SegmentDataSequence;
+import iitb.CRF.Segmentation;
+import iitb.CRF.Util;
+import iitb.Model.FeatureGenImpl;
+import iitb.Model.NestedFeatureGenImpl;
+import iitb.Utils.Options;
 
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 public class Segment {
     String inName;
@@ -158,7 +163,11 @@ public class Segment {
         }
     }
     class TestRecord implements SegmentDataSequence, Segmentation {
-        String seq[];
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -9126147224366724551L;
+		String seq[];
         int path[];
         TestRecord(String s[]) {
             seq=s;
@@ -299,7 +308,7 @@ public class Segment {
         return st;
     }
     public void calc() throws Exception {
-        Vector s=new Vector();
+        Vector<String[]> s = new Vector<String[]>();
         TrainData tdMan = DataCruncher.readTagged(nlabels,baseDir+"/data/"+inName+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap);
         TrainData tdAuto = DataCruncher.readTagged(nlabels,baseDir+"/out/"+outDir+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap);
         DataCruncher.readRaw(s,baseDir+"/data/"+inName+"/"+inName+".test","","");
