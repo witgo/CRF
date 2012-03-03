@@ -1,3 +1,7 @@
+/* SparseViterbi.java
+ * @author Sunita Sarawagi
+ * @version 1.3
+ */
 package iitb.CRF;
 
 import iitb.Utils.StaticObjectHeap;
@@ -134,7 +138,7 @@ public class SparseViterbi extends Viterbi {
             for (i = soln.pos; i >= 0; i--)
                 context[i].clear();
             
-            Stack stack = new Stack();
+            Stack<Soln> stack = new Stack<Soln>();
             while(soln != null){
                 stack.push(soln);
                 soln = soln.prevSoln;
