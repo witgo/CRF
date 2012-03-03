@@ -1,11 +1,13 @@
-/*
+/** KernelCRF.java
  * Created on Jun 28, 2008
- * @author sunita
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
  */
 package iitb.KernelCRF;
 
 import iitb.CRF.CRF;
-import iitb.CRF.CrfParams;
 import iitb.CRF.DataIter;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Evaluator;
@@ -17,8 +19,16 @@ import java.util.Properties;
 import java.util.Vector;
 
 public class KernelCRF extends CRF {
-    public static class SupportVector implements Serializable {
-        DataSequence dataSeq;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5041774715605661933L;
+	public static class SupportVector implements Serializable {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -5611055066177234585L;
+		DataSequence dataSeq;
         YSequence yseq;
         double alpha;
         public SupportVector(DataSequence dataSeq, YSequence yseq, double alpha) {
