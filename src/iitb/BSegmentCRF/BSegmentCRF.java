@@ -1,22 +1,22 @@
-/*
+/** BSegmentCRF.java
  * Created on Apr 14, 2005
  *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ * 
+ * BSegmentCRF (A significantly faster version of Semi-CRFs that employs a compact feature representation) 
+ * for fast training and inference of semi-Markov models.
  */
 package iitb.BSegmentCRF;
 
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentCRF;
+import iitb.CRF.Trainer;
+import iitb.CRF.Viterbi;
+
 import java.util.Properties;
-
-import gnu.trove.TIntDoubleHashMap;
-import iitb.CRF.*;
-
-/**
-*
-* BSegmentCRF (A significantly faster version of Semi-CRFs that employs a compact feature representation) 
-* for fast training and inference of semi-Markov models.
-*  
-* @author Sunita Sarawagi
-*
-*/ 
 
 public class BSegmentCRF extends SegmentCRF {
     BFeatureGenerator bfgen;

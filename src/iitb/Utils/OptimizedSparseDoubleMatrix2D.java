@@ -1,14 +1,14 @@
-/*
+/** OptimizedSparseDoubleMatrix2D.java
  * Created on Jun 3, 2005
+ * 
+ * @author Imran Mansuri
+ * @since 1.2
+ * @version 1.3
  */
 package iitb.Utils;
 
-import gnu.trove.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
-/**
- * @author imran
- *
- */
 public class OptimizedSparseDoubleMatrix2D {
     TIntObjectHashMap rows; //row-index --> row (OptimizedSparseDoubleMatrix1D
 

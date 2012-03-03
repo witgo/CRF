@@ -1,21 +1,16 @@
 /** GenericModel.java
  * 
  * @author Sunita Sarawagi
+ * @since 1.0
  * @version 1.3
  */
 package iitb.Model;
-import gnu.trove.TIntArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import iitb.CRF.DataSequence;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.StringTokenizer;
-/**
- *
- * @author Sunita Sarawagi
- *
- */ 
-
 
 public class GenericModel extends Model {
     /**

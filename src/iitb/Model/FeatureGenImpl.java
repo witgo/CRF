@@ -1,15 +1,31 @@
 /** FeatureGenImpl.java
  * 
  * @author Sunita Sarawagi
+ * @since 1.0
  * @version 1.3
  */
 
 package iitb.Model;
-import gnu.trove.TIntHashSet;
-import iitb.CRF.*;
+import gnu.trove.set.hash.TIntHashSet;
+import iitb.CRF.DataIter;
+import iitb.CRF.DataSequence;
+import iitb.CRF.Feature;
+import iitb.CRF.FeatureGeneratorNested;
+import iitb.CRF.SegmentDataSequence;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * The FeatureGenerator is an aggregator over all these different

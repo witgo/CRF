@@ -1,9 +1,16 @@
+/** NestedModel.java
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.0
+ * @version 1.3
+ */
 package iitb.Model;
-import gnu.trove.TIntArrayList;
-import iitb.CRF.*;
+import gnu.trove.list.array.TIntArrayList;
+import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentDataSequence;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.StringTokenizer;
 
 public class NestedModel extends Model {
     int _numStates;

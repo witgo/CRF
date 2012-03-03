@@ -2,6 +2,7 @@
  * Created on Jul 20, 2005
  *
  * @author Sunita Sarawagi
+ * @since 1.2
  * @version 1.3
  * 
  *   For each distinct feature-id there is a IntHashArray of variants of 
@@ -12,9 +13,9 @@
  */
 package iitb.CRF;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntObjectHashMap;
-import gnu.trove.TObjectProcedure;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.procedure.TObjectProcedure;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -299,7 +300,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
                 return (Feature) featureVariants.get(-1*featureId-1);
             }
         }
-        public class FIterator implements Iterator {
+        public class FIterator implements Iterator<Feature> {
             int index;
             int sz;
             TIntArrayList intArr;
@@ -311,19 +312,35 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             public boolean hasNext() {
                 return index < sz;
             }
-            public Object next() {
+            public Feature next() {
                 return AllFeatureCache.this.get(intArr.get(index++));
             }
             public void remove() {
             }
         }
-        public class FeatureVector extends TIntArrayList {
+        public class FeatureVector {
+        	TIntArrayList intList = new TIntArrayList();
+            public void add(int value) {
+                this.intList.add(value);
+            }        	
             public void add(Feature f) {
-                add(AllFeatureCache.this.add(f));
+                this.intList.add(AllFeatureCache.this.add(f));
             }
-            public Iterator iterator() {
-                return new FIterator(this);
+            public int get(int value) {
+                return this.intList.get(value);
             }
+            public void clear() {
+                this.intList.clear();
+            } 
+            public int size() {
+                return this.intList.size();
+            } 
+            public Iterator<Feature> iterator() {
+                return new FIterator(this.intList);
+            }
+            public boolean contains(int value) {
+                return this.intList.contains(value);
+            }            
         }
         double DEFAULT_VALUE = RobustMath.LOG0;
         public class Flist extends FeatureVector {
@@ -347,8 +364,8 @@ public class FeatureGenCache implements FeatureGeneratorNested {
             public void calcMatrix(double lambda[]) {
                 if (size()==0) return;
                 mat.assign(DEFAULT_VALUE);
-                for (Iterator iter = iterator(); iter.hasNext();) {
-                    Feature f = (Feature) iter.next();
+                for (Iterator<Feature> iter = iterator(); iter.hasNext();) {
+                    Feature f = iter.next();
                     double oldVal = mat.get(f.y());
                     if (oldVal == DEFAULT_VALUE)
                         oldVal = 0;

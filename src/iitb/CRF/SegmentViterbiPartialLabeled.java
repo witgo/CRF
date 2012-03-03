@@ -1,7 +1,12 @@
+/** SegmentViterbiPartialLabeled.java
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
+ */
 package iitb.CRF;
 
-import gnu.trove.TIntHashSet;
-import iitb.CRF.SegmentViterbi.LabelConstraints;
+import gnu.trove.set.hash.TIntHashSet;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 

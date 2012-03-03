@@ -1,11 +1,14 @@
+/** OptimizedSparseDoubleMatrix1D.java
+ * 
+ * @author Imran Mansuri
+ * @since 1.2
+ * @version 1.3
+ */
 package iitb.Utils;
 
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntDoubleProcedure;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.procedure.TIntDoubleProcedure;
 
-/**
- * @author imran
- */
 public class OptimizedSparseDoubleMatrix1D implements TIntDoubleProcedure{
 
     TIntDoubleHashMap values;

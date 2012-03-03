@@ -1,10 +1,13 @@
-/*
+/** FeatureGenSelectiveCache.java
  * Created on Jul 19, 2005
  *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 package iitb.Model;
 
-import gnu.trove.TIntIntHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import iitb.CRF.DataSequence;
 import iitb.CRF.Feature;
 import iitb.CRF.FeatureGenCache;

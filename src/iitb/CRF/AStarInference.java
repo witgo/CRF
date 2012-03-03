@@ -1,7 +1,15 @@
+/** AStarInference.java
+ * 
+ * @author Imran Mansuri
+ * @since 1.2
+ * @version 1.3
+ * 
+ * A* search 
+ */
 package iitb.CRF;
 
-import gnu.trove.TIntHashSet;
-import gnu.trove.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.hash.TIntHashSet;
 import iitb.AStar.AStarSearch;
 import iitb.AStar.State;
 import iitb.CRF.Viterbi.Entry;
@@ -9,19 +17,11 @@ import iitb.Model.Model;
 
 import java.io.Serializable;
 import java.util.BitSet;
- 
+
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.impl.*;
-
-/**
- * 
- * A* search
- * 
- * 
- * @author Imran Mansuri
- *  
- */
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
 public class AStarInference implements Serializable {
     private static final long serialVersionUID = 81236L;
@@ -67,6 +67,15 @@ public class AStarInference implements Serializable {
     
     boolean debug = false;
 
+    protected class CloneableIntSet extends TIntHashSet implements Cloneable{
+        public Object clone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException cnse) {
+                return null; // it's supported
+            }
+        }
+    }
     
     protected AStarInference() {
     }
@@ -288,7 +297,7 @@ public class AStarInference implements Serializable {
         AStarState predecessor;
 
         BitSet assignedLabels;
-        TIntHashSet labelsOnPath;
+        protected CloneableIntSet labelsOnPath;
 
         public AStarState(int pos, int label, double h, double g,
                 AStarState predecessor, BitSet assignedLabels) {

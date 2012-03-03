@@ -1,16 +1,20 @@
-package iitb.Model;
-import java.io.Serializable;
-
-import gnu.trove.TIntArrayList;
-import iitb.CRF.*;
-/**
+/** Model.java
  *
  * This class and its children provide various graph classes. This
  * allows you to create CRFs where you can have more than one state
  * per label.
  *
  * @author Sunita Sarawagi
+ * @since 1.0
+ * @version 1.3
  */
+package iitb.Model;
+import gnu.trove.list.array.TIntArrayList;
+import iitb.CRF.DataSequence;
+import iitb.CRF.SegmentCRF;
+import iitb.CRF.SegmentDataSequence;
+
+import java.io.Serializable;
 
 interface EdgeIterator {
     void start();

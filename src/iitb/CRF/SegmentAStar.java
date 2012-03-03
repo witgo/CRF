@@ -1,12 +1,15 @@
 /** SegmentAStar.java
  * 
  * @author imran
+ * @since 1.2
  * @version 1.3
  */
 package iitb.CRF;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntHashSet;
+import gnu.trove.list.array.TIntArrayList;
+import iitb.AStar.AStarSearch;
+import iitb.AStar.BoundUpdate;
+import iitb.AStar.State;
 import iitb.CRF.SegmentViterbi.LabelConstraints;
 import iitb.CRF.SparseViterbi.Iter;
 import iitb.Utils.OptimizedSparseDoubleMatrix1D;
@@ -14,15 +17,11 @@ import iitb.Utils.OptimizedSparseDoubleMatrix2D;
 import iitb.Utils.StaticObjectHeap;
 
 import java.util.ArrayList;
+
 import cern.colt.function.IntIntDoubleFunction;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import iitb.AStar.*;
 
-/**
- * @author imran
- *
- */
 public class SegmentAStar extends AStarInference {
     private static final long serialVersionUID = 8124L;
     
@@ -43,15 +42,14 @@ public class SegmentAStar extends AStarInference {
     
     OptimizedSparseMatrixMapper stateGenerator;//not used
     ArrayList<SegmentState> states;
-    TIntHashSet nextLabelsOnPath = null;
+    CloneableIntSet nextLabelsOnPath = null;
     int succEll, succPos;
     Soln lbSoln;
 
     OptimizedSparseDoubleMatrix2D optimizedSparseMi[][];
     StaticHeapOptimizedSparseDoubleMatrix1D staticHeapOptSparseDoubleMatrix1D;
     StaticHeapOptimizedSparseDoubleMatrix2D staticHeapOptSparseDoubleMatrix2D;
-
-    
+ 
     boolean sparseMatrix = false;
     
     double lambda[] = null;        
@@ -177,7 +175,7 @@ public class SegmentAStar extends AStarInference {
     }
 
     private AStarState getStartState(){
-        return new SegmentState(-1, 0, -1, upperBound, 0, null, (labelConstraints != null ? new TIntHashSet() : null));
+        return new SegmentState(-1, 0, -1, upperBound, 0, null, (labelConstraints != null ? new CloneableIntSet() : null));
     }
     
     Soln getViterbiSoln(DataSequence dataSeq, double lambda[], SegmentState curState){
@@ -336,7 +334,7 @@ public class SegmentAStar extends AStarInference {
     class SegmentState extends AStarState implements OptimizedSparseDoubleMatrix1D.ForEachNonZeroReadOnly{
         int id;
         int ell;//pos is used as end of a segment whose "length" "ell"
-        public SegmentState(int pos, int ell, int label, double h, double g, AStarState predecessor, TIntHashSet labelsOnPath) {
+        public SegmentState(int pos, int ell, int label, double h, double g, AStarState predecessor, CloneableIntSet labelsOnPath) {
             super(pos, label, h, g, predecessor, null);
             this.ell = ell;
             id = stateCount++;
@@ -370,7 +368,7 @@ public class SegmentAStar extends AStarInference {
             double succG, succH;
             
             if(labelConstraints != null){
-                nextLabelsOnPath = (TIntHashSet)labelsOnPath.clone();
+                nextLabelsOnPath = (CloneableIntSet) labelsOnPath.clone();
                 if(y != -1 && labelConstraints.conflicting(y))
                     nextLabelsOnPath.add(y);
             }    
@@ -393,7 +391,7 @@ public class SegmentAStar extends AStarInference {
             SegmentState successor;
             double succG, succH;
             if(labelConstraints != null){
-                nextLabelsOnPath = (TIntHashSet)labelsOnPath.clone();
+                nextLabelsOnPath = (CloneableIntSet) labelsOnPath.clone();
                 if(y != -1 && labelConstraints.conflicting(y))
                     nextLabelsOnPath.add(y);
             }

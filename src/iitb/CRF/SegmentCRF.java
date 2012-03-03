@@ -1,19 +1,19 @@
-/*
+/** SegmentCRF.java
  * Created on Nov 21, 2004
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  *
  * This is a version of the CRF model that applies the semi-markov
  * model on data where the candidate segments are provided by the dataset.
  */
 package iitb.CRF;
 
-import gnu.trove.TIntArrayList;
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntFloatHashMap;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TIntFloatHashMap;
 
-/**
- * @author sunita
- *
- */
 public class SegmentCRF extends CRF {
 	protected FeatureGeneratorNested featureGenNested;
 	transient SegmentViterbi segmentViterbi;

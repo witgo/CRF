@@ -1,16 +1,15 @@
 /** SegmentViterbi.java
  * 
  * @author Sunita Sarawagi
+ * @since 1.2
  * @version 1.3
  */
 package iitb.CRF;
 
-import gnu.trove.TIntFloatHashMap;
-import gnu.trove.TIntHashSet;
-import gnu.trove.TIntIterator;
-import gnu.trove.TIntProcedure;
-
-import iitb.CRF.SegmentViterbi.SegmentationImpl.Segment;
+import gnu.trove.iterator.TIntIterator;
+import gnu.trove.map.hash.TIntFloatHashMap;
+import gnu.trove.procedure.TIntProcedure;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.Arrays;
 import java.util.Iterator;

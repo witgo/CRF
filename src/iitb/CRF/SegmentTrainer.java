@@ -1,11 +1,18 @@
+/** SegmentTrainer.java
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ */
 package iitb.CRF;
 
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntDoubleIterator;
+import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.map.hash.TIntDoubleHashMap;
 
-import java.util.*;
+import java.util.Iterator;
 
-import cern.colt.matrix.*;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 /**
  *
