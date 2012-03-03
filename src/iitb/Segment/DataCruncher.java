@@ -462,7 +462,7 @@ public class DataCruncher {
 		return null;
 	}
 	
-    public static void readRaw(Vector data,String file,String delimit,String impDelimit) {
+    public static void readRaw(Vector<String[]> data,String file,String delimit,String impDelimit) {
         try {
             BufferedReader rin=new BufferedReader(new FileReader(file+".raw"));
             String line;
