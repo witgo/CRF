@@ -1,3 +1,9 @@
+/** DataCruncherCreateRawTest.java
+ * 
+ * @author kampe
+ * @since 1.3
+ * @version 1.3
+ */
 package iitb.Segment;
 
 import static org.junit.Assert.assertEquals;
@@ -9,6 +15,10 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+/**
+ * @author kampe
+ *
+ */
 public class DataCruncherCreateRawTest {
 
 	@Test
