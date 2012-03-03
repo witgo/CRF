@@ -1,4 +1,4 @@
-/** LabelMapTest.java
+/** LabelMap.java
  * 
  * @author Sunita Sarawagi
  * @version 1.3
