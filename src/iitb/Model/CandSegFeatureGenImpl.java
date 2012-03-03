@@ -9,10 +9,6 @@ package iitb.Model;
 import iitb.CRF.CandSegDataSequence;
 import iitb.CRF.DataSequence;
 
-/**
- * @author sunita
- *
- */
 public class CandSegFeatureGenImpl extends NestedFeatureGenImpl {
     /**
 	 * 
