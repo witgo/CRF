@@ -1,3 +1,8 @@
+/** LogMessage.java
+ * 
+ * @author Amit Jaiswal
+ * @version 1.3
+ */
 package iitb.Utils;
 import java.util.*;
 import java.io.*;
@@ -19,7 +24,7 @@ public class LogMessage {
 		}	
 	};
 
-	private static Hashtable msgTable = new Hashtable();
+	private static Hashtable<String, Message> msgTable = new Hashtable<String, Message>();
 
 	/**
 	 * @param msg The message to be displayed
