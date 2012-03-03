@@ -24,7 +24,7 @@ public class Segment {
     int nlabels;
 
     String delimit=" \t"; // used to define token boundaries
-    String tagDelimit="|"; // seperator between tokens and tag number
+    String tagDelimit="|"; // separator between tokens and tag number
     String impDelimit=""; // delimiters to be retained for tagging
     String groupDelimit=null;
 
