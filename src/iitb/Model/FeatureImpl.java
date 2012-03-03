@@ -1,16 +1,20 @@
-package iitb.Model;
-import java.io.Serializable;
-
-import javax.net.ssl.HostnameVerifier;
-
-import iitb.CRF.*;
-/**
+/** FeatureImpl.java
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
+package iitb.Model;
+import iitb.CRF.Feature;
+
+import java.io.Serializable;
+
 public class FeatureImpl implements Feature, Serializable {
-    public String type;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1190637987309586544L;
+	public String type;
     public FeatureIdentifier strId = new FeatureIdentifier();
     public int id;
     public int ystart, yend;

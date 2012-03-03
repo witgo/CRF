@@ -1,20 +1,25 @@
-/*
+/** KernelViterbi.java
  * Created on Jun 28, 2008
- * @author sunita
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
  */
 package iitb.KernelCRF;
-
-import java.util.Vector;
-
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
 
 import iitb.CRF.DataSequence;
 import iitb.CRF.Viterbi;
 import iitb.KernelCRF.KernelCRF.SupportVector;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
 
 public class KernelViterbi extends Viterbi {
-    KernelCRF model;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5747241353594394559L;
+	KernelCRF model;
     public KernelViterbi(KernelCRF model, int bs) {
         super(model, bs);
         this.model = model;
