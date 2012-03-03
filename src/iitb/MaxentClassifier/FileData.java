@@ -1,19 +1,22 @@
 /** FileData.java
  * 
+ * Interface for reading and writing fixed column record data.
+ * 
  * @author Sunita Sarawagi
+ * @since 1.0
  * @version 1.3
  */
 package iitb.MaxentClassifier;
-import java.io.*;
-import java.util.*;
-/**
- *
- * @author Sunita Sarawagi
- *
- */ 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
-
-// interface for reading and writing fixed column record data
 public class FileData {
     BufferedReader inpStream;
     DataDesc dataDescriptor;
@@ -39,8 +42,8 @@ public class FileData {
 	}
 	return false;
     }
-    public static Vector read(String fileName, DataDesc dataDesc) throws IOException {
-	Vector allRecords = new Vector();
+    public static Vector<DataRecord> read(String fileName, DataDesc dataDesc) throws IOException {
+	Vector<DataRecord> allRecords = new Vector<DataRecord>();
 	BufferedReader in=new BufferedReader(new FileReader(fileName));
 	DataRecord dataRecord = new DataRecord(dataDesc.numColumns);
 	while (readNext(in,dataDesc,dataRecord)) {
@@ -59,7 +62,7 @@ public class FileData {
 	}
 	out.close();
     }
-    class FileIterator implements Iterator {
+    class FileIterator implements Iterator<DataRecord> {
         DataRecord dataRecord;
         FileIterator() {
             dataRecord = new DataRecord(dataDescriptor.numColumns);
@@ -72,13 +75,13 @@ public class FileData {
             }
             return false;
         }
-        public Object next() {
+        public DataRecord next() {
             return dataRecord;
         }
         public void remove() {
         }
     }
-    public Iterator iterator() {
+    public Iterator<DataRecord> iterator() {
         return new FileIterator();
     }
 };
