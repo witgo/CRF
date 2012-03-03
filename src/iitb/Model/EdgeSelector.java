@@ -1,6 +1,8 @@
-/*
+/**
  * Created on Nov 9, 2008
- * @author sunita
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  * 
  * Feature that can be used to decide if an edge should be added between two words.
  */
@@ -9,7 +11,11 @@ package iitb.Model;
 import iitb.CRF.DataSequence;
 
 public class EdgeSelector extends RegexCountFeatures {
-    int windowSize=0;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3669485110606844964L;
+	int windowSize=0;
     int segLen;
     int histSize;
     int currentHistSize;
