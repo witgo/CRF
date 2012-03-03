@@ -12,7 +12,9 @@ import iitb.CRF.*;
 
 
 class DCTrainRecord implements TrainRecord, Segmentation {
-    int[] ls;
+
+	private static final long serialVersionUID = -3412644222368304767L;
+	int[] ls;
     String[][] _tokens;
 
     int[] labelsPerToken;
@@ -100,9 +102,9 @@ class DCTrainRecord implements TrainRecord, Segmentation {
 };
 
 class DCTrainData implements TrainData {
-    Vector trainRecs;
+    ArrayList<DCTrainRecord> trainRecs;
     int pos;
-    DCTrainData(Vector trs) {
+    DCTrainData(ArrayList<DCTrainRecord> trs) {
         trainRecs = trs;
     }
     public int size() {
@@ -112,7 +114,7 @@ class DCTrainData implements TrainData {
         pos = 0;
     }
     public TrainRecord nextRecord() {
-        return (TrainRecord)trainRecs.elementAt(pos++);
+        return (TrainRecord)trainRecs.get(pos++);
     }
     public boolean hasMoreRecords() {
         return (pos < size());
@@ -406,52 +408,60 @@ public class DataCruncher {
 		return labels;
 	}
 	
-    public static TrainData readTagged(int numLabels,String tfile,String rfile,String delimit,String tagDelimit,String impDelimit, LabelMap labelMap) {
-        try {
-            Vector td = new Vector();
-            BufferedReader tin=new BufferedReader(new FileReader(tfile+".tagged"));
-            BufferedReader rin=new BufferedReader(new FileReader(rfile+".raw"));
-            boolean fixedColFormat = false;
-            String rawLine;
-            StringTokenizer rawTok,temp;
-            int t[] = new int[0];
-            String[] zeroString = new String[0];
-            String cArray[][] = new String[0][0];
-            int[] labels = null;
-            // read list of columns in the header of the tag file
-            labels = readHeaderInfo(numLabels,tin,tagDelimit);
-            if (labels != null)
-                fixedColFormat = true;
-            while((rawLine=rin.readLine())!=null) {
-                rawTok=new StringTokenizer(rawLine,delimit,true);
-                int len = rawTok.countTokens();
-                if (len > t.length) {
-                    t=new int[len];
-                    cArray=new String[len][0];
-                }
-                int ptr = 0;
-                if (fixedColFormat) {
-                    ptr = readRowFixedCol(numLabels, tin, tagDelimit, delimit, impDelimit,t,cArray,labels);
-                } else {
-                    ptr = readRowVarCol(numLabels, tin, tagDelimit, delimit,impDelimit,t,cArray);
-                }
-                if (ptr == 0)
-                    break;
-                int at[]=new int[ptr];
-                String[][] c = new String[ptr][0];
-                for(int i=0 ; i<ptr ; i++) {
-                    at[i]=labelMap.map(t[i]);
-                    c[i] = cArray[i];
-                }
-                td.add(new DCTrainRecord(at,c));
-            }
-            return new DCTrainData(td);
-        } catch(IOException e) {
-            System.err.println("I/O Error"+e);
-            System.exit(-1);
-        }
-        return null;
-    }
+	public static TrainData readTagged(int numLabels, String tfile,
+			String rfile, String delimit, String tagDelimit, String impDelimit,
+			LabelMap labelMap) {
+		try {
+			ArrayList<DCTrainRecord> td = new ArrayList<DCTrainRecord>();
+			BufferedReader tin = new BufferedReader(new FileReader(tfile
+					+ ".tagged"));
+			BufferedReader rin = new BufferedReader(new FileReader(rfile
+					+ ".raw"));
+			boolean fixedColFormat = false;
+			String rawLine;
+			StringTokenizer rawTok;
+			int t[] = new int[0];
+			String cArray[][] = new String[0][0];
+			int[] labels = null;
+			// read list of columns in the header of the tag file
+			labels = readHeaderInfo(numLabels, tin, tagDelimit);
+			if (labels != null) {
+				fixedColFormat = true;
+			}
+			while ((rawLine = rin.readLine()) != null) {
+				rawTok = new StringTokenizer(rawLine, delimit, true);
+				int len = rawTok.countTokens();
+				if (len > t.length) {
+					t = new int[len];
+					cArray = new String[len][0];
+				}
+				int ptr = 0;
+				if (fixedColFormat) {
+					ptr = readRowFixedCol(numLabels, tin, tagDelimit, delimit,
+							impDelimit, t, cArray, labels);
+				} else {
+					ptr = readRowVarCol(numLabels, tin, tagDelimit, delimit,
+							impDelimit, t, cArray);
+				}
+				if (ptr == 0) {
+					break;
+				}
+				int at[] = new int[ptr];
+				String[][] c = new String[ptr][0];
+				for (int i = 0; i < ptr; i++) {
+					at[i] = labelMap.map(t[i]);
+					c[i] = cArray[i];
+				}
+				td.add(new DCTrainRecord(at, c));
+			}
+			return new DCTrainData(td);
+		} catch (IOException e) {
+			System.err.println("I/O Error" + e);
+			System.exit(-1);
+		}
+		return null;
+	}
+	
     public static void readRaw(Vector data,String file,String delimit,String impDelimit) {
         try {
             BufferedReader rin=new BufferedReader(new FileReader(file+".raw"));
@@ -482,7 +492,7 @@ public class DataCruncher {
     /**
      * 
      * @param file
-     * @param tagDelimit
+     * @param tagDelimit A character as String that acts as a delimiter between tokens and label.
      */
 	public static void createRaw(String file, String tagDelimit) {
 		Pattern delimitPattern = Pattern.compile(tagDelimit, Pattern.LITERAL);
