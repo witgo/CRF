@@ -1,18 +1,21 @@
-/*
+/** BFeatureImpl.java
  * Created on Apr 12, 2005
  *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 package iitb.BSegment;
 
 import iitb.BSegmentCRF.BFeature;
 import iitb.Model.FeatureImpl;
 
-/**
- * @author sunita
- *
- */
 public class BFeatureImpl extends FeatureImpl implements BFeature {
-    int _startB;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -818475084232481221L;
+	int _startB;
     int _endB;
     boolean _startOpen;
     boolean _endOpen;
