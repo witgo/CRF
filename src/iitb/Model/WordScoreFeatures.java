@@ -1,7 +1,5 @@
 package iitb.Model;
-import iitb.CRF.*;
-import java.util.*;
-import java.io.*;
+import iitb.CRF.DataSequence;
 
 /**
  * These return one feature per state.  The value of the feature is the
@@ -9,9 +7,15 @@ import java.io.*;
  * the word
  *
  * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */ 
 public class WordScoreFeatures extends FeatureTypes {
-    int stateId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5855042861074710317L;
+	int stateId;
     int wordPos;
     int wordCnt;
     int scoreType;
