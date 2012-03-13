@@ -13,7 +13,11 @@ import java.io.Serializable;
 import java.util.StringTokenizer;
 
 public class NestedModel extends Model {
-    int _numStates;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1954054779451180599L;
+	int _numStates;
     int _numEdges;
     int nodeOffsets[]; // the number of states in the labels before this.
     Model inner[];
@@ -170,7 +174,11 @@ public class NestedModel extends Model {
         }
     }
     public class NestedEdgeIterator implements EdgeIterator, Serializable {
-        NestedModel model;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 7023718575291288030L;
+		NestedModel model;
         int label;
         Edge edge;
         EdgeIterator edgeIter[], outerEdgeIter;
