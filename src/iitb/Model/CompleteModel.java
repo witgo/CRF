@@ -1,14 +1,19 @@
 package iitb.Model;
-import iitb.CRF.*;
+import iitb.CRF.DataSequence;
 /**
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
 
 
 public class CompleteModel extends Model {
-    public CompleteModel(int nlabels) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9000160197804401741L;
+	public CompleteModel(int nlabels) {
         super(nlabels);
         name = "Complete";
     }
