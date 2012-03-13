@@ -4,18 +4,23 @@
  */
 package iitb.BSegment;
 
-import java.io.Serializable;
-
-import iitb.BSegmentCRF.BFeature;
 import iitb.CRF.DataSequence;
-import iitb.Model.*;
+import iitb.Model.FeatureImpl;
+import iitb.Model.FeatureTypes;
+
+import java.io.Serializable;
 
 /**
  * @author sunita
- *
+ * @since 1.2
+ * @version 1.3
  */
 public class BFeatureEachPosition extends BFeatureTypes {
-    int pos;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5443203053730870354L;
+	int pos;
     FeatureTypes single;
     transient DataSequence data;
     static class TypePos implements BoundaryFeatureFunctions, Serializable {
@@ -45,6 +50,11 @@ public class BFeatureEachPosition extends BFeatureTypes {
     };
     public static class TypePosEndOpen extends TypePos {
         /**
+		 * 
+		 */
+		private static final long serialVersionUID = 7566849608695659821L;
+
+		/**
          * @param ftype
          */
         public TypePosEndOpen(FeatureTypes ftype) {
@@ -59,6 +69,11 @@ public class BFeatureEachPosition extends BFeatureTypes {
     };
     public static class TypePosStartOpen extends TypePos {
         /**
+		 * 
+		 */
+		private static final long serialVersionUID = -3328637175240373276L;
+
+		/**
          * @param ftype
          */
         public TypePosStartOpen(FeatureTypes ftype) {
