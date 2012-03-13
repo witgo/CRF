@@ -10,9 +10,11 @@ import iitb.CRF.DataSequence;
 import iitb.CRF.SegmentDataSequence;
 
 /**
- * @author Administrator
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  *
- * Define features for windows of ranges
+ * Define features for windows of ranges.
  */
 
 public class WindowFeatures extends FeatureTypes  {
@@ -24,7 +26,11 @@ public class WindowFeatures extends FeatureTypes  {
 	protected transient DataSequence dataSeq;
 	
 	public static class Window implements Serializable {
-	    public int start;
+	    /**
+		 * 
+		 */
+		private static final long serialVersionUID = -3237732969557838010L;
+		public int start;
 	    public boolean startRelativeToLeft;
 	    public int end;
 	    public boolean endRelativeToLeft;
@@ -64,9 +70,11 @@ public class WindowFeatures extends FeatureTypes  {
                 return boundary(segStart,end);
              return boundary(segEnd,end);
         }
+
         /**
-         * @param segStart
-         * @param start2
+         * 
+         * @param boundary
+         * @param offset
          * @return
          */
         private int boundary(int boundary, int offset) {
