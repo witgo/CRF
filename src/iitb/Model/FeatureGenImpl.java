@@ -51,7 +51,11 @@ import java.util.Vector;
  * */
 
 public class FeatureGenImpl implements FeatureGeneratorNested {
-    ArrayList<FeatureTypes> features;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7651911985442866611L;
+	ArrayList<FeatureTypes> features;
     transient Iterator<FeatureTypes> featureIter;
     protected FeatureTypes currentFeatureType;
     protected FeatureImpl featureToReturn, feature;
@@ -112,7 +116,11 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
     }
     protected boolean featureCollectMode = false;
     class FeatureMap implements Serializable {
-        Hashtable<FeatureIdentifier, FeatureImpl> strToInt = new Hashtable<FeatureIdentifier, FeatureImpl>();
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -2268366275560581428L;
+		Hashtable<FeatureIdentifier, FeatureImpl> strToInt = new Hashtable<FeatureIdentifier, FeatureImpl>();
         FeatureIdentifier idToName[];
         FeatureMap(){
             featureCollectMode = true;
@@ -286,7 +294,7 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
      */
     protected void trainFeatureType(FeatureTypes featureType, DataSequence seq) {
         for (int l = 0; l < seq.length(); l++) {
-            // train each featuretype.
+            // train each feature type.
             featureType.train(seq,l);
         }
     }
