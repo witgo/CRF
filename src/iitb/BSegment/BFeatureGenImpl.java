@@ -16,17 +16,16 @@ import iitb.Model.EndFeatures;
 import iitb.Model.FeatureGenImpl;
 import iitb.Model.FeatureImpl;
 import iitb.Model.FeatureTypes;
-import iitb.Model.FeatureTypesEachLabel;
 import iitb.Model.Model;
 import iitb.Model.StartFeatures;
-import iitb.Model.UnknownFeature;
 import iitb.Model.WindowFeatures;
 import iitb.Model.WordFeatures;
 import iitb.Model.WordsInTrain;
 
 /**
  * @author sunita
- *
+ * @since 1.2
+ * @version 1.3
  */
 public class BFeatureGenImpl extends FeatureGenImpl implements
         BFeatureGenerator {
