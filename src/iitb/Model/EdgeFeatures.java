@@ -1,12 +1,17 @@
 package iitb.Model;
-import iitb.CRF.*;
+import iitb.CRF.DataSequence;
 /**
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
 
 public class EdgeFeatures extends FeatureTypes {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6098103393225258231L;
 	transient protected EdgeIterator edgeIter = null;
 	protected int edgeNum;
 	transient boolean edgeIsOuter;
