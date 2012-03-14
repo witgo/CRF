@@ -1,18 +1,24 @@
 package iitb.CRF;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * This class holds all parameters to control various aspects of the CRF model
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
 
 
 public class CrfParams extends Properties implements Serializable {
-    /** initial value for all the lambda arrays */
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3665606543541128102L;
+	/** initial value for all the lambda arrays */
     public double initValue = 0;
     /** penalty term for likelihood function is ||lambda||^2*invSigmaSquare/2
 	set this to zero, if no penalty needed
