@@ -1,11 +1,20 @@
+/** HistoryManager.java
+ * @author Sunita Sarawagi
+ * @since 1.1
+ * @version 1.3
+ */
 package iitb.CRF;
+
+import iitb.Utils.Counters;
 
 import java.io.Serializable;
 
-import iitb.Utils.*;
-
 class EdgeGenerator implements Serializable {
-    int offset;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4872905008657745029L;
+	int offset;
     int numOrigY;
     int histsize;
     EdgeGenerator(int histsize, int numOrigY) {
@@ -34,7 +43,11 @@ class EdgeGenerator implements Serializable {
 };
 
 class HistoryManager implements Serializable {
-    int histsize;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2916617303265831850L;
+	int histsize;
     int numOrigY;
     int numY;
     HistoryManager(int histsize, int num) {
@@ -106,6 +119,10 @@ class HistoryManager implements Serializable {
 	void print() {System.out.println(type() + index() + " " + y() + " " + yprev() + " " + value());}
     };
     class FeatureGeneratorWithHistory implements FeatureGenerator {
+	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8104535757570574219L;
 	FeatureGenerator fgen;
 	FeatureHist currentFeature, histFeature;
 	boolean allDone;
@@ -148,6 +165,10 @@ class HistoryManager implements Serializable {
     }
     };
     class DataSequenceHist implements DataSequence {
+	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1280727093574327309L;
 	Counters cntr;
 	transient DataSequence orig;
 	DataSequenceHist() {cntr = new Counters(histsize,numOrigY);}
