@@ -1,14 +1,27 @@
+/**
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ */
 package iitb.CRF;
 
-import java.util.*;
-import cern.colt.function.*;
-import cern.colt.matrix.*;
-import cern.colt.matrix.impl.*;
+import java.util.TreeSet;
+
+import cern.colt.function.DoubleDoubleFunction;
+import cern.colt.function.IntDoubleFunction;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 //this needs to be done to support an efficient sparse implementation
 //of matrices in the log-space
 
 public class LogDenseDoubleMatrix1D extends DenseDoubleMatrix1D {
-    static double map(double val) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5041548544154364582L;
+	static double map(double val) {
         if (val == RobustMath.LOG0)
             return 0;
         if (val == 0) 
@@ -34,7 +47,7 @@ public class LogDenseDoubleMatrix1D extends DenseDoubleMatrix1D {
         return reverseMap(super.get(row));
     }
     public double zSum() {
-        TreeSet logProbVector = new TreeSet();
+        TreeSet<Double> logProbVector = new TreeSet<Double>();
         // TODO
         for (int row = 0; row < size(); row++) {
             if (getQuick(row) != 0)
@@ -70,7 +83,12 @@ public class LogDenseDoubleMatrix1D extends DenseDoubleMatrix1D {
 };
 
 class LogDenseDoubleMatrix2D extends DenseDoubleMatrix2D {
-    static double map(double val) { return LogSparseDoubleMatrix1D.map(val);}
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7238191232756809992L;
+
+	static double map(double val) { return LogSparseDoubleMatrix1D.map(val);}
     static double reverseMap(double val) { return LogSparseDoubleMatrix1D.reverseMap(val);}
     LogDenseDoubleMatrix2D(int numR, int numC) {super(numR,numC);
     }
