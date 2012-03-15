@@ -11,12 +11,17 @@ import iitb.Model.FeatureImpl;
 import iitb.Model.FeatureTypes;
 
 /**
- * @author sunita
- *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 public class BSegmentFeatureType extends BFeatureTypes {
    
-    FeatureTypes single;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3343700357935882340L;
+	FeatureTypes single;
     transient CandSegDataSequence candSegs;
     int maxMemory;
     int segEnd;
