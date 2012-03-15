@@ -2,8 +2,18 @@ package iitb.Model;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.1
+ * @version 1.3
+ */
 public class FeatureIdentifier implements Cloneable, Serializable {
-    public int id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4942036159933407311L;
+	public int id;
     public Object name;
     public int stateId;
     public FeatureIdentifier() {

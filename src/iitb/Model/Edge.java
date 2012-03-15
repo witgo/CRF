@@ -3,7 +3,11 @@ package iitb.Model;
 import java.io.Serializable;
 
 public class Edge implements Comparable, Serializable {
-    public int start;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7286805255245543629L;
+	public int start;
     public int end;
     Edge() {;}
     public Edge(int s, int e) {
