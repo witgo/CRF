@@ -1,11 +1,12 @@
 package iitb.CRF;
 
-import java.util.*;
+import java.util.Vector;
 /**
  * Implements the CollinsVotedPerceptron training algorithm
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.1
+ * @version 1.3
  */ 
 
 class CollinsTrainer extends Trainer {
@@ -31,7 +32,7 @@ class CollinsTrainer extends Trainer {
         Viterbi viterbiSearcher = model.getViterbi(beamsize); 
         for (int i = 0; i < lambda.length; i++)
             lambda[i] = grad[i] = 0;
-        Vector viterbiS = new Vector();
+        Vector<Soln> viterbiS = new Vector<Soln>();
         
         for (int t = 0; t < params.maxIters; t++) {
             int numErrs = 0;
