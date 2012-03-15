@@ -19,7 +19,11 @@ import iitb.CRF.Viterbi;
 import java.util.Properties;
 
 public class BSegmentCRF extends SegmentCRF {
-    BFeatureGenerator bfgen;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 655531342585250258L;
+	BFeatureGenerator bfgen;
     /**
      * @param numLabels
      * @param fgen

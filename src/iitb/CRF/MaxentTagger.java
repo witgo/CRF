@@ -13,10 +13,15 @@ import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 /**
  * This one implements the classical Maximum entropy tagger (as in Ratnaparkhi's thesis)
  * @author sunita
- *
+ * @since 1.2
+ * @version 1.3
  */
 public class MaxentTagger extends CRF {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5822082582489471322L;
+	/**
      * @param numLabels
      * @param fgen
      * @param arg

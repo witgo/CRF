@@ -10,11 +10,16 @@ import iitb.Model.FeatureImpl;
 import iitb.Model.FeatureTypes;
 
 /**
- * @author sunita
- *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 public abstract class BFeatureTypes extends FeatureTypes implements BoundaryFeatureFunctions {
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7882587085868697212L;
+	/**
      * @param fgen
      */
     public BFeatureTypes(FeatureGenImpl fgen) {
