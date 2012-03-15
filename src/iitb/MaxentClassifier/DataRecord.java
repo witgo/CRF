@@ -1,15 +1,20 @@
 package iitb.MaxentClassifier;
-import java.io.Serializable;
+import iitb.CRF.DataSequence;
 
-import iitb.CRF.*;
+import java.io.Serializable;
 /**
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
 
 public class DataRecord implements DataSequence, Serializable {
-    int label;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4853002531871806868L;
+	int label;
     float vals[];
     public DataRecord (int ncols) {
 	vals = new float[ncols];

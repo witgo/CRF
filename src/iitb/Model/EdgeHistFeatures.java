@@ -1,16 +1,22 @@
 package iitb.Model;
-import iitb.CRF.*;
-import iitb.Utils.*;
+import iitb.CRF.DataSequence;
+import iitb.Utils.Counters;
 /**
  *
  * @author Sunita Sarawagi
+ * @since 1.1
+ * @version 1.3
  *
  * Suppose if history size is H and number of labels in the model
  * graph is m, this will generate m^(H+1) features 
  */ 
 
 public class EdgeHistFeatures extends FeatureTypes {
-    String fname;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 9015553082100153318L;
+	String fname;
     String labelNames[];
     int histsize;
     Counters ctr;

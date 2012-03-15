@@ -1,8 +1,11 @@
 package iitb.Model;
-import iitb.CRF.*;
-import java.util.regex.*;
-import java.util.*;
-import java.io.*;
+import iitb.CRF.DataSequence;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * ConcatRegexFeatures generates features by matching the token with the character patterns.
@@ -47,9 +50,16 @@ import java.io.*;
  * </pre>
  * 
  * @author 	Imran Mansuri
+ * @since 1.2
+ * @version 1.3
  */
  
 public class ConcatRegexFeatures extends FeatureTypes {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4246100603296345601L;
 
 	/**
 	 *      Various patterns are defined here.
