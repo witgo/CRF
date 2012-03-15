@@ -19,7 +19,11 @@ import cern.colt.matrix.impl.SparseDoubleMatrix1D;
 
 public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
     
-    static double map(double val) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3121976644211168250L;
+	static double map(double val) {
         if (val == RobustMath.LOG0)
             return 0;
         if (val == 0) 
@@ -52,7 +56,7 @@ public class LogSparseDoubleMatrix1D extends SparseDoubleMatrix1D {
         return reverseMap(super.get(row));
     }
     public double zSum() {
-        TreeSet logProbVector = new TreeSet();
+        TreeSet<Double> logProbVector = new TreeSet<Double>();
         // TODO
         for (int row = 0; row < size(); row++) {
             if (getQuick(row) != 0)
@@ -127,7 +131,7 @@ class LogSparseDoubleMatrix1DOld extends SparseDoubleMatrix1D {
         return reverseMap(getQuick(row));
     }
     public double zSum() {
-        TreeSet logProbVector = new TreeSet();
+        TreeSet<Double> logProbVector = new TreeSet<Double>();
         // TODO
         for (int row = 0; row < size(); row++) {
             if (getQuick(row) != 0)
