@@ -10,10 +10,10 @@ package iitb.Utils;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 public class OptimizedSparseDoubleMatrix2D {
-    TIntObjectHashMap rows; //row-index --> row (OptimizedSparseDoubleMatrix1D
+    TIntObjectHashMap<OptimizedSparseDoubleMatrix1D> rows; //row-index --> row (OptimizedSparseDoubleMatrix1D
 
     public OptimizedSparseDoubleMatrix2D(int capacity) {
-        rows = new TIntObjectHashMap(capacity);
+        rows = new TIntObjectHashMap<OptimizedSparseDoubleMatrix1D>(capacity);
     }
     
     public OptimizedSparseDoubleMatrix2D() {

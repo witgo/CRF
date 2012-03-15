@@ -435,7 +435,7 @@ public class FeatureGenCache implements FeatureGeneratorNested {
         int maxSegSize;
         int pos, prevPos;
         int thisSegmentOffsets[];
-        TIntObjectHashMap segmentFeatureOffsets;
+        TIntObjectHashMap<int[]> segmentFeatureOffsets;
         BitSet seenSegments = new BitSet();
         boolean cacheThis;
         boolean cacheEdgeFeatures = false;
