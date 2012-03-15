@@ -8,16 +8,17 @@ import java.util.ArrayList;
 
 /**
  * @author imran
- *
+ * @since 1.2
+ * @version 1.3
  */
 public abstract class StaticObjectHeap extends ObjectHeap {
 
-    protected ArrayList objects;
+    protected ArrayList<Object> objects;
     protected int curIndex = 0;
     
     public StaticObjectHeap(int initCapacity) {
         super(initCapacity);
-        objects = new ArrayList();
+        objects = new ArrayList<Object>();
         reset();
         for(int i = 0; i < initCapacity; i++)
             addObject();
