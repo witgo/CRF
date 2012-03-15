@@ -1,8 +1,20 @@
 package iitb.Model;
-import iitb.CRF.*;
+import iitb.CRF.DataSequence;
+import iitb.CRF.FeatureGeneratorNested;
+import iitb.CRF.SegmentDataSequence;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ */
 public class NestedFeatureGenImpl extends FeatureGenImpl implements FeatureGeneratorNested {
-    /* protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6957722060399675011L;
+	/* protected boolean holdsInData(DataSequence seq, FeatureImpl f) {
      return (cposEnd == ((SegmentDataSequence)seq).getSegmentEnd(cposStart)) 
      && ((cposStart == 0) || (cposStart-1 == ((SegmentDataSequence)seq).getSegmentEnd(cposStart-1)))
      &&    super.holdsInData(seq, f);

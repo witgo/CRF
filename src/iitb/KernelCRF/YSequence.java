@@ -9,8 +9,18 @@ import iitb.CRF.Soln;
 import java.io.Serializable;
 import java.util.BitSet;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
+ */
 public class YSequence implements Serializable {
-    int numBits;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -108787926046669135L;
+	int numBits;
     BitSet yseq = new BitSet();
     public YSequence(int labeling[], int numLabels) {
         numBits = iitb.Utils.Utils.log2Ceil(2*numLabels);//1 bit for segment marker.

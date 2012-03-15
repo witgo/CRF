@@ -6,11 +6,16 @@ package iitb.CRF;
  * NestedViterbi search
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.1
+ * @version 1.3
  */ 
 
 public class NestedViterbi extends Viterbi {
-    NestedCRF nestedModel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1556279124003455655L;
+	NestedCRF nestedModel;
     
     NestedViterbi(NestedCRF nestedModel, int bs) {
         super(nestedModel, bs);

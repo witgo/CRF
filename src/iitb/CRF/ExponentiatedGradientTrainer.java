@@ -16,6 +16,12 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
+ */
 public class ExponentiatedGradientTrainer extends Trainer {
     double C = 1000;
     double eta = 1/C; // the learning rate.
@@ -98,7 +104,11 @@ public class ExponentiatedGradientTrainer extends Trainer {
         return retVal;
     }
     class LossAugmentedViterbi extends Viterbi {
-        LossAugmentedViterbi(CRF model, int bs) {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 3806943864517186914L;
+		LossAugmentedViterbi(CRF model, int bs) {
             super(model, bs);
         }
         protected void computeLogMi(DataSequence dataSeq, int i, int ell, double lambda[]) {

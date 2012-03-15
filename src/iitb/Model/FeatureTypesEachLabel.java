@@ -4,11 +4,20 @@ import iitb.CRF.DataSequence;
 import iitb.CRF.SegmentDataSequence;
 
 /**
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ * 
  * This can be used as a wrapper around a FeatureTypes class that wants to
  * generate a feature for each label. 
  */
 public class FeatureTypesEachLabel extends FeatureTypes {
-    protected FeatureTypes single;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6540153966191141827L;
+
+	protected FeatureTypes single;
     
     int numStates;
     

@@ -24,7 +24,11 @@ interface EdgeIterator {
 };
 
 public abstract class Model implements Serializable, SegmentCRF.ModelGraph {
-    int numLabels;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1046518374934480548L;
+	int numLabels;
     public String name;
     Model(int nlabels) {
 	numLabels = nlabels;

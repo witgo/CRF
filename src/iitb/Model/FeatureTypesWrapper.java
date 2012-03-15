@@ -9,10 +9,15 @@ import iitb.CRF.SegmentDataSequence;
 import iitb.Model.FeatureGenImpl.FeatureMap;
 
 /**
- * @author Sunita
- *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 public class FeatureTypesWrapper extends FeatureTypes {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8994427102150729372L;
 	protected FeatureTypes single;
 	/**
 	 * @param m

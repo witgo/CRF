@@ -7,11 +7,16 @@ package iitb.Model;
 import iitb.CRF.DataSequence;
 
 /**
- * @author sunita
- *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 public class FeatureTypesPosition extends FeatureTypes {
-    static byte maxParams=3;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -9069993803665666842L;
+	static byte maxParams=3;
     FeatureTypes ftype;
     byte currentParamId; // send three terms per feature: constant, linear, square.
     int segStart;

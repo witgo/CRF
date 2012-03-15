@@ -1,10 +1,18 @@
 package iitb.Model;
 /**
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
+ * 
  * This can be used as a wrapper around a FeatureTypes class that wants to
  * generate a feature for each label. 
  */
 public class  FeatureTypesSegmentLength extends FeatureTypes {
-    protected int segLen;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4576759857994418037L;
+	protected int segLen;
     protected int maxLen = Integer.MAX_VALUE;
     public FeatureTypesSegmentLength(FeatureGenImpl m) {
         super(m);

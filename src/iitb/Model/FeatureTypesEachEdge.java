@@ -7,8 +7,18 @@ package iitb.Model;
 import iitb.CRF.DataSequence;
 import iitb.CRF.SegmentDataSequence;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
+ */
 public class FeatureTypesEachEdge extends EdgeFeatures {
-    FeatureTypes single;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6906050783826384279L;
+	FeatureTypes single;
     FeatureImpl featureImpl,edgeFeature;
     DataSequence data;
     int pos, prevPos;

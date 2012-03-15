@@ -1,12 +1,19 @@
 package iitb.MaxentClassifier;
-import iitb.CRF.*;
+import iitb.CRF.DataSequence;
+import iitb.CRF.Feature;
+import iitb.CRF.FeatureGenerator;
 /**
  *
  * @author Sunita Sarawagi
- *
+ * @since 1.0
+ * @version 1.3
  */ 
 
 public class FeatureGenRecord implements FeatureGenerator {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8292490593455124019L;
 	protected int numCols;
 	protected int numLabels;
 	DataRecord dataRecord;

@@ -6,8 +6,18 @@ package iitb.Model;
 
 import iitb.CRF.DataSequence;
 
+/**
+ * 
+ * @author Sunita Sarawagi
+ * @since 1.3
+ * @version 1.3
+ */
 public class TokenShapeFeatures extends FeatureTypes {
-    char pattern[][] = {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7648807821467697829L;
+	char pattern[][] = {
             {'a','z','x'},
             {'A','Z','X'},
             {'0','9','d'},

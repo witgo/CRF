@@ -15,6 +15,10 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntFloatHashMap;
 
 public class SegmentCRF extends CRF {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4846441387460151325L;
 	protected FeatureGeneratorNested featureGenNested;
 	transient SegmentViterbi segmentViterbi;
 	transient SegmentAStar segmentAStar;

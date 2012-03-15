@@ -12,8 +12,9 @@ import iitb.CRF.*;
 import iitb.CRF.SegmentViterbi.SegmentationImpl;
 
 /**
- * @author Sunita
- *
+ * @author Sunita Sarawagi
+ * @since 1.2
+ * @version 1.3
  */
 public class BSegmentViterbi extends SparseViterbi {
     protected double getCorrectScore(DataSequence dataSeq, int i, int ell, double[] lambda) {
@@ -177,7 +178,11 @@ public class BSegmentViterbi extends SparseViterbi {
         m = bmodel.bfgen.maxBoundaryGap();
     }
     class OpenSoln extends Soln {
-        /*
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 6332992368741370660L;
+		/*
         protected void setPrevSoln(Soln prevSoln, float score) {
             if (prevSoln instanceof OpenSoln) {
                 prevSoln = prevSoln.prevSoln;
