@@ -513,7 +513,7 @@ public class SegmentViterbi extends SparseViterbi {
          */
         public void setSegment(int segmentStart, int segmentEnd, int label) {
             Segment segment = new Segment(segmentStart, segmentEnd, label);
-            boolean b = segments.add(segment);
+            segments.add(segment);
         }
         public void doneAdd() {
             segmentArr = new Segment[segments.size()];
