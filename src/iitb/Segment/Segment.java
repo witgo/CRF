@@ -51,7 +51,7 @@ public class Segment {
 
     public static void main(String argv[]) throws Exception {
         if (argv.length < 3) {
-            System.out.println("Usage: java Tagger train|test|calc -f <conf-file>");
+            System.out.println("Usage: java iitb.Segment.Segment <train|test|calc|all> -f <conf-file>");
             return;
         }
         Segment segment = new Segment();
