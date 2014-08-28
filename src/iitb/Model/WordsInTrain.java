@@ -19,10 +19,7 @@ import iitb.CRF.*;
 
 
 public class WordsInTrain implements Serializable {
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 4743850971317817295L;
+  private static final long serialVersionUID = 4743850971317817295L;
 	class HEntry implements Serializable {
 		/**
 		 * 
@@ -173,13 +170,14 @@ public class WordsInTrain implements Serializable {
         cntsArray = new int[dictLen][numStates];
         String line;
         for(int l = 0; (l < dictLen) && ((line=in.readLine())!=null); l++) {
-            StringTokenizer entry = new StringTokenizer(line," ");
+            StringTokenizer entry = new StringTokenizer(line, FileFormat.WORD_ELEMENT_SEPARATOR);
             String key = entry.nextToken();
             int pos = Integer.parseInt(entry.nextToken());
             HEntry hEntry = new HEntry(pos);
             dictionary.put(key,hEntry);
             while (entry.hasMoreTokens()) {
-                StringTokenizer scp = new StringTokenizer(entry.nextToken(),":");
+                StringTokenizer scp = new StringTokenizer(entry.nextToken(),
+                    FileFormat.WORD_STATE_SEPARATOR);
                 int state = Integer.parseInt(scp.nextToken());
                 int cnt = Integer.parseInt(scp.nextToken());
                 getStateArray(pos)[state] = cnt;
@@ -193,10 +191,10 @@ public class WordsInTrain implements Serializable {
         for (Enumeration e = dictionary.keys() ; e.hasMoreElements() ;) {
             Object key = e.nextElement();
             int pos = getIndex(key);
-            out.print(key + " " + pos);
+            out.print(key + FileFormat.WORD_ELEMENT_SEPARATOR + pos);
             for (int s = nextStateWithWord(pos,-1); s != -1; 
             s = nextStateWithWord(pos,s)) {
-                out.print(" " + s + ":" + getStateArray(pos)[s]);
+                out.print(FileFormat.WORD_ELEMENT_SEPARATOR + s + FileFormat.WORD_STATE_SEPARATOR + getStateArray(pos)[s]);
             }
             out.println("");
         }	

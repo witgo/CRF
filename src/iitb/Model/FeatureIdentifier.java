@@ -22,7 +22,7 @@ public class FeatureIdentifier implements Cloneable, Serializable {
 	init(fid,s,n);
     }
     public FeatureIdentifier(String strRep) {
-	StringTokenizer strTok = new StringTokenizer(strRep, ":");
+	StringTokenizer strTok = new StringTokenizer(strRep, FileFormat.FEATURE_IDENTIFIER_SEPARATOR);
 	name = strTok.nextToken();
 	id = Integer.parseInt(strTok.nextToken());
 	stateId = Integer.parseInt(strTok.nextToken());
@@ -48,7 +48,7 @@ public class FeatureIdentifier implements Cloneable, Serializable {
     	return name.toString();
     }
     public String toString() {
-	return name.toString() + ":"  + id+ ":" + stateId;
+	return name.toString() + FileFormat.FEATURE_IDENTIFIER_SEPARATOR  + id+ FileFormat.FEATURE_IDENTIFIER_SEPARATOR + stateId;
     }
     public Object clone() {
 	return new FeatureIdentifier(id,stateId,name);
