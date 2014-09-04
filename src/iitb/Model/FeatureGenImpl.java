@@ -182,15 +182,15 @@ public class FeatureGenImpl implements FeatureGeneratorNested {
             out.println(strToInt.size());
             for (Enumeration<FeatureIdentifier> e = strToInt.keys() ; e.hasMoreElements() ;) {
                 Object key = e.nextElement();
-                out.println(key + " " + getId(key));
+                out.println(key + FileFormat.FEATURE_SEPARATOR + getId(key));
             }
         }
         public int read(BufferedReader in) throws IOException {
-            in.readLine();
+            in.readLine();  //******* Features ************
             int len = Integer.parseInt(in.readLine());
             String line;
             for(int l = 0; (l < len) && ((line=in.readLine())!=null); l++) {
-                StringTokenizer entry = new StringTokenizer(line," ");
+                StringTokenizer entry = new StringTokenizer(line,FileFormat.FEATURE_SEPARATOR);
                 FeatureIdentifier key = new FeatureIdentifier(entry.nextToken());
                 int pos = Integer.parseInt(entry.nextToken());
                 strToInt.put(key,new FeatureImpl(pos,key));
