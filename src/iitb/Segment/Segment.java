@@ -47,6 +47,9 @@ public class Segment {
 
     CRF crfModel;
     FeatureGenImpl featureGen;
+
+    boolean lowerCase = true; //set if tokens are lowercased
+
     public FeatureGenerator featureGenerator() {return featureGen;}
 
     public static void main(String argv[]) throws Exception {
@@ -138,6 +141,9 @@ public class Segment {
         }
         if ((value = options.getProperty("modelGraph")) != null) {
             modelGraphType = value;
+        }
+        if ((value = options.getProperty("lowercase")) != null) {
+              lowerCase = !("false".equals(value.toLowerCase()));
         }
     }
     void  allocModel() throws Exception {
@@ -250,7 +256,7 @@ public class Segment {
         DataCruncher.createRaw(baseDir+"/data/"+inName+"/"+inName+".train",tagDelimit);
         File dir=new File(baseDir+"/learntModels/"+outDir);
         dir.mkdirs();
-        TrainData trainData = DataCruncher.readTagged(nlabels,baseDir+"/data/"+inName+"/"+inName+".train",baseDir+"/data/"+inName+"/"+inName+".train",delimit,tagDelimit,impDelimit,labelMap);
+        TrainData trainData = DataCruncher.readTagged(nlabels,baseDir+"/data/"+inName+"/"+inName+".train",baseDir+"/data/"+inName+"/"+inName+".train",delimit,tagDelimit,impDelimit,labelMap,lowerCase);
         AlphaNumericPreprocessor.preprocess(trainData,nlabels);
 
         allocModel();
@@ -278,7 +284,8 @@ public class Segment {
     public void doTest() throws Exception {
         File dir=new File(baseDir+"/out/"+outDir);
         dir.mkdirs();
-        TestData testData = new TestData(baseDir+"/data/"+inName+"/"+inName+".test",delimit,impDelimit,groupDelimit);
+        TestData testData = new TestData(baseDir+"/data/"+inName+"/"+inName+".test",delimit,impDelimit,groupDelimit,
+            lowerCase);
         TestDataWrite tdw = new TestDataWrite(baseDir+"/out/"+outDir+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap);
 
         String collect[] = new String[nlabels];
@@ -309,9 +316,9 @@ public class Segment {
     }
     public void calc() throws Exception {
         Vector<String[]> s = new Vector<String[]>();
-        TrainData tdMan = DataCruncher.readTagged(nlabels,baseDir+"/data/"+inName+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap);
-        TrainData tdAuto = DataCruncher.readTagged(nlabels,baseDir+"/out/"+outDir+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap);
-        DataCruncher.readRaw(s,baseDir+"/data/"+inName+"/"+inName+".test","","");
+        TrainData tdMan = DataCruncher.readTagged(nlabels,baseDir+"/data/"+inName+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap,lowerCase);
+        TrainData tdAuto = DataCruncher.readTagged(nlabels,baseDir+"/out/"+outDir+"/"+inName+".test",baseDir+"/data/"+inName+"/"+inName+".test",delimit,tagDelimit,impDelimit,labelMap,lowerCase);
+        DataCruncher.readRaw(s,baseDir+"/data/"+inName+"/"+inName+".test","","",lowerCase);
         int len=tdAuto.size();
         int truePos[]=new int[nlabels+1];
         int totalMarkedPos[]=new int[nlabels+1];
