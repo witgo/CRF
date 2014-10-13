@@ -63,7 +63,7 @@ public class DataCruncherReadRowVarColTest {
       assertEquals(ptr, 4);
       assertEquals(t[3], 7);
       assertEquals(cArray[1][1], ",");
-      assertEquals(cArray[0][2], "road");
+      assertEquals(cArray[0][2], "Road");
     } catch (FileNotFoundException e) {
       e.printStackTrace();
     } catch (IOException e) {
