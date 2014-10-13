@@ -140,8 +140,11 @@ class TestData {
     String seq[];
     String fname;
     String delimit, impDelimit;
-    TestData(String file,String delimitP,String impDelimitP, String grpDelimit) {
-        try {
+    final boolean lowerCase;
+    TestData(String file, String delimitP, String impDelimitP, String grpDelimit,
+        final boolean lowerCase) {
+      this.lowerCase = lowerCase;
+      try {
             fname = file;
             rin =new BufferedReader(new FileReader(file+".raw"));
             delimit = delimitP;
@@ -170,7 +173,8 @@ class TestData {
     String[] nextRecord() {
         try {
             if ((line=rin.readLine())!=null) {
-                StringTokenizer tok=new StringTokenizer(line.toLowerCase(),delimit,true);
+              final String correctedLine = lowerCase ? line.toLowerCase() : line;
+              StringTokenizer tok=new StringTokenizer(correctedLine,delimit,true);
                 int len = tok.countTokens();
                 if ((seq == null) || (seq.length < len))
                     seq =new String[len];
@@ -298,16 +302,29 @@ class TestDataWrite {
 
 public class DataCruncher {
 
+  /**
+   * This is the old interface to keep compatibility
+   * @param text
+   * @param delimit A set of delimiters used by the Tokenizer.
+   * @param impDelimit Delimiters to be retained for tagging.
+   * @return an Array of tokens.
+   */
+  protected static String[] getTokenList(String text, String delimit,
+      String impDelimit) {
+    return getTokenList(text,delimit,impDelimit,true);
+  }
+
 	/**
 	 * 
 	 * @param text 
 	 * @param delimit A set of delimiters used by the Tokenizer.
-	 * @param impDelimit Delimiters to be retained for tagging. 
+	 * @param impDelimit Delimiters to be retained for tagging.
+   * @param lowerCase convert tokens to lower case
 	 * @return an Array of tokens.
 	 */
 	protected static String[] getTokenList(String text, String delimit,
-			String impDelimit) {
-		text = text.toLowerCase();
+			String impDelimit,boolean lowerCase) {
+		text = lowerCase ? text.toLowerCase() : text;
 		StringTokenizer textTok = new StringTokenizer(text, delimit, true);
 		//This allocates space for all tokens and delimiters, 
 		//but will make a second pass through the String unnecessary.
@@ -322,7 +339,27 @@ public class DataCruncher {
 		//Finally, the storage is trimmed to the actual size.
 		return tokenList.toArray(new String[tokenList.size()]);
 	}
-    
+
+  /**
+   * Reads a block of text ended by a blank line or the end of the file.
+   * The block contains lines of tokens with a label.
+   *
+   * NOTE: This is the old interface which always lowercases the input
+   * @param numLabels The maximal number of labels expected
+   * @param tin
+   * @param tagDelimit Separator between tokens and tag number
+   * @param delimit Used to define token boundaries
+   * @param impDelimit Delimiters to be retained for tagging
+   * @param t Stores the labels
+   * @param cArray Stores the tokens
+   * @return number of lines read
+   * @throws IOException
+   */
+  public static int readRowVarCol(int numLabels, BufferedReader tin,
+      String tagDelimit, String delimit, String impDelimit, int[] t,
+      String[][] cArray) throws IOException {
+    return readRowVarCol(numLabels,tin,tagDelimit,delimit,impDelimit,t,cArray,true);
+  }
 	/**
 	 * Reads a block of text ended by a blank line or the end of the file.
 	 * The block contains lines of tokens with a label.
@@ -333,19 +370,21 @@ public class DataCruncher {
 	 * @param impDelimit Delimiters to be retained for tagging
 	 * @param t Stores the labels
 	 * @param cArray Stores the tokens
+   * @param lowerCase lowercase tokens before processing
 	 * @return number of lines read
 	 * @throws IOException
 	 */
 	public static int readRowVarCol(int numLabels, BufferedReader tin,
 			String tagDelimit, String delimit, String impDelimit, int[] t,
-			String[][] cArray) throws IOException {
+			String[][] cArray,boolean lowerCase) throws IOException {
 		int ptr = 0;
 		String line;
         while(true) {
             line = tin.readLine();
             StringTokenizer firstSplit=null;
             if (line!=null) {
-                firstSplit=new StringTokenizer(line.toLowerCase(),tagDelimit);
+                final String modifiedLine = lowerCase ? line.toLowerCase() : line;
+                firstSplit=new StringTokenizer(modifiedLine,tagDelimit);
             }
             if ((line==null) || (firstSplit.countTokens()<2)) {
                 // Empty Line
@@ -354,17 +393,23 @@ public class DataCruncher {
             String w = firstSplit.nextToken();
             int label=Integer.parseInt(firstSplit.nextToken()); 
             t[ptr] = label;
-            cArray[ptr++] = getTokenList(w,delimit,impDelimit);
+            cArray[ptr++] = getTokenList(w,delimit,impDelimit,lowerCase);
         }
 	}
 
+    static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit,
+        String delimit, String impDelimit, int[] t, String[][] cArray, int labels[])
+        throws IOException {
+        return readRowFixedCol(numLabels,tin,tagDelimit,delimit,impDelimit,t,cArray,labels,true);
+    }
     static int readRowFixedCol(int numLabels, BufferedReader tin, String tagDelimit, 
-    		String delimit, String impDelimit, int[] t, String[][] cArray, int labels[])
+    		String delimit, String impDelimit, int[] t, String[][] cArray, int labels[],boolean lowerCase)
     		throws IOException {
         String line=tin.readLine();
         if (line == null)
             return 0;
-        StringTokenizer firstSplit=new StringTokenizer(line.toLowerCase(),tagDelimit,true);
+        final String modifiedLine = lowerCase ? line.toLowerCase() : line;
+        StringTokenizer firstSplit=new StringTokenizer(modifiedLine,tagDelimit,true);
         int ptr = 0;
         for (int i = 0; (i < labels.length) && firstSplit.hasMoreTokens(); i++) {
             int label = labels[i];
@@ -378,7 +423,7 @@ public class DataCruncher {
             }
             if ((label > 0) && (label <= numLabels)) {
                 t[ptr] = label;
-                cArray[ptr++] = getTokenList(w,delimit,impDelimit);
+                cArray[ptr++] = getTokenList(w,delimit,impDelimit,lowerCase);
             }
         }
         return ptr;
@@ -416,10 +461,14 @@ public class DataCruncher {
 
 		return labels;
 	}
-	
+  public static TrainData readTagged(int numLabels, String tfile,
+      String rfile, String delimit, String tagDelimit, String impDelimit,
+      LabelMap labelMap) {
+      return readTagged(numLabels,tfile,rfile,delimit,tagDelimit,impDelimit,labelMap,true);
+  }
 	public static TrainData readTagged(int numLabels, String tfile,
 			String rfile, String delimit, String tagDelimit, String impDelimit,
-			LabelMap labelMap) {
+			LabelMap labelMap,boolean lowerCase) {
 		try {
 			ArrayList<DCTrainRecord> td = new ArrayList<DCTrainRecord>();
 			BufferedReader tin = new BufferedReader(new FileReader(tfile
@@ -447,10 +496,10 @@ public class DataCruncher {
 				int ptr = 0;
 				if (fixedColFormat) {
 					ptr = readRowFixedCol(numLabels, tin, tagDelimit, delimit,
-							impDelimit, t, cArray, labels);
+							impDelimit, t, cArray, labels,lowerCase);
 				} else {
 					ptr = readRowVarCol(numLabels, tin, tagDelimit, delimit,
-							impDelimit, t, cArray);
+							impDelimit, t, cArray,lowerCase);
 				}
 				if (ptr == 0) {
 					break;
@@ -471,12 +520,13 @@ public class DataCruncher {
 		return null;
 	}
 	
-    public static void readRaw(Vector<String[]> data,String file,String delimit,String impDelimit) {
+    public static void readRaw(Vector<String[]> data,String file,String delimit,String impDelimit,boolean lowerCase) {
         try {
             BufferedReader rin=new BufferedReader(new FileReader(file+".raw"));
             String line;
             while((line=rin.readLine())!=null) {
-                StringTokenizer tok=new StringTokenizer(line.toLowerCase(),delimit,true);
+                final String modifiedLine = lowerCase ? line.toLowerCase() : line;
+                StringTokenizer tok=new StringTokenizer(line,delimit,true);
                 String seq[]=new String[tok.countTokens()];
                 int count=0;
                 for(int i=0 ; i<seq.length ; i++) {

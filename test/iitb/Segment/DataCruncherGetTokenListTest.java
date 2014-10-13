@@ -39,4 +39,15 @@ public class DataCruncherGetTokenListTest {
 		assertEquals(tokens[1], "goldfield");
 		assertEquals(tokens[4], "|3");
 	}
+  @Test
+  public void testGetTokenListWithoutLowerCasing() {
+    String tokenString = "West Goldfield Avenue, |3";
+    String delimit = ",\t/ -():.;'?#`&\"_";
+    String impDelimit = ",";
+    String[] tokens = DataCruncher.getTokenList(tokenString, delimit, impDelimit,false);
+
+    assertEquals(tokens.length, 5);
+    assertEquals(tokens[1], "Goldfield");
+    assertEquals(tokens[4], "|3");
+  }
 }
